@@ -1,0 +1,19 @@
+# SYP root gitignore
+SYP.Web/.restore-stamp
+SYP.Web/Thumbs.db
+SYP.Web/*.bak
+SYP.Web/*.log
+SYP.Web/*.orig
+SYP.Web/*.pdb
+SYP.Web/*.pubxml
+SYP.Web/*.suo
+SYP.Web/*.user
+SYP.Web/appsettings*.machine.json
+SYP.Web/.vs/
+SYP.Web/App_Data/
+SYP.Web/bin/
+SYP.Web/node_modules/
+SYP.Web/obj/
+SYP.Web/TestResults/
+SYP.Web/wwwroot/esm/
+SYP.Web/wwwroot/npm/

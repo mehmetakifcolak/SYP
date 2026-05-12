@@ -1,0 +1,28 @@
+{
+  "Extends": "defaults@9.0.0",
+  "RootNamespace": "SYP",
+  "FileScopedNamespaces": true,
+  "ServerTypings": {
+    "LocalTexts": true
+  },
+  "UpgradeInfo": {
+    "InitialType": "Community",
+    "InitialVersion": "9.1.1.1"
+  },
+  "CustomTemplates": "Modules\\_Ext\\CodeGeneratorTemplates",
+  "CustomGenerate": {
+    "EditorColumns": "{2}\\Editor\\{0}EditorColumns.cs",
+    "EditorForm": "{2}\\Editor\\{0}EditorForm.cs",
+    "GridEditor": "{2}\\Editor\\{0}GridEditor.ts",
+    "EditorDialog": "{2}\\Editor\\{0}EditorDialog.ts"
+  },
+  "RemoveForeignFields": [
+    "Remarks",
+    "SortOrder",
+    "InsertDate",
+    "InsertUserId",
+    "UpdateDate",
+    "UpdateUserId",
+    "IsActive"
+  ]
+}
