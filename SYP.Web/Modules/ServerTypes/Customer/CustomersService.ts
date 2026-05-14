@@ -1,5 +1,5 @@
-﻿import { SaveRequest, SaveResponse, ServiceOptions, DeleteRequest, DeleteResponse, RetrieveRequest, RetrieveResponse, ListRequest, ListResponse, serviceRequest } from '@serenity-is/corelib';
-import { CustomersRow } from './CustomersRow';
+﻿import { DeleteRequest, DeleteResponse, ListRequest, ListResponse, RetrieveRequest, RetrieveResponse, SaveRequest, SaveResponse, ServiceOptions, serviceRequest } from "@serenity-is/corelib";
+import { CustomersRow } from "./CustomersRow";
 
 export namespace CustomersService {
     export const baseUrl = 'Customer/Customers';
@@ -19,14 +19,14 @@ export namespace CustomersService {
     } as const;
 
     [
-        'Create', 
-        'Update', 
-        'Delete', 
-        'Retrieve', 
+        'Create',
+        'Update',
+        'Delete',
+        'Retrieve',
         'List'
     ].forEach(x => {
-        (<any>CustomersService)[x] = function (r, s, o) { 
-            return serviceRequest(baseUrl + '/' + x, r, s, o); 
+        (<any>CustomersService)[x] = function (r, s, o) {
+            return serviceRequest(baseUrl + '/' + x, r, s, o);
         };
     });
 }

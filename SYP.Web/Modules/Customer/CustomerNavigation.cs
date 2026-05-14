@@ -1,4 +1,5 @@
-﻿using Serenity.Navigation;
+using Serenity.Navigation;
 using MyPages = SYP.Customer.Pages;
 
-[assembly: NavigationLink(int.MaxValue, "Customer/Customers", typeof(MyPages.CustomersPage), icon: null)]
+[assembly: NavigationMenu(2000, "Müşteriler", icon: "fa-users")]
+[assembly: NavigationLink(2100, "Müşteriler/Müşteri Listesi", typeof(MyPages.CustomersPage), icon: "fa-user")]

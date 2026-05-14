@@ -1,0 +1,19 @@
+﻿namespace SYP.Setting.Forms;
+
+[FormScript("Setting.BankAccountInformationsEditor")]
+[BasedOnRow(typeof(BankAccountInformationsRow), CheckNames = true)]
+public class BankAccountInformationsEditorForm
+{
+    public string Firm { get; set; }
+    public string Bank { get; set; }
+    public string Branch { get; set; }
+    public string BranchCode { get; set; }
+    public string AccountNo { get; set; }
+    public string Iban { get; set; }
+    public string Swift { get; set; }
+    public string Currency { get; set; }
+    public string Origin { get; set; }
+    public string Payment { get; set; }
+    public string Shipment { get; set; }
+    public int TenantId { get; set; }
+}

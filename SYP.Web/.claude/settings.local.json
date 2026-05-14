@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run tsbuild:*)"
+      "Bash(npm run tsbuild:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run tailwind:build:*)",
+      "Bash(dotnet build:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

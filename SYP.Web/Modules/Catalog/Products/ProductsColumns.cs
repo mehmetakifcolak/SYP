@@ -1,23 +1,30 @@
+using Serenity.ComponentModel;
+using System.ComponentModel;
+
 namespace SYP.Catalog.Columns;
 
 [ColumnsScript("Catalog.Products")]
 [BasedOnRow(typeof(ProductsRow), CheckNames = true)]
 public class ProductsColumns
 {
-    [EditLink, DisplayName("Db.Shared.RecordId"), AlignRight]
+    [EditLink, DisplayName("Db.Shared.RecordId"), AlignRight, Width(80)]
     public int Id { get; set; }
-    [EditLink]
+
+    [DisplayName("Resim"), Width(70), global::_Ext.InlineImageFormatter(Thumb = true)]
+    public string ProductImage { get; set; }
+
+    [EditLink, Width(120)]
     public string Code { get; set; }
+
+    [Width(200)]
     public string Name { get; set; }
-    public string Name2 { get; set; }
+
+    [Width(150)]
     public string Description { get; set; }
+
+    [Width(120)]
     public string Barcode { get; set; }
-    //public string Unit { get; set; }
-    //public string Currency { get; set; }
-    //public string VatRate { get; set; }
-    public DateTime InsertDate { get; set; }
-    public int InsertUserId { get; set; }
-    public DateTime UpdateDate { get; set; }
-    public int UpdateUserId { get; set; }
+
+    [Width(80)]
     public short IsActive { get; set; }
 }

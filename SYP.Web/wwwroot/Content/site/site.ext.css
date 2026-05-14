@@ -145,14 +145,31 @@ input, textarea {
   width: 100px;
 }
 */
+.inline-actions-column {
+  background-color: #f7f7f7 !important;
+  text-align: center;
+  padding: 2px 4px !important;
+}
+
 .inline-actions {
   opacity: 0.80;
   cursor: pointer;
+  color: #337ab7;
+  font-size: 14px;
 }
 
-  .inline-actions :hover {
+  .inline-actions:hover {
     text-shadow: 0px 0px 1px #111;
     opacity: 1;
+    color: #23527c;
+  }
+
+  .inline-actions.delete-row {
+    color: #d9534f;
+  }
+
+  .inline-actions.delete-row:hover {
+    color: #c9302c;
   }
 
 .slick-row:hover {

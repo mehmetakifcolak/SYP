@@ -98,8 +98,123 @@ namespace texts {
                 export const IsActive: string;
                 export const Name: string;
                 export const Name2: string;
+                export const ProductImage: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
+            }
+        }
+        namespace Customer {
+            export function asKey(): typeof Customer;
+            export function asTry(): typeof Customer;
+            namespace Customers {
+                export function asKey(): typeof Customers;
+                export function asTry(): typeof Customers;
+                export const Address: string;
+                export const Code: string;
+                export const Email: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const Name: string;
+                export const Phone: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+        }
+        namespace Setting {
+            export function asKey(): typeof Setting;
+            export function asTry(): typeof Setting;
+            namespace BankAccountInformations {
+                export function asKey(): typeof BankAccountInformations;
+                export function asTry(): typeof BankAccountInformations;
+                export const AccountNo: string;
+                export const Bank: string;
+                export const Branch: string;
+                export const BranchCode: string;
+                export const Currency: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Firm: string;
+                export const Iban: string;
+                export const Id: string;
+                export const Origin: string;
+                export const Payment: string;
+                export const Shipment: string;
+                export const Swift: string;
+                export const TenantId: string;
+            }
+            namespace CurrencyList {
+                export function asKey(): typeof CurrencyList;
+                export function asTry(): typeof CurrencyList;
+                export const Code: string;
+                export const CodeType: string;
+                export const DefaultExchangeType: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const IsDefaultCurrency: string;
+                export const Name: string;
+                export const Symbol: string;
+                export const TenantId: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+            namespace DailyExchanges {
+                export function asKey(): typeof DailyExchanges;
+                export function asTry(): typeof DailyExchanges;
+                export const BanknoteBuying: string;
+                export const BanknoteSelling: string;
+                export const CurrencyCode: string;
+                export const CurrencyId: string;
+                export const DefaultExchangeTypeId: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const ForexBuying: string;
+                export const ForexSelling: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+            namespace NumberTemplates {
+                export function asKey(): typeof NumberTemplates;
+                export function asTry(): typeof NumberTemplates;
+                export const Active: string;
+                export const DateFormat: string;
+                export const DepartmentId: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const Length: string;
+                export const LengthText: string;
+                export const Prefix: string;
+                export const Suffix: string;
+                export const TenantId: string;
+                export const Type: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+            namespace VatRates {
+                export function asKey(): typeof VatRates;
+                export function asTry(): typeof VatRates;
+                export const Code: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const IsActive: string;
+                export const IsDefault: string;
+                export const Name: string;
+                export const SortOrder: string;
             }
         }
     }
@@ -211,6 +326,16 @@ const Texts: typeof texts = proxyTexts({}, '', {
         },
         Catalog: {
             Products: {}
+        },
+        Customer: {
+            Customers: {}
+        },
+        Setting: {
+            BankAccountInformations: {},
+            CurrencyList: {},
+            DailyExchanges: {},
+            NumberTemplates: {},
+            VatRates: {}
         }
     },
     Forms: {

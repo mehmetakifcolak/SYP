@@ -1,4 +1,4 @@
-﻿namespace SYP.Customer;
+namespace SYP.Customer;
 
 [ConnectionKey("Default"), Module("Customer"), TableName("Customers")]
 [DisplayName("Customers"), InstanceName("Customers")]
@@ -14,11 +14,11 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
     
-    [DisplayName("Code"), Size(50), NotNull, QuickSearch, NameProperty]
+    [DisplayName("Code"), Size(50), QuickSearch, NameProperty]
     public string Code { get => fields.Code[this]; set => fields.Code[this] = value; }
     public partial class RowFields { public StringField Code; }
     
-    [DisplayName("Name"), Size(300), NotNull]
+    [DisplayName("Name"), Size(300)]
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
     
@@ -34,11 +34,11 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public string Address { get => fields.Address[this]; set => fields.Address[this] = value; }
     public partial class RowFields { public StringField Address; }
     
-    [DisplayName("Is Active"), NotNull]
+    [DisplayName("Is Active")]
     public bool? IsActive { get => fields.IsActive[this]; set => fields.IsActive[this] = value; }
     public partial class RowFields { public BooleanField IsActive; }
     
-    [DisplayName("Insert Date"), NotNull]
+    [DisplayName("Insert Date")]
     public DateTime? InsertDate { get => fields.InsertDate[this]; set => fields.InsertDate[this] = value; }
     public partial class RowFields { public DateTimeField InsertDate; }
     

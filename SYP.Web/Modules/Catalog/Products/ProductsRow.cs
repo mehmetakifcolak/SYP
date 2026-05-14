@@ -1,3 +1,6 @@
+using Serenity.ComponentModel;
+using Serenity.Web;
+
 namespace SYP.Catalog;
 
 [ConnectionKey("Default"), Module("Catalog"), TableName("Products")]
@@ -33,7 +36,12 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow
     [DisplayName("Barcode"), Size(250)]
     public string Barcode { get => fields.Barcode[this]; set => fields.Barcode[this] = value; }
     public partial class RowFields { public StringField Barcode; }
-    
+
+    [DisplayName("Ürün Resmi"), Size(200)]
+    [ImageUploadEditor(FilenameFormat = "Products/~", CopyToHistory = true  )]
+    public string ProductImage { get => fields.ProductImage[this]; set => fields.ProductImage[this] = value; }
+    public partial class RowFields { public StringField ProductImage; }
+
     //[DisplayName("Unit"), Size(10)]
     //public string Unit { get => fields.Unit[this]; set => fields.Unit[this] = value; }
     //public partial class RowFields { public StringField Unit; }

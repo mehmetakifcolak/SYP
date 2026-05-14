@@ -48,4 +48,25 @@ namespace _Ext //enums must have namespace otherwise it transforms to wrong type
         CalenderMonth = 5,
         Year = 6,
     }
+
+    [EnumKey("NumberTemplateType"), ScriptInclude]
+    public enum NumberTemplateType
+    {
+        [Description("Müşteri")]
+        Musteri = 1,
+        [Description("Ürün")]
+        Urun = 2,
+        [Description("Satış Teklifi")]
+        SatisTeklifi = 3,
+        [Description("Satış Siparişi")]
+        SatisSiparisi = 4,
+        [Description("Satınalma Teklifi")]
+        SatinalmaTeklifi = 5,
+        [Description("Satınalma Siparişi")]
+        SatinalmaSiparisi = 6,
+        [Description("Fatura")]
+        Fatura = 7,
+        [Description("İrsaliye")]
+        Irsaliye = 8
+    }
 }

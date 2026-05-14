@@ -2,7 +2,11 @@
 export const nsAdministration: "SYP.Administration." = "SYP.Administration.";
 export const CatalogNS: "SYP.Catalog" = "SYP.Catalog";
 export const nsCatalog: "SYP.Catalog." = "SYP.Catalog.";
+export const CustomerNS: "SYP.Customer" = "SYP.Customer";
+export const nsCustomer: "SYP.Customer." = "SYP.Customer.";
 export const MembershipNS: "SYP.Membership" = "SYP.Membership";
 export const nsMembership: "SYP.Membership." = "SYP.Membership.";
+export const SettingNS: "SYP.Setting" = "SYP.Setting";
+export const nsSetting: "SYP.Setting." = "SYP.Setting.";
 export const _ExtNS: "_Ext" = "_Ext";
 export const ns_Ext: "_Ext." = "_Ext.";

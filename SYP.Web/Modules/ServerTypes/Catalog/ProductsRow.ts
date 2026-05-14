@@ -7,6 +7,7 @@ export interface ProductsRow {
     Name2?: string;
     Description?: string;
     Barcode?: string;
+    ProductImage?: string;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;
