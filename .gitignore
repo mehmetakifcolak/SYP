@@ -1,4 +1,5 @@
 # SYP root gitignore
+.vs/
 SYP.Web/.restore-stamp
 SYP.Web/Thumbs.db
 SYP.Web/*.bak
