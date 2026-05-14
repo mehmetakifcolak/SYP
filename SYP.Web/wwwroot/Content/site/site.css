@@ -622,6 +622,775 @@ section.content-header h1 {
 }
 
 /* ================================================================
+   LOGIN PAGE - Split Screen Design (Mobile First)
+   ================================================================ */
+
+/* Body override for login page */
+body#s-LoginPage {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+}
+
+body#s-LoginPage .s-full-page {
+  padding: 0;
+  margin: 0;
+}
+
+.login-page-wrapper {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--syp-body-bg);
+  /* Safe area for notched phones */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.login-activation-alert {
+  position: fixed;
+  top: env(safe-area-inset-top, 0);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.login-split-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+}
+
+/* ── Sol Panel - Marka Alanı ── */
+.login-brand-panel {
+  flex: 0 0 auto;
+  min-height: 200px;
+  background: linear-gradient(135deg, var(--syp-primary) 0%, var(--syp-primary-dark) 50%, #b45309 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  padding-top: calc(1.5rem + env(safe-area-inset-top));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dekoratif arka plan deseni */
+.login-brand-panel::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.login-brand-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -30%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.login-brand-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #fff;
+  width: 100%;
+  max-width: 500px;
+}
+
+.login-brand-logo {
+  margin-bottom: 0.75rem;
+}
+
+.login-brand-logo .s-site-logo-img {
+  width: 56px;
+  height: 56px;
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+}
+
+.login-brand-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.login-brand-tagline {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin: 0 0 1rem 0;
+  font-weight: 400;
+}
+
+.login-brand-features {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.9;
+  background: rgba(255,255,255,0.12);
+  padding: 0.4rem 0.75rem;
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.login-feature-item i {
+  font-size: 0.85rem;
+  width: 16px;
+  text-align: center;
+}
+
+.login-brand-footer {
+  display: none;
+}
+
+/* ── Sağ Panel - Login Formu ── */
+.login-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  background: #fff;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.login-form-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-form-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-form-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--syp-text-primary);
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.02em;
+}
+
+.login-form-subtitle {
+  font-size: 0.9rem;
+  color: var(--syp-text-secondary);
+  margin: 0;
+}
+
+.login-form {
+  margin-bottom: 1rem;
+}
+
+/* ── Özel Input Tasarımı ── */
+.login-input-group {
+  margin-bottom: 1.25rem;
+}
+
+.login-input-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--syp-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.login-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-input-icon {
+  position: absolute;
+  left: 1rem;
+  color: #9ca3af;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.login-input {
+  width: 100%;
+  height: 52px;
+  padding: 0 3rem 0 2.75rem;
+  font-size: 16px; /* Prevents zoom on iOS */
+  font-family: var(--bs-body-font-family);
+  color: var(--syp-text-primary);
+  background: #f9fafb;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  outline: none;
+  transition: all 0.25s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.login-input::placeholder {
+  color: #adb5bd;
+}
+
+.login-input:hover {
+  background: #f3f4f6;
+}
+
+.login-input:focus {
+  background: #fff;
+  border-color: var(--syp-primary);
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+}
+
+.login-input:focus + .login-input-icon,
+.login-input-wrapper:focus-within .login-input-icon {
+  color: var(--syp-primary);
+}
+
+/* Şifre göster/gizle butonu */
+.login-password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login-password-toggle:hover,
+.login-password-toggle:active {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--syp-text-primary);
+}
+
+/* Hata durumu */
+.login-input-wrapper.error .login-input {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.login-input-wrapper.error .login-input-icon {
+  color: #ef4444;
+}
+
+.login-input-wrapper.error .login-input:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+}
+
+/* Başarılı durumu */
+.login-input-wrapper.success .login-input {
+  border-color: #10b981;
+}
+
+.login-input-wrapper.success .login-input-icon {
+  color: #10b981;
+}
+
+/* Input animasyonları */
+.login-input-group {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.login-input-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.login-input-group:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+/* Focus altı çizgi efekti */
+.login-input-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--syp-primary), var(--syp-primary-dark));
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.login-input-wrapper:focus-within::after {
+  width: calc(100% - 4px);
+}
+
+/* Seçenekler satırı */
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  gap: 0.5rem;
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--syp-text-secondary);
+  margin: 0;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login-remember .form-check-input {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.login-remember .form-check-input:checked {
+  background-color: var(--syp-primary);
+  border-color: var(--syp-primary);
+}
+
+.login-forgot {
+  font-size: 0.875rem;
+  color: var(--syp-primary-dark);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+  padding: 0.5rem 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login-forgot:hover,
+.login-forgot:active {
+  color: #b45309;
+}
+
+/* Giriş butonu */
+.login-submit-btn {
+  width: 100%;
+  height: 52px;
+  min-height: 52px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245,158,11,0.35);
+}
+
+.login-submit-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+}
+
+/* Ayırıcı */
+.login-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.25rem 0;
+  color: var(--syp-text-muted);
+  font-size: 0.75rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--syp-card-border);
+}
+
+.login-divider span {
+  padding: 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Kayıt ol linki */
+.login-signup {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--syp-text-secondary);
+  padding: 0.5rem;
+}
+
+.login-signup a {
+  color: var(--syp-primary-dark);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s;
+  padding: 0.25rem;
+}
+
+.login-signup a:hover,
+.login-signup a:active {
+  color: #b45309;
+}
+
+/* ── Animasyonlar ── */
+.login-brand-panel {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.login-form-panel {
+  animation: fadeIn 0.5s ease-out 0.1s both;
+}
+
+.login-form-container {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Tablet Portrait (768px+) ── */
+@media (min-width: 768px) {
+  .login-brand-panel {
+    min-height: 240px;
+    padding: 2rem;
+  }
+
+  .login-brand-logo .s-site-logo-img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .login-brand-title {
+    font-size: 1.75rem;
+  }
+
+  .login-brand-tagline {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .login-feature-item {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .login-form-panel {
+    padding: 2rem;
+    align-items: center;
+  }
+
+  .login-form-header {
+    margin-bottom: 2rem;
+  }
+
+  .login-form-title {
+    font-size: 1.75rem;
+  }
+}
+
+/* ── Tablet Landscape / Small Desktop (992px+) ── */
+@media (min-width: 992px) {
+  .login-split-container {
+    flex-direction: row;
+  }
+
+  .login-brand-panel {
+    flex: 0 0 45%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 3rem;
+    padding-top: 3rem;
+    animation: slideInLeft 0.6s ease-out;
+  }
+
+  .login-brand-logo {
+    margin-bottom: 1.5rem;
+  }
+
+  .login-brand-logo .s-site-logo-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .login-brand-title {
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-brand-tagline {
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .login-brand-features {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .login-feature-item {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.25rem;
+  }
+
+  .login-feature-item:hover {
+    background: rgba(255,255,255,0.18);
+    transform: translateX(5px);
+  }
+
+  .login-brand-footer {
+    display: block;
+    position: absolute;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.8rem;
+    z-index: 1;
+  }
+
+  .login-form-panel {
+    flex: 1;
+    padding: 3rem;
+    animation: slideInRight 0.6s ease-out;
+  }
+
+  .login-form-container {
+    max-width: 420px;
+  }
+
+  .login-form-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .login-input-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .login-input {
+    height: 54px;
+  }
+
+  .login-submit-btn {
+    height: 54px;
+  }
+}
+
+/* ── Large Desktop (1200px+) ── */
+@media (min-width: 1200px) {
+  .login-brand-panel {
+    flex: 0 0 42%;
+  }
+
+  .login-brand-title {
+    font-size: 2.5rem;
+  }
+
+  .login-brand-tagline {
+    margin-bottom: 3rem;
+  }
+
+  .login-brand-features {
+    gap: 1rem;
+  }
+}
+
+/* ── Landscape Mode on Mobile ── */
+@media (max-width: 991px) and (orientation: landscape) {
+  .login-split-container {
+    flex-direction: row;
+    min-height: auto;
+  }
+
+  .login-brand-panel {
+    flex: 0 0 40%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 1rem;
+  }
+
+  .login-brand-logo .s-site-logo-img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .login-brand-title {
+    font-size: 1.25rem;
+  }
+
+  .login-brand-tagline {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .login-brand-features {
+    gap: 0.35rem;
+  }
+
+  .login-feature-item {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .login-form-panel {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    overflow-y: auto;
+  }
+
+  .login-form-header {
+    margin-bottom: 1rem;
+  }
+
+  .login-form-title {
+    font-size: 1.25rem;
+  }
+
+  .login-input-group {
+    margin-bottom: 1rem;
+  }
+
+  .login-input {
+    height: 48px;
+  }
+
+  .login-submit-btn {
+    height: 48px;
+  }
+
+  .login-divider {
+    margin: 1rem 0;
+  }
+}
+
+/* ── Very Small Screens (360px and below) ── */
+@media (max-width: 360px) {
+  .login-brand-panel {
+    min-height: 160px;
+    padding: 1rem 0.75rem;
+  }
+
+  .login-brand-logo .s-site-logo-img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .login-brand-title {
+    font-size: 1.25rem;
+  }
+
+  .login-brand-tagline {
+    font-size: 0.8rem;
+  }
+
+  .login-feature-item {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.6rem;
+  }
+
+  .login-form-panel {
+    padding: 1rem 0.75rem;
+  }
+
+  .login-form-title {
+    font-size: 1.25rem;
+  }
+
+  .login-input {
+    height: 48px;
+    padding-left: 2.5rem;
+    padding-right: 2.75rem;
+  }
+
+  .login-input-icon {
+    left: 0.75rem;
+  }
+
+  .login-submit-btn {
+    height: 48px;
+  }
+}
+
+/* ── Reduce motion for accessibility ── */
+@media (prefers-reduced-motion: reduce) {
+  .login-brand-panel,
+  .login-form-panel,
+  .login-form-container,
+  .login-input-group,
+  .login-feature-item,
+  .login-submit-btn {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ================================================================
    RESPONSIVE
    ================================================================ */
 

@@ -5,23 +5,23 @@
     Layout = MVC.Views.Shared._LayoutNoNavigation;
 }
 
-<style>
-    a { text-decoration: none; }
-</style>
-
 @if (ViewData["Activated"] != null)
 {
     <input type="hidden" id="Activated" value="@ViewData["Activated"]" />
-    <div class="alert alert-info alert-dismissible">
-        <button type="button" class="close btn-close" data-dismiss="alert" data-bs-dismiss="alert" aria-hidden="true"></button>
-        <h4><i class="icon fa fa-info"></i>@Localizer.Get("Dialogs.InformationTitle")</h4>
-        @SignUpFormTexts.ActivationCompleteMessage.ToString(Localizer)
-    </div>
 }
 
-<div class="s-full-page justify-content-center">
-    <div id="LoginPanel" class="s-container-tight">
-
+<div class="login-page-wrapper">
+    @if (ViewData["Activated"] != null)
+    {
+        <div class="login-activation-alert">
+            <div class="alert alert-success alert-dismissible mb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                <i class="fa fa-check-circle me-2"></i>
+                @SignUpFormTexts.ActivationCompleteMessage.ToString(Localizer)
+            </div>
+        </div>
+    }
+    <div id="LoginPanel" class="login-split-container">
     </div>
 </div>
 

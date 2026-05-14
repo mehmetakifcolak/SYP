@@ -81,6 +81,27 @@ namespace texts {
                 export const Username: string;
             }
         }
+        namespace Catalog {
+            export function asKey(): typeof Catalog;
+            export function asTry(): typeof Catalog;
+            namespace Products {
+                export function asKey(): typeof Products;
+                export function asTry(): typeof Products;
+                export const Barcode: string;
+                export const Code: string;
+                export const Description: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const Name: string;
+                export const Name2: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+        }
     }
     export declare namespace Forms {
         export function asKey(): typeof Forms;
@@ -187,6 +208,9 @@ const Texts: typeof texts = proxyTexts({}, '', {
             User: {},
             UserPermission: {},
             UserRole: {}
+        },
+        Catalog: {
+            Products: {}
         }
     },
     Forms: {

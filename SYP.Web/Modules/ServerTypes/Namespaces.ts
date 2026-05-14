@@ -1,5 +1,7 @@
 ﻿export const AdministrationNS: "SYP.Administration" = "SYP.Administration";
 export const nsAdministration: "SYP.Administration." = "SYP.Administration.";
+export const CatalogNS: "SYP.Catalog" = "SYP.Catalog";
+export const nsCatalog: "SYP.Catalog." = "SYP.Catalog.";
 export const MembershipNS: "SYP.Membership" = "SYP.Membership";
 export const nsMembership: "SYP.Membership." = "SYP.Membership.";
 export const _ExtNS: "_Ext" = "_Ext";
