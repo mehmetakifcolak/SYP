@@ -1,4 +1,4 @@
-﻿import { initFormType, IntegerEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
+﻿import { initFormType, IntegerEditor, PrefixedContext, ServiceLookupEditor, StringEditor } from "@serenity-is/corelib";
 
 export interface BankAccountInformationsEditorForm {
     Firm: StringEditor;
@@ -8,7 +8,7 @@ export interface BankAccountInformationsEditorForm {
     AccountNo: StringEditor;
     Iban: StringEditor;
     Swift: StringEditor;
-    Currency: StringEditor;
+    Currency: ServiceLookupEditor;
     Origin: StringEditor;
     Payment: StringEditor;
     Shipment: StringEditor;
@@ -26,7 +26,8 @@ export class BankAccountInformationsEditorForm extends PrefixedContext {
             BankAccountInformationsEditorForm.init = true;
 
             var w0 = StringEditor;
-            var w1 = IntegerEditor;
+            var w1 = ServiceLookupEditor;
+            var w2 = IntegerEditor;
 
             initFormType(BankAccountInformationsEditorForm, [
                 'Firm', w0,
@@ -36,11 +37,11 @@ export class BankAccountInformationsEditorForm extends PrefixedContext {
                 'AccountNo', w0,
                 'Iban', w0,
                 'Swift', w0,
-                'Currency', w0,
+                'Currency', w1,
                 'Origin', w0,
                 'Payment', w0,
                 'Shipment', w0,
-                'TenantId', w1
+                'TenantId', w2
             ]);
         }
     }

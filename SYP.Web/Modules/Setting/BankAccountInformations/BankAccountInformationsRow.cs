@@ -1,4 +1,6 @@
-﻿namespace SYP.Setting;
+namespace SYP.Setting;
+
+using DocumentFormat.OpenXml.VariantTypes;
 
 [ConnectionKey("Default"), Module("Setting"), TableName("BankAccountInformations")]
 [DisplayName("Bank Account Informations"), InstanceName("Bank Account Informations")]
@@ -10,6 +12,7 @@
 [ServiceLookupPermission("Setting:BankAccountInformations:Lookup")]
 public sealed class BankAccountInformationsRow : Row<BankAccountInformationsRow.RowFields>, IIdRow, INameRow
 {
+    const string jCurrency = nameof(jCurrency);
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
@@ -43,6 +46,9 @@ public sealed class BankAccountInformationsRow : Row<BankAccountInformationsRow.
     public partial class RowFields { public StringField Swift; }
     
     [DisplayName("Currency"), Size(50)]
+    [ForeignKey(typeof(CurrencyListRow)), LeftJoin(jCurrency)]
+    [ServiceLookupEditor(typeof(CurrencyListRow), FilterField = "IsActive", FilterValue = 1)]
+   // [TextualField(nameof(CurrencyCode))]
     public string Currency { get => fields.Currency[this]; set => fields.Currency[this] = value; }
     public partial class RowFields { public StringField Currency; }
     

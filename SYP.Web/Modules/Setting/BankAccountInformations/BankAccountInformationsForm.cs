@@ -1,4 +1,4 @@
-﻿namespace SYP.Setting.Forms;
+namespace SYP.Setting.Forms;
 
 [FormScript("Setting.BankAccountInformations")]
 [BasedOnRow(typeof(BankAccountInformationsRow), CheckNames = true)]
@@ -15,5 +15,4 @@ public class BankAccountInformationsForm
     public string Origin { get; set; }
     public string Payment { get; set; }
     public string Shipment { get; set; }
-    public int TenantId { get; set; }
 }

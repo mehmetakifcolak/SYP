@@ -1,8 +1,9 @@
-﻿using Serenity.Navigation;
+using Serenity.Navigation;
 using MyPages = SYP.Setting.Pages;
 
-[assembly: NavigationLink(int.MaxValue, "Setting/Daily Exchanges", typeof(MyPages.DailyExchangesPage), icon: null)]
-[assembly: NavigationLink(int.MaxValue, "Setting/Number Templates", typeof(MyPages.NumberTemplatesPage), icon: null)]
-[assembly: NavigationLink(int.MaxValue, "Setting/Bank Account Informations", typeof(MyPages.BankAccountInformationsPage), icon: null)]
-[assembly: NavigationLink(int.MaxValue, "Setting/Currency List", typeof(MyPages.CurrencyListPage), icon: null)]
-[assembly: NavigationLink(int.MaxValue, "Setting/Vat Rates", typeof(MyPages.VatRatesPage), icon: null)]
+[assembly: NavigationMenu(8000, "Ayarlar", icon: "fa-cogs")]
+[assembly: NavigationLink(8100, "Ayarlar/Günlük Kurlar", typeof(MyPages.DailyExchangesPage), icon: "fa-line-chart")]
+[assembly: NavigationLink(8200, "Ayarlar/Numara Şablonları", typeof(MyPages.NumberTemplatesPage), icon: "fa-hashtag")]
+[assembly: NavigationLink(8300, "Ayarlar/Banka Hesap Bilgileri", typeof(MyPages.BankAccountInformationsPage), icon: "fa-bank")]
+[assembly: NavigationLink(8400, "Ayarlar/Para Birimleri", typeof(MyPages.CurrencyListPage), icon: "fa-money")]
+[assembly: NavigationLink(8500, "Ayarlar/KDV Oranları", typeof(MyPages.VatRatesPage), icon: "fa-percent")]
