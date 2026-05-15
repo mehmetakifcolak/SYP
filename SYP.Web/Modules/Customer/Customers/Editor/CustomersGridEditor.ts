@@ -1,7 +1,7 @@
-﻿import { GridEditorBase } from '@/_Ext/Editors/GridEditorBase';
+import { GridEditorBase } from '@/_Ext/Editors/GridEditorBase';
 import { Decorators } from '@serenity-is/corelib';
-import { CustomersEditorColumns, CustomersRow } from '../../ServerTypes/Customer';
 import { CustomersEditorDialog } from './CustomersEditorDialog';
+import { CustomersRow, CustomersEditorColumns } from '../../../ServerTypes/Customer';
 
 @Decorators.registerEditor('SYP.Customer.CustomersGridEditor')
 export class CustomersGridEditor extends GridEditorBase<CustomersRow> {

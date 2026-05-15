@@ -1,3 +1,5 @@
+using SYP.Administration;
+
 namespace SYP.Customer;
 
 [ConnectionKey("Default"), Module("Customer"), TableName("Customers")]
@@ -37,6 +39,11 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     [DisplayName("Is Active")]
     public bool? IsActive { get => fields.IsActive[this]; set => fields.IsActive[this] = value; }
     public partial class RowFields { public BooleanField IsActive; }
+
+    [DisplayName("Vendor Type"), ForeignKey("[dbo].[VendorType]", "Id"), LeftJoin("jVendorType")]
+    [LookupEditor("Setting.VendorType")]
+    public int? VendorTypeId { get => fields.VendorTypeId[this]; set => fields.VendorTypeId[this] = value; }
+    public partial class RowFields { public Int32Field VendorTypeId; }
     
     [DisplayName("Insert Date")]
     public DateTime? InsertDate { get => fields.InsertDate[this]; set => fields.InsertDate[this] = value; }
@@ -53,8 +60,32 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     [DisplayName("Update User Id")]
     public int? UpdateUserId { get => fields.UpdateUserId[this]; set => fields.UpdateUserId[this] = value; }
     public partial class RowFields { public Int32Field UpdateUserId; }
-    
+
+    [DisplayName("User Id"), ForeignKey("[dbo].[Users]", "UserId"), LeftJoin("jUser")]
+    public int? UserId { get => fields.UserId[this]; set => fields.UserId[this] = value; }
+    public partial class RowFields { public Int32Field UserId; }
+
+    [DisplayName("Password"), Size(50), NotMapped]
+    public string Password { get => fields.Password[this]; set => fields.Password[this] = value; }
+    public partial class RowFields { public StringField Password; }
+
+    [DisplayName("Password Confirm"), Size(50), NotMapped]
+    public string PasswordConfirm { get => fields.PasswordConfirm[this]; set => fields.PasswordConfirm[this] = value; }
+    public partial class RowFields { public StringField PasswordConfirm; }
+
     #region Foreign Fields
+
+    [DisplayName("Kullanıcı Adı"), Expression("jUser.[Username]")]
+    public string Username { get => fields.Username[this]; set => fields.Username[this] = value; }
+    public partial class RowFields { public StringField Username; }
+
+    [DisplayName("Satıcı Tipi"), Expression("jVendorType.[Title]")]
+    public string VendorTypeTitle { get => fields.VendorTypeTitle[this]; set => fields.VendorTypeTitle[this] = value; }
+    public partial class RowFields { public StringField VendorTypeTitle; }
+
+    [DisplayName("Kullanıcı Aktif"), Expression("jUser.[IsActive]")]
+    public short? UserIsActive { get => fields.UserIsActive[this]; set => fields.UserIsActive[this] = value; }
+    public partial class RowFields { public Int16Field UserIsActive; }
 
     #endregion Foreign Fields
 

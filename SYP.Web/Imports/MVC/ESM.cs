@@ -6,6 +6,10 @@ public static partial class ESM
     public const string CurrencyListPage = "~/esm/Modules/Setting/CurrencyList/CurrencyListPage.js";
     public const string CustomersPage = "~/esm/Modules/Customer/Customers/CustomersPage.js";
     public const string DailyExchangesPage = "~/esm/Modules/Setting/DailyExchanges/DailyExchangesPage.js";
+    public const string EmailAttachmentsPage = "~/esm/Modules/Email/EmailAttachments/EmailAttachmentsPage.js";
+    public const string EmailLogsPage = "~/esm/Modules/Email/EmailLogs/EmailLogsPage.js";
+    public const string EmailQueuePage = "~/esm/Modules/Email/EmailQueue/EmailQueuePage.js";
+    public const string EmailTemplatesPage = "~/esm/Modules/Email/EmailTemplates/EmailTemplatesPage.js";
     public const string LanguagePage = "~/esm/Modules/Administration/Language/LanguagePage.js";
     public const string LoginPage = "~/esm/Modules/Membership/Account/Login/LoginPage.js";
     public const string NumberTemplatesPage = "~/esm/Modules/Setting/NumberTemplates/NumberTemplatesPage.js";
@@ -13,9 +17,11 @@ public static partial class ESM
     public const string RolePage = "~/esm/Modules/Administration/Role/RolePage.js";
     public const string ScriptInit = "~/esm/Modules/Common/ScriptInit.js";
     public const string SignUpPage = "~/esm/Modules/Membership/Account/SignUp/SignUpPage.js";
+    public const string SmtpSettingsPage = "~/esm/Modules/Email/SmtpSettings/SmtpSettingsPage.js";
     public const string TranslationPage = "~/esm/Modules/Administration/Translation/TranslationPage.js";
     public const string UserPage = "~/esm/Modules/Administration/User/UserPage.js";
     public const string VatRatesPage = "~/esm/Modules/Setting/VatRates/VatRatesPage.js";
+    public const string VendorTypePage = "~/esm/Modules/Setting/VendorType/VendorTypePage.js";
 
     public static partial class Modules
     {
@@ -63,6 +69,34 @@ public static partial class ESM
             }
         }
 
+        public static partial class Email
+        {
+            public static partial class EmailAttachments
+            {
+                public const string EmailAttachmentsPage = "~/esm/Modules/Email/EmailAttachments/EmailAttachmentsPage.js";
+            }
+
+            public static partial class EmailLogs
+            {
+                public const string EmailLogsPage = "~/esm/Modules/Email/EmailLogs/EmailLogsPage.js";
+            }
+
+            public static partial class EmailQueue
+            {
+                public const string EmailQueuePage = "~/esm/Modules/Email/EmailQueue/EmailQueuePage.js";
+            }
+
+            public static partial class EmailTemplates
+            {
+                public const string EmailTemplatesPage = "~/esm/Modules/Email/EmailTemplates/EmailTemplatesPage.js";
+            }
+
+            public static partial class SmtpSettings
+            {
+                public const string SmtpSettingsPage = "~/esm/Modules/Email/SmtpSettings/SmtpSettingsPage.js";
+            }
+        }
+
         public static partial class Membership
         {
             public static partial class Account
@@ -104,6 +138,11 @@ public static partial class ESM
             public static partial class VatRates
             {
                 public const string VatRatesPage = "~/esm/Modules/Setting/VatRates/VatRatesPage.js";
+            }
+
+            public static partial class VendorType
+            {
+                public const string VendorTypePage = "~/esm/Modules/Setting/VendorType/VendorTypePage.js";
             }
         }
     }

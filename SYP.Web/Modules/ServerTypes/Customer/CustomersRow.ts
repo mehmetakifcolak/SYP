@@ -8,10 +8,17 @@ export interface CustomersRow {
     Phone?: string;
     Address?: string;
     IsActive?: boolean;
+    VendorTypeId?: number;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;
     UpdateUserId?: number;
+    UserId?: number;
+    Password?: string;
+    PasswordConfirm?: string;
+    Username?: string;
+    VendorTypeTitle?: string;
+    UserIsActive?: number;
 }
 
 export abstract class CustomersRow {

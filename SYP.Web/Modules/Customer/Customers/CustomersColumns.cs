@@ -1,4 +1,4 @@
-﻿namespace SYP.Customer.Columns;
+namespace SYP.Customer.Columns;
 
 [ColumnsScript("Customer.Customers")]
 [BasedOnRow(typeof(CustomersRow), CheckNames = true)]
@@ -11,10 +11,16 @@ public class CustomersColumns
     public string Name { get; set; }
     public string Email { get; set; }
     public string Phone { get; set; }
-    public string Address { get; set; }
+
+    [DisplayName("Satıcı Tipi"), Width(150)]
+    public string VendorTypeTitle { get; set; }
+
     public bool IsActive { get; set; }
-    public DateTime InsertDate { get; set; }
-    public int InsertUserId { get; set; }
-    public DateTime UpdateDate { get; set; }
-    public int UpdateUserId { get; set; }
+
+    [DisplayName("Kullanıcı"), Width(150)]
+    public string Username { get; set; }
+
+    [DisplayName("K. Durumu"), Width(120)]
+    [FormatterType("SYP.Customer.UserStatusFormatter")]
+    public short UserIsActive { get; set; }
 }

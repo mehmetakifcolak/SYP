@@ -1,4 +1,4 @@
-﻿namespace SYP.Catalog.Columns;
+namespace SYP.Catalog.Columns;
 
 [ColumnsScript("Catalog.ProductsEditor")]
 [BasedOnRow(typeof(ProductsRow), CheckNames = true)]
@@ -12,7 +12,7 @@ public class ProductsEditorColumns
     public string Name2 { get; set; }
     public string Description { get; set; }
     public string Barcode { get; set; }
-    public string Unit { get; set; }
+   // public string Unit { get; set; }
     public string Currency { get; set; }
     public string VatRate { get; set; }
     public DateTime InsertDate { get; set; }

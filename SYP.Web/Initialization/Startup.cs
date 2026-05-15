@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serenity.Extensions.DependencyInjection;
 using Serenity.Localization;
+using SYP.Email.Services;
 using System.IO;
 
 namespace SYP;
@@ -93,6 +94,14 @@ public partial class Startup
         services.AddSingleton<IDataMigrations, AppServices.DataMigrations>();
         services.AddSingleton<IElevationHandler, DefaultElevationHandler>();
         services.AddSingleton<IEmailSender, EmailSender>();
+        services.AddScoped<IEmailQueueSender, EmailQueueSender>();
+
+        // Email Queue Background Service
+        if (Configuration.GetValue("Email:Enabled", true))
+        {
+            services.AddHostedService<EmailQueueService>();
+        }
+
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IHttpContextItemsAccessor, HttpContextItemsAccessor>();
         services.AddSingleton<INavigationModelFactory, AppServices.NavigationModelFactory>();

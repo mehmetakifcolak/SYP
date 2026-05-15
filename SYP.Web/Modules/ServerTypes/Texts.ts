@@ -119,9 +119,130 @@ namespace texts {
                 export const InsertUserId: string;
                 export const IsActive: string;
                 export const Name: string;
+                export const Password: string;
+                export const PasswordConfirm: string;
                 export const Phone: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
+                export const UserId: string;
+                export const UserIsActive: string;
+                export const Username: string;
+                export const VendorTypeId: string;
+                export const VendorTypeTitle: string;
+            }
+        }
+        namespace Email {
+            export function asKey(): typeof Email;
+            export function asTry(): typeof Email;
+            namespace EmailAttachments {
+                export function asKey(): typeof EmailAttachments;
+                export function asTry(): typeof EmailAttachments;
+                export const ContentId: string;
+                export const ContentType: string;
+                export const EmailQueueId: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const FileContent: string;
+                export const FileName: string;
+                export const FilePath: string;
+                export const FileSize: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const IsInline: string;
+            }
+            namespace EmailLogs {
+                export function asKey(): typeof EmailLogs;
+                export function asTry(): typeof EmailLogs;
+                export const Duration: string;
+                export const EmailQueueId: string;
+                export const EmailSubject: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const ProcessEndTime: string;
+                export const ProcessStartTime: string;
+                export const SmtpResponse: string;
+                export const Status: string;
+                export const StatusMessage: string;
+                export const ToAddress: string;
+            }
+            namespace EmailQueue {
+                export function asKey(): typeof EmailQueue;
+                export function asTry(): typeof EmailQueue;
+                export const BccAddresses: string;
+                export const Body: string;
+                export const BodyText: string;
+                export const CcAddresses: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const ErrorMessage: string;
+                export const FromAddress: string;
+                export const FromName: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const NextRetryAt: string;
+                export const Priority: string;
+                export const ProcessedAt: string;
+                export const ReferenceId: string;
+                export const ReferenceType: string;
+                export const ReplyToAddress: string;
+                export const RetryCount: string;
+                export const ScheduledAt: string;
+                export const SentAt: string;
+                export const SmtpSettingsId: string;
+                export const SmtpSettingsName: string;
+                export const Status: string;
+                export const Subject: string;
+                export const TemplateData: string;
+                export const TemplateId: string;
+                export const TemplateName: string;
+                export const ToAddresses: string;
+            }
+            namespace EmailTemplates {
+                export function asKey(): typeof EmailTemplates;
+                export function asTry(): typeof EmailTemplates;
+                export const Body: string;
+                export const BodyText: string;
+                export const Category: string;
+                export const Description: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const LanguageId: string;
+                export const Name: string;
+                export const Subject: string;
+                export const TemplateKey: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+            namespace SmtpSettings {
+                export function asKey(): typeof SmtpSettings;
+                export function asTry(): typeof SmtpSettings;
+                export const DailyLimit: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const FromAddress: string;
+                export const FromName: string;
+                export const Host: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const IsDefault: string;
+                export const MaxRetryCount: string;
+                export const Name: string;
+                export const Password: string;
+                export const Port: string;
+                export const RetryIntervalMinutes: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+                export const UseSsl: string;
+                export const Username: string;
             }
         }
         namespace Setting {
@@ -215,6 +336,18 @@ namespace texts {
                 export const IsDefault: string;
                 export const Name: string;
                 export const SortOrder: string;
+            }
+            namespace VendorType {
+                export function asKey(): typeof VendorType;
+                export function asTry(): typeof VendorType;
+                export const Description: string;
+                export const DiscountType: string;
+                export const DiscountValue: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const IsActive: string;
+                export const Title: string;
             }
         }
     }
@@ -330,12 +463,20 @@ const Texts: typeof texts = proxyTexts({}, '', {
         Customer: {
             Customers: {}
         },
+        Email: {
+            EmailAttachments: {},
+            EmailLogs: {},
+            EmailQueue: {},
+            EmailTemplates: {},
+            SmtpSettings: {}
+        },
         Setting: {
             BankAccountInformations: {},
             CurrencyList: {},
             DailyExchanges: {},
             NumberTemplates: {},
-            VatRates: {}
+            VatRates: {},
+            VendorType: {}
         }
     },
     Forms: {

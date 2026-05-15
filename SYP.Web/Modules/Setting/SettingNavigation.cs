@@ -1,4 +1,4 @@
-using Serenity.Navigation;
+﻿using Serenity.Navigation;
 using MyPages = SYP.Setting.Pages;
 
 [assembly: NavigationMenu(8000, "Ayarlar", icon: "fa-cogs")]
@@ -7,3 +7,4 @@ using MyPages = SYP.Setting.Pages;
 [assembly: NavigationLink(8300, "Ayarlar/Banka Hesap Bilgileri", typeof(MyPages.BankAccountInformationsPage), icon: "fa-bank")]
 [assembly: NavigationLink(8400, "Ayarlar/Para Birimleri", typeof(MyPages.CurrencyListPage), icon: "fa-money")]
 [assembly: NavigationLink(8500, "Ayarlar/KDV Oranları", typeof(MyPages.VatRatesPage), icon: "fa-percent")]
+[assembly: NavigationLink(8600, "Ayarlar/Tedarikçi Tipleri", typeof(MyPages.VendorTypePage), icon: "fa-truck")]
