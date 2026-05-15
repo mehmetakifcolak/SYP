@@ -99,6 +99,21 @@ public class CustomersEndpoint : ServiceEndpoint
         string salt = null;
         var passwordHash = UserHelper.GenerateHash(request.Password, ref salt);
 
+        // Mevcut kullanici ID'sini al
+        int? currentUserId = null;
+        var identifier = User.GetIdentifier();
+        if (int.TryParse(identifier, out var parsedId))
+        {
+            currentUserId = parsedId;
+        }
+        else if (!string.IsNullOrEmpty(identifier))
+        {
+            var currentUser = uow.Connection.TryFirst<UserRow>(q => q
+                .Select(UserRow.Fields.UserId)
+                .Where(UserRow.Fields.Username == identifier));
+            currentUserId = currentUser?.UserId;
+        }
+
         // User oluştur
         var userRow = new UserRow
         {
@@ -110,7 +125,7 @@ public class CustomersEndpoint : ServiceEndpoint
             Source = "site",
             IsActive = 1,
             InsertDate = DateTime.Now,
-            InsertUserId = Convert.ToInt32(User.GetIdentifier())
+            InsertUserId = currentUserId
         };
 
         var userId = (int)uow.Connection.InsertAndGetID(userRow);

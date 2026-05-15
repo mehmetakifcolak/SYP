@@ -101,4 +101,20 @@ public static class UserHelper
 
         return true;
     }
+
+    public static int? GetCurrentUserId(IDbConnection connection, string identifier)
+    {
+        if (string.IsNullOrEmpty(identifier))
+            return null;
+
+        if (int.TryParse(identifier, out var userId))
+            return userId;
+
+        // Identifier username ise veritabanindan UserId'yi bul
+        var user = connection.TryFirst<MyRow>(q => q
+            .Select(Fld.UserId)
+            .Where(Fld.Username == identifier));
+
+        return user?.UserId;
+    }
 }

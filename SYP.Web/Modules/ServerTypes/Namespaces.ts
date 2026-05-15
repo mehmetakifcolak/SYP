@@ -10,5 +10,7 @@ export const MembershipNS: "SYP.Membership" = "SYP.Membership";
 export const nsMembership: "SYP.Membership." = "SYP.Membership.";
 export const SettingNS: "SYP.Setting" = "SYP.Setting";
 export const nsSetting: "SYP.Setting." = "SYP.Setting.";
+export const WarehouseNS: "SYP.Warehouse" = "SYP.Warehouse";
+export const nsWarehouse: "SYP.Warehouse." = "SYP.Warehouse.";
 export const _ExtNS: "_Ext" = "_Ext";
 export const ns_Ext: "_Ext." = "_Ext.";

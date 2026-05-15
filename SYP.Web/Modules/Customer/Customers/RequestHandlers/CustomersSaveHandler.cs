@@ -172,6 +172,22 @@ public class CustomersSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>
         string salt = null;
         var passwordHash = UserHelper.GenerateHash(Row.Password, ref salt);
 
+        // Mevcut kullanici ID'sini al
+        int? currentUserId = null;
+        var identifier = Context.User.GetIdentifier();
+        if (int.TryParse(identifier, out var parsedId))
+        {
+            currentUserId = parsedId;
+        }
+        else if (!string.IsNullOrEmpty(identifier))
+        {
+            // Username ile UserId bul
+            var existingUser = Connection.TryFirst<UserRow>(q => q
+                .Select(UserRow.Fields.UserId)
+                .Where(UserRow.Fields.Username == identifier));
+            currentUserId = existingUser?.UserId;
+        }
+
         // User Row oluştur
         var userRow = new UserRow
         {
@@ -183,7 +199,7 @@ public class CustomersSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>
             Source = "site",
             IsActive = 1,
             InsertDate = DateTime.Now,
-            InsertUserId = Convert.ToInt32(Context.User.GetIdentifier())
+            InsertUserId = currentUserId
         };
 
         // User'ı kaydet

@@ -1,4 +1,4 @@
-﻿import { fieldsProxy } from "@serenity-is/corelib";
+﻿import { fieldsProxy, getLookup, getLookupAsync } from "@serenity-is/corelib";
 
 export interface CurrencyListRow {
     Id?: number;
@@ -20,6 +20,12 @@ export abstract class CurrencyListRow {
     static readonly idProperty = 'Id';
     static readonly nameProperty = 'Code';
     static readonly localTextPrefix = 'Setting.CurrencyList';
+    static readonly lookupKey = 'Setting.CurrencyList';
+
+    /** @deprecated use getLookupAsync instead */
+    static getLookup() { return getLookup<CurrencyListRow>('Setting.CurrencyList') }
+    static async getLookupAsync() { return getLookupAsync<CurrencyListRow>('Setting.CurrencyList') }
+
     static readonly deletePermission = 'Setting:CurrencyList:Delete';
     static readonly insertPermission = 'Setting:CurrencyList:Insert';
     static readonly readPermission = 'Setting:CurrencyList:Read';

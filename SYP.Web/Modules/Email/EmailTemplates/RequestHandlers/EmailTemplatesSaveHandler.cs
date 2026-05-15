@@ -1,4 +1,5 @@
 using Serenity.Services;
+using SYP.Administration;
 
 namespace SYP.Email;
 
@@ -12,15 +13,17 @@ public class EmailTemplatesSaveHandler(IRequestContext context) :
     {
         base.BeforeSave();
 
+        var currentUserId = UserHelper.GetCurrentUserId(Connection, Context.User?.GetIdentifier());
+
         if (IsCreate)
         {
             Row.InsertDate = DateTime.Now;
-            Row.InsertUserId = Convert.ToInt32(Context.User?.GetIdentifier() ?? "1");
+            Row.InsertUserId = currentUserId;
         }
         else
         {
             Row.UpdateDate = DateTime.Now;
-            Row.UpdateUserId = Convert.ToInt32(Context.User?.GetIdentifier() ?? "1");
+            Row.UpdateUserId = currentUserId;
         }
     }
 }

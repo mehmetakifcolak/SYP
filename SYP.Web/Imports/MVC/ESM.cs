@@ -2,6 +2,7 @@
 
 public static partial class ESM
 {
+    public const string AuditLogPage = "~/esm/Modules/Administration/AuditLog/AuditLogPage.js";
     public const string BankAccountInformationsPage = "~/esm/Modules/Setting/BankAccountInformations/BankAccountInformationsPage.js";
     public const string CurrencyListPage = "~/esm/Modules/Setting/CurrencyList/CurrencyListPage.js";
     public const string CustomersPage = "~/esm/Modules/Customer/Customers/CustomersPage.js";
@@ -18,15 +19,23 @@ public static partial class ESM
     public const string ScriptInit = "~/esm/Modules/Common/ScriptInit.js";
     public const string SignUpPage = "~/esm/Modules/Membership/Account/SignUp/SignUpPage.js";
     public const string SmtpSettingsPage = "~/esm/Modules/Email/SmtpSettings/SmtpSettingsPage.js";
+    public const string StockEntriesPage = "~/esm/Modules/Warehouse/StockEntries/StockEntriesPage.js";
     public const string TranslationPage = "~/esm/Modules/Administration/Translation/TranslationPage.js";
     public const string UserPage = "~/esm/Modules/Administration/User/UserPage.js";
     public const string VatRatesPage = "~/esm/Modules/Setting/VatRates/VatRatesPage.js";
     public const string VendorTypePage = "~/esm/Modules/Setting/VendorType/VendorTypePage.js";
+    public const string WarehousesPage = "~/esm/Modules/Warehouse/Warehouses/WarehousesPage.js";
+    public const string WarehouseStockPage = "~/esm/Modules/Warehouse/WarehouseStock/WarehouseStockPage.js";
 
     public static partial class Modules
     {
         public static partial class Administration
         {
+            public static partial class AuditLog
+            {
+                public const string AuditLogPage = "~/esm/Modules/Administration/AuditLog/AuditLogPage.js";
+            }
+
             public static partial class Language
             {
                 public const string LanguagePage = "~/esm/Modules/Administration/Language/LanguagePage.js";
@@ -143,6 +152,24 @@ public static partial class ESM
             public static partial class VendorType
             {
                 public const string VendorTypePage = "~/esm/Modules/Setting/VendorType/VendorTypePage.js";
+            }
+        }
+
+        public static partial class Warehouse
+        {
+            public static partial class StockEntries
+            {
+                public const string StockEntriesPage = "~/esm/Modules/Warehouse/StockEntries/StockEntriesPage.js";
+            }
+
+            public static partial class Warehouses
+            {
+                public const string WarehousesPage = "~/esm/Modules/Warehouse/Warehouses/WarehousesPage.js";
+            }
+
+            public static partial class WarehouseStock
+            {
+                public const string WarehouseStockPage = "~/esm/Modules/Warehouse/WarehouseStock/WarehouseStockPage.js";
             }
         }
     }

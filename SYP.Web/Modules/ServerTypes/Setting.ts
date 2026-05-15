@@ -16,6 +16,7 @@ export * from "./Setting/DailyExchangesEditorForm";
 export * from "./Setting/DailyExchangesForm";
 export * from "./Setting/DailyExchangesRow";
 export * from "./Setting/DailyExchangesService";
+export * from "./Setting/ImportDateRangeRequest";
 export * from "./Setting/NumberTemplatesColumns";
 export * from "./Setting/NumberTemplatesEditorColumns";
 export * from "./Setting/NumberTemplatesEditorForm";

@@ -5,6 +5,7 @@ namespace SYP.Catalog;
 
 [ConnectionKey("Default"), Module("Catalog"), TableName("Products")]
 [DisplayName("Products"), InstanceName("Products")]
+[LookupScript("Catalog.Products", Permission = "Catalog:Products:Read")]
 [NavigationPermission("Catalog:Products:Navigation")]
 [ReadPermission("Catalog:Products:Read")]
 [InsertPermission("Catalog:Products:Insert")]
@@ -21,7 +22,7 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow
     public string Code { get => fields.Code[this]; set => fields.Code[this] = value; }
     public partial class RowFields { public StringField Code; }
     
-    [DisplayName("Name"), Size(500)]
+    [DisplayName("Name"), Size(500), LookupInclude]
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
     
@@ -70,7 +71,7 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow
     public int? UpdateUserId { get => fields.UpdateUserId[this]; set => fields.UpdateUserId[this] = value; }
     public partial class RowFields { public Int32Field UpdateUserId; }
     
-    [DisplayName("Is Active")]
+    [DisplayName("Is Active"), LookupInclude]
     public short? IsActive { get => fields.IsActive[this]; set => fields.IsActive[this] = value; }
     public partial class RowFields { public Int16Field IsActive; }
     

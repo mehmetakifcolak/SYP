@@ -7,6 +7,25 @@ namespace texts {
         namespace Administration {
             export function asKey(): typeof Administration;
             export function asTry(): typeof Administration;
+            namespace AuditLog {
+                export function asKey(): typeof AuditLog;
+                export function asTry(): typeof AuditLog;
+                export const ActionDate: string;
+                export const ActionType: string;
+                export const ChangedFields: string;
+                export const EntityId: string;
+                export const EntityName: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const EntityType: string;
+                export const Id: string;
+                export const IpAddress: string;
+                export const NewValues: string;
+                export const OldValues: string;
+                export const UserDisplayName: string;
+                export const UserId: string;
+                export const Username: string;
+            }
             namespace Language {
                 export function asKey(): typeof Language;
                 export function asTry(): typeof Language;
@@ -350,6 +369,77 @@ namespace texts {
                 export const Title: string;
             }
         }
+        namespace Warehouse {
+            export function asKey(): typeof Warehouse;
+            export function asTry(): typeof Warehouse;
+            namespace StockEntries {
+                export function asKey(): typeof StockEntries;
+                export function asTry(): typeof StockEntries;
+                export const Description: string;
+                export const DetailList: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const EntryDate: string;
+                export const EntryNo: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const Status: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+                export const WarehouseCode: string;
+                export const WarehouseId: string;
+                export const WarehouseName: string;
+            }
+            namespace StockEntryDetails {
+                export function asKey(): typeof StockEntryDetails;
+                export function asTry(): typeof StockEntryDetails;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const Notes: string;
+                export const ProductCode: string;
+                export const ProductId: string;
+                export const ProductName: string;
+                export const Quantity: string;
+                export const StockEntryId: string;
+            }
+            namespace WarehouseStock {
+                export function asKey(): typeof WarehouseStock;
+                export function asTry(): typeof WarehouseStock;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const LastUpdateDate: string;
+                export const ProductCode: string;
+                export const ProductId: string;
+                export const ProductName: string;
+                export const Quantity: string;
+                export const WarehouseCode: string;
+                export const WarehouseId: string;
+                export const WarehouseName: string;
+            }
+            namespace Warehouses {
+                export function asKey(): typeof Warehouses;
+                export function asTry(): typeof Warehouses;
+                export const Address: string;
+                export const City: string;
+                export const Code: string;
+                export const Description: string;
+                export const Email: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const ManagerName: string;
+                export const Name: string;
+                export const Phone: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+        }
     }
     export declare namespace Forms {
         export function asKey(): typeof Forms;
@@ -450,6 +540,7 @@ namespace texts {
 const Texts: typeof texts = proxyTexts({}, '', {
     Db: {
         Administration: {
+            AuditLog: {},
             Language: {},
             Role: {},
             RolePermission: {},
@@ -477,6 +568,12 @@ const Texts: typeof texts = proxyTexts({}, '', {
             NumberTemplates: {},
             VatRates: {},
             VendorType: {}
+        },
+        Warehouse: {
+            StockEntries: {},
+            StockEntryDetails: {},
+            WarehouseStock: {},
+            Warehouses: {}
         }
     },
     Forms: {

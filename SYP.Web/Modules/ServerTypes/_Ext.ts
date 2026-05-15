@@ -5,4 +5,5 @@ export * from "./_Ext/EntityReportRequest";
 export * from "./_Ext/ListReportRequest";
 export * from "./_Ext/Months";
 export * from "./_Ext/NumberTemplateType";
+export * from "./_Ext/StockEntryStatus";
 export * from "./_Ext/TimeUoM";

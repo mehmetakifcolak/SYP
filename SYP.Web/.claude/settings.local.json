@@ -12,7 +12,8 @@
       "Bash(find:*)",
       "Bash(tree:*)",
       "Bash(dotnet sergen:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(ls:*)"
     ]
   }
 }

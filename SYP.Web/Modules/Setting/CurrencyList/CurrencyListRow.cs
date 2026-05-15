@@ -8,29 +8,30 @@
 [UpdatePermission("Setting:CurrencyList:Update")]
 [DeletePermission("Setting:CurrencyList:Delete")]
 [ServiceLookupPermission("Setting:CurrencyList:Lookup")]
+[LookupScript(Permission = "*", Expiration = -1)]
 public sealed class CurrencyListRow : Row<CurrencyListRow.RowFields>, IIdRow, INameRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
     
-    [DisplayName("Code"), Size(5), QuickSearch, NameProperty]
+    [DisplayName("Code"), Size(5), QuickSearch, NameProperty, LookupInclude]
     public string Code { get => fields.Code[this]; set => fields.Code[this] = value; }
     public partial class RowFields { public StringField Code; }
-    
-    [DisplayName("Name"), Size(50)]
+
+    [DisplayName("Name"), Size(50), LookupInclude]
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
-    
-    [DisplayName("Code Type")]
+
+    [DisplayName("Code Type"), LookupInclude]
     public short? CodeType { get => fields.CodeType[this]; set => fields.CodeType[this] = value; }
     public partial class RowFields { public Int16Field CodeType; }
-    
-    [DisplayName("Symbol"), Size(5)]
+
+    [DisplayName("Symbol"), Size(5), LookupInclude]
     public string Symbol { get => fields.Symbol[this]; set => fields.Symbol[this] = value; }
     public partial class RowFields { public StringField Symbol; }
-    
-    [DisplayName("Is Active")]
+
+    [DisplayName("Is Active"), LookupInclude]
     public bool? IsActive { get => fields.IsActive[this]; set => fields.IsActive[this] = value; }
     public partial class RowFields { public BooleanField IsActive; }
     

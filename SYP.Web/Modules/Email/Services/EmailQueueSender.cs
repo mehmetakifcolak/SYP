@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Serenity.Data;
 using Serenity.Web;
+using SYP.Administration;
 using _Ext;
 using System.Text.Json;
 
@@ -211,6 +212,19 @@ public class EmailQueueSender : IEmailQueueSender
 
     private int GetCurrentUserId()
     {
-        return Convert.ToInt32(_userAccessor.User?.GetIdentifier() ?? "1");
+        var identifier = _userAccessor.User?.GetIdentifier();
+        if (string.IsNullOrEmpty(identifier))
+            return 1;
+
+        if (int.TryParse(identifier, out var userId))
+            return userId;
+
+        // Identifier username ise veritabanindan UserId'yi bul
+        using var connection = _sqlConnections.NewByKey("Default");
+        var user = connection.TryFirst<UserRow>(q => q
+            .Select(UserRow.Fields.UserId)
+            .Where(UserRow.Fields.Username == identifier));
+
+        return user?.UserId ?? 1;
     }
 }

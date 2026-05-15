@@ -10,7 +10,7 @@ namespace SYP.Customer;
 [UpdatePermission("Customer:Customers:Update")]
 [DeletePermission("Customer:Customers:Delete")]
 [ServiceLookupPermission("Customer:Customers:Lookup")]
-public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
+public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow, IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }

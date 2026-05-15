@@ -112,4 +112,15 @@ namespace _Ext //enums must have namespace otherwise it transforms to wrong type
         [Description("Başarısız")]
         Failed = 3
     }
+
+    [EnumKey("Warehouse.StockEntryStatus"), ScriptInclude]
+    public enum StockEntryStatus
+    {
+        [Description("Taslak")]
+        Draft = 0,
+        [Description("Onaylandı")]
+        Approved = 1,
+        [Description("İptal")]
+        Cancelled = 2
+    }
 }

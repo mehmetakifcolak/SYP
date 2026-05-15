@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serenity.Extensions.DependencyInjection;
 using Serenity.Localization;
+using SYP.Common.Jobs;
 using SYP.Email.Services;
 using System.IO;
 
@@ -102,8 +103,15 @@ public partial class Startup
             services.AddHostedService<EmailQueueService>();
         }
 
+        // Daily Exchange Rate Job (TCMB)
+        if (Configuration.GetValue("DailyExchange:Enabled", true))
+        {
+            services.AddHostedService<DailyExchangeJob>();
+        }
+
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IHttpContextItemsAccessor, HttpContextItemsAccessor>();
+        services.AddScoped<Administration.IAuditLogService, Administration.AuditLogService>();
         services.AddSingleton<INavigationModelFactory, AppServices.NavigationModelFactory>();
         services.AddSingleton<IPermissionService, AppServices.PermissionService>();
         services.AddSingleton<IPermissionKeyLister, AppServices.PermissionKeyLister>();

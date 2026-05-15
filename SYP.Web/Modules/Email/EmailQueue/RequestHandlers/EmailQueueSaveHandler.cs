@@ -1,4 +1,5 @@
 using Serenity.Services;
+using SYP.Administration;
 using _Ext;
 
 namespace SYP.Email;
@@ -16,7 +17,7 @@ public class EmailQueueSaveHandler(IRequestContext context) :
         if (IsCreate)
         {
             Row.InsertDate = DateTime.Now;
-            Row.InsertUserId = Convert.ToInt32(Context.User?.GetIdentifier() ?? "1");
+            Row.InsertUserId = UserHelper.GetCurrentUserId(Connection, Context.User?.GetIdentifier());
 
             // Varsayılan değerler
             if (Row.Status == null)
