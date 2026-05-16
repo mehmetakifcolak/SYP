@@ -103,12 +103,71 @@ namespace texts {
         namespace Catalog {
             export function asKey(): typeof Catalog;
             export function asTry(): typeof Catalog;
+            namespace Brands {
+                export function asKey(): typeof Brands;
+                export function asTry(): typeof Brands;
+                export const Description: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const Logo: string;
+                export const Name: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+            namespace PriceListItems {
+                export function asKey(): typeof PriceListItems;
+                export function asTry(): typeof PriceListItems;
+                export const DiscountRate: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const Notes: string;
+                export const PriceListCode: string;
+                export const PriceListId: string;
+                export const PriceListName: string;
+                export const ProductCode: string;
+                export const ProductId: string;
+                export const ProductName: string;
+                export const UnitPrice: string;
+            }
+            namespace PriceLists {
+                export function asKey(): typeof PriceLists;
+                export function asTry(): typeof PriceLists;
+                export const Code: string;
+                export const CurrencyCode: string;
+                export const CurrencyId: string;
+                export const CurrencyName: string;
+                export const Description: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const IsDefault: string;
+                export const ItemList: string;
+                export const Name: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+                export const ValidFrom: string;
+                export const ValidTo: string;
+            }
             namespace Products {
                 export function asKey(): typeof Products;
                 export function asTry(): typeof Products;
                 export const Barcode: string;
+                export const BrandId: string;
+                export const BrandName: string;
+                export const CategoryId: string;
+                export const CategoryName: string;
                 export const Code: string;
                 export const CodeName: string;
+                export const CurrencyCode: string;
+                export const CurrencyId: string;
                 export const Description: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
@@ -119,8 +178,13 @@ namespace texts {
                 export const Name: string;
                 export const Name2: string;
                 export const ProductImage: string;
+                export const UnitId: string;
+                export const UnitName: string;
+                export const UnitPrice: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
+                export const VatRateId: string;
+                export const VatRateName: string;
             }
         }
         namespace Customer {
@@ -274,6 +338,39 @@ namespace texts {
                 export const Username: string;
             }
         }
+        namespace Products {
+            export function asKey(): typeof Products;
+            export function asTry(): typeof Products;
+            namespace Brands {
+                export function asKey(): typeof Brands;
+                export function asTry(): typeof Brands;
+                export const Description: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const Logo: string;
+                export const Name: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+            namespace ProductCategory {
+                export function asKey(): typeof ProductCategory;
+                export function asTry(): typeof ProductCategory;
+                export const CreatedAt: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const FullPath: string;
+                export const Id: string;
+                export const IsActive: string;
+                export const Name: string;
+                export const ParentId: string;
+                export const ParentName: string;
+                export const SortOrder: string;
+            }
+        }
         namespace Setting {
             export function asKey(): typeof Setting;
             export function asTry(): typeof Setting;
@@ -371,6 +468,17 @@ namespace texts {
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
             }
+            namespace Units {
+                export function asKey(): typeof Units;
+                export function asTry(): typeof Units;
+                export const Code: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const IsActive: string;
+                export const Name: string;
+                export const SortOrder: string;
+            }
             namespace VatRates {
                 export function asKey(): typeof VatRates;
                 export function asTry(): typeof VatRates;
@@ -381,6 +489,7 @@ namespace texts {
                 export const IsActive: string;
                 export const IsDefault: string;
                 export const Name: string;
+                export const Rate: string;
                 export const SortOrder: string;
             }
             namespace VendorType {
@@ -422,6 +531,7 @@ namespace texts {
             namespace StockEntryDetails {
                 export function asKey(): typeof StockEntryDetails;
                 export function asTry(): typeof StockEntryDetails;
+                export const Currency: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
                 export const Id: string;
@@ -431,10 +541,14 @@ namespace texts {
                 export const ProductName: string;
                 export const Quantity: string;
                 export const StockEntryId: string;
+                export const Unit: string;
+                export const UnitPrice: string;
+                export const VatRate: string;
             }
             namespace StockExitDetails {
                 export function asKey(): typeof StockExitDetails;
                 export function asTry(): typeof StockExitDetails;
+                export const Currency: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
                 export const Id: string;
@@ -444,6 +558,9 @@ namespace texts {
                 export const ProductName: string;
                 export const Quantity: string;
                 export const StockExitId: string;
+                export const Unit: string;
+                export const UnitPrice: string;
+                export const VatRate: string;
             }
             namespace StockExits {
                 export function asKey(): typeof StockExits;
@@ -632,6 +749,9 @@ const Texts: typeof texts = proxyTexts({}, '', {
             UserRole: {}
         },
         Catalog: {
+            Brands: {},
+            PriceListItems: {},
+            PriceLists: {},
             Products: {}
         },
         Customer: {
@@ -644,12 +764,17 @@ const Texts: typeof texts = proxyTexts({}, '', {
             EmailTemplates: {},
             SmtpSettings: {}
         },
+        Products: {
+            Brands: {},
+            ProductCategory: {}
+        },
         Setting: {
             BankAccountInformations: {},
             Country: {},
             CurrencyList: {},
             DailyExchanges: {},
             NumberTemplates: {},
+            Units: {},
             VatRates: {},
             VendorType: {}
         },

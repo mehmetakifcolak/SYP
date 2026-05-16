@@ -43,7 +43,15 @@ export class GridBase<TItem, TOptions> extends EntityGrid<TItem, TOptions> {
 
         if (this.isAutosized == false) {
             if (this.get_ExtGridOptions().AutoColumnSize == true) {
-                this.resizeAllCulumn(this.allColumns);
+                // Persist edilmiş kolon ayarları varsa otomatik boyutlandırma yapma
+                // Çünkü resizeAllCulumn() persist edilmiş genişlikleri override eder
+                let columns = this.slickGrid.getColumns();
+                let hasPersistSettings = this.getPersistenceStorage() && this.getPersistenceKey();
+
+                // Eğer persist ayarları yoksa veya kolonlar henüz yüklenmediyse resize yap
+                if (!hasPersistSettings) {
+                    this.resizeAllCulumn(this.allColumns);
+                }
             }
         }
     }

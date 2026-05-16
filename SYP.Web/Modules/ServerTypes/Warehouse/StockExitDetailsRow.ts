@@ -1,10 +1,14 @@
-import { fieldsProxy } from "@serenity-is/corelib";
+﻿import { fieldsProxy } from "@serenity-is/corelib";
 
 export interface StockExitDetailsRow {
     Id?: number;
     StockExitId?: number;
     ProductId?: number;
     Quantity?: number;
+    Unit?: string;
+    Currency?: string;
+    VatRate?: number;
+    UnitPrice?: number;
     Notes?: string;
     ProductCode?: string;
     ProductName?: string;

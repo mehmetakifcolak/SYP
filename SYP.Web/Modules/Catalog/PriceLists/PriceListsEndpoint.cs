@@ -1,0 +1,60 @@
+using Microsoft.AspNetCore.Mvc;
+using Serenity.Data;
+using Serenity.Reporting;
+using Serenity.Services;
+using Serenity.Web;
+using System.Data;
+using MyRow = SYP.Catalog.PriceListsRow;
+
+namespace SYP.Catalog.Endpoints;
+
+[Route("Services/Catalog/PriceLists/[action]")]
+[ConnectionKey(typeof(MyRow)), ServiceAuthorize(typeof(MyRow))]
+public class PriceListsEndpoint : ServiceEndpoint
+{
+    [HttpPost, AuthorizeCreate(typeof(MyRow))]
+    public SaveResponse Create(IUnitOfWork uow, SaveRequest<MyRow> request,
+        [FromServices] IPriceListsSaveHandler handler)
+    {
+        return handler.Create(uow, request);
+    }
+
+    [HttpPost, AuthorizeUpdate(typeof(MyRow))]
+    public SaveResponse Update(IUnitOfWork uow, SaveRequest<MyRow> request,
+        [FromServices] IPriceListsSaveHandler handler)
+    {
+        return handler.Update(uow, request);
+    }
+
+    [HttpPost, AuthorizeDelete(typeof(MyRow))]
+    public DeleteResponse Delete(IUnitOfWork uow, DeleteRequest request,
+        [FromServices] IPriceListsDeleteHandler handler)
+    {
+        return handler.Delete(uow, request);
+    }
+
+    [HttpPost]
+    public RetrieveResponse<MyRow> Retrieve(IDbConnection connection, RetrieveRequest request,
+        [FromServices] IPriceListsRetrieveHandler handler)
+    {
+        return handler.Retrieve(connection, request);
+    }
+
+    [HttpPost, AuthorizeList(typeof(MyRow))]
+    public ListResponse<MyRow> List(IDbConnection connection, ListRequest request,
+        [FromServices] IPriceListsListHandler handler)
+    {
+        return handler.List(connection, request);
+    }
+
+    [HttpPost, AuthorizeList(typeof(MyRow))]
+    public FileContentResult ListExcel(IDbConnection connection, ListRequest request,
+        [FromServices] IPriceListsListHandler handler,
+        [FromServices] IExcelExporter exporter)
+    {
+        var data = List(connection, request, handler).Entities;
+        var bytes = exporter.Export(data, typeof(Columns.PriceListsColumns), request.ExportColumns);
+        return ExcelContentResult.Create(bytes, "FiyatListeleri_" +
+            System.DateTime.Now.ToString("yyyyMMdd_HHmmss", System.Globalization.CultureInfo.InvariantCulture) + ".xlsx");
+    }
+}

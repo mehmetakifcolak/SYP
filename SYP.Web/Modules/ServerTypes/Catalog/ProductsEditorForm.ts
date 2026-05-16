@@ -6,8 +6,6 @@ export interface ProductsEditorForm {
     Name2: StringEditor;
     Description: StringEditor;
     Barcode: StringEditor;
-    Currency: StringEditor;
-    VatRate: StringEditor;
     InsertDate: DateEditor;
     InsertUserId: IntegerEditor;
     UpdateDate: DateEditor;
@@ -35,8 +33,6 @@ export class ProductsEditorForm extends PrefixedContext {
                 'Name2', w0,
                 'Description', w0,
                 'Barcode', w0,
-                'Currency', w0,
-                'VatRate', w0,
                 'InsertDate', w1,
                 'InsertUserId', w2,
                 'UpdateDate', w1,

@@ -1,9 +1,9 @@
-import { EntityGrid } from "@serenity-is/corelib";
 import { RoleColumns, RoleRow, RoleService } from "../../ServerTypes/Administration";
 import { nsAdministration } from "../../ServerTypes/Namespaces";
 import { RoleDialog } from "./RoleDialog";
+import { GridBase } from "../../_Ext/Bases/GridBase";
 
-export class RoleGrid extends EntityGrid<RoleRow, any> {
+export class RoleGrid extends GridBase<RoleRow, any> {
     static override[Symbol.typeInfo] = this.registerClass(nsAdministration);
 
     protected override getColumnsKey() { return RoleColumns.columnsKey; }

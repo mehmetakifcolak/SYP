@@ -15,7 +15,8 @@
     "jvectormap-content": "0.1.1",
     "jvectormap-next": "3.1.2",
     "moment": "2.30.1",
-    "preact": "10.27.2"
+    "preact": "10.27.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@serenity-is/tsbuild": "9.1.0"

@@ -1,10 +1,11 @@
-import { confirmDialog, EntityGrid, Fluent, GridUtils, isEmptyOrNull, isTrimmedEmpty, LookupEditor, LookupEditorOptions, notifySuccess, stripDiacritics, ToolButton, trimToEmpty, trimToNull, Widget } from "@serenity-is/corelib";
+import { confirmDialog, Fluent, GridUtils, isEmptyOrNull, isTrimmedEmpty, LookupEditor, LookupEditorOptions, notifySuccess, stripDiacritics, ToolButton, trimToEmpty, trimToNull, Widget } from "@serenity-is/corelib";
 import { TranslationItem, TranslationTexts } from "@serenity-is/extensions";
 import { Column } from "@serenity-is/sleekgrid";
 import { TranslationService } from "../../ServerTypes/Administration";
 import { nsAdministration } from "../../ServerTypes/Namespaces";
+import { GridBase } from "../../_Ext/Bases/GridBase";
 
-export class TranslationGrid extends EntityGrid<TranslationItem, any> {
+export class TranslationGrid extends GridBase<TranslationItem, any> {
     static override[Symbol.typeInfo] = this.registerClass(nsAdministration);
 
     protected override getIdProperty() { return "Key"; }

@@ -1,10 +1,10 @@
 import { Decorators, ToolButton } from '@serenity-is/corelib';
-import { EntityGrid } from '@serenity-is/corelib';
 import { AuditLogColumns, AuditLogRow, AuditLogService } from '../../ServerTypes/Administration';
 import { AuditLogDialog } from './AuditLogDialog';
+import { GridBase } from '../../_Ext/Bases/GridBase';
 
 @Decorators.registerClass('SYP.Administration.AuditLogGrid')
-export class AuditLogGrid extends EntityGrid<AuditLogRow, any> {
+export class AuditLogGrid extends GridBase<AuditLogRow, any> {
     protected getColumnsKey() { return AuditLogColumns.columnsKey; }
     protected getDialogType() { return AuditLogDialog; }
     protected getRowDefinition() { return AuditLogRow; }

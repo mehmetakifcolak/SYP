@@ -20,7 +20,22 @@ public class ProductsColumns
     public string Name { get; set; }
 
     [Width(150)]
-    public string Description { get; set; }
+    public string CategoryName { get; set; }
+
+    [Width(120)]
+    public string BrandName { get; set; }
+
+    [Width(80)]
+    public string UnitName { get; set; }
+
+    [Width(100), AlignRight]
+    public decimal? UnitPrice { get; set; }
+
+    [Width(80)]
+    public string CurrencyCode { get; set; }
+
+    [Width(80)]
+    public string VatRateName { get; set; }
 
     [Width(120)]
     public string Barcode { get; set; }

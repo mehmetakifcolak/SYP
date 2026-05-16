@@ -15,6 +15,7 @@ public static partial class ESM
     public const string LanguagePage = "~/esm/Modules/Administration/Language/LanguagePage.js";
     public const string LoginPage = "~/esm/Modules/Membership/Account/Login/LoginPage.js";
     public const string NumberTemplatesPage = "~/esm/Modules/Setting/NumberTemplates/NumberTemplatesPage.js";
+    public const string ProductCategoryPage = "~/esm/Modules/Products/ProductCategory/ProductCategoryPage.js";
     public const string ProductsPage = "~/esm/Modules/Catalog/Products/ProductsPage.js";
     public const string RolePage = "~/esm/Modules/Administration/Role/RolePage.js";
     public const string ScriptInit = "~/esm/Modules/Common/ScriptInit.js";
@@ -62,6 +63,11 @@ public static partial class ESM
 
         public static partial class Catalog
         {
+            public static partial class Brands
+            {
+                public const string BrandsPage = "~/esm/Modules/Catalog/Brands/BrandsPage.js";
+            }
+
             public static partial class Products
             {
                 public const string ProductsPage = "~/esm/Modules/Catalog/Products/ProductsPage.js";
@@ -122,6 +128,19 @@ public static partial class ESM
                 {
                     public const string SignUpPage = "~/esm/Modules/Membership/Account/SignUp/SignUpPage.js";
                 }
+            }
+        }
+
+        public static partial class Products
+        {
+            public static partial class Brands
+            {
+                public const string BrandsPage = "~/esm/Modules/Products/Brands/BrandsPage.js";
+            }
+
+            public static partial class ProductCategory
+            {
+                public const string ProductCategoryPage = "~/esm/Modules/Products/ProductCategory/ProductCategoryPage.js";
             }
         }
 

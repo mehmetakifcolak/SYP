@@ -1,4 +1,6 @@
-﻿using MyRow = SYP.Administration.LanguageRow;
+﻿using Serenity.Reporting;
+using System.Globalization;
+using MyRow = SYP.Administration.LanguageRow;
 
 namespace SYP.Administration.Endpoints;
 
@@ -32,5 +34,16 @@ public class LanguageEndpoint : ServiceEndpoint
     public ListResponse<MyRow> List(IDbConnection connection, ListRequest request, [FromServices] ILanguageListHandler handler)
     {
         return handler.List(connection, request);
+    }
+
+    [HttpPost, AuthorizeList(typeof(MyRow))]
+    public FileContentResult ListExcel(IDbConnection connection, ListRequest request,
+        [FromServices] ILanguageListHandler handler,
+        [FromServices] IExcelExporter exporter)
+    {
+        var data = List(connection, request, handler).Entities;
+        var bytes = exporter.Export(data, typeof(Forms.LanguageColumns), request.ExportColumns);
+        return ExcelContentResult.Create(bytes, "Languages_" +
+            DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".xlsx");
     }
 }

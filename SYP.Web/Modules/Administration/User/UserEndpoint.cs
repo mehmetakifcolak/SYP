@@ -1,4 +1,6 @@
-﻿using MyRow = SYP.Administration.UserRow;
+﻿using Serenity.Reporting;
+using System.Globalization;
+using MyRow = SYP.Administration.UserRow;
 
 namespace SYP.Administration.Endpoints;
 
@@ -42,6 +44,17 @@ public class UserEndpoint : ServiceEndpoint
     public ListResponse<MyRow> List(IDbConnection connection, UserListRequest request, [FromServices] IUserListHandler handler)
     {
         return handler.List(connection, request);
+    }
+
+    [HttpPost, AuthorizeList(typeof(MyRow))]
+    public FileContentResult ListExcel(IDbConnection connection, UserListRequest request,
+        [FromServices] IUserListHandler handler,
+        [FromServices] IExcelExporter exporter)
+    {
+        var data = List(connection, request, handler).Entities;
+        var bytes = exporter.Export(data, typeof(Columns.UserColumns), request.ExportColumns);
+        return ExcelContentResult.Create(bytes, "Users_" +
+            DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".xlsx");
     }
 
     [HttpPost]

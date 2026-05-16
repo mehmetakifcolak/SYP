@@ -3,7 +3,8 @@ import { GridEditorBase } from "@serenity-is/extensions";
 import { StockExitDetailsColumns, StockExitDetailsRow } from "../../ServerTypes/Warehouse";
 import { StockExitDetailsEditDialog } from "./StockExitDetailsEditDialog";
 import { ProductsRow } from "../../ServerTypes/Catalog";
-import { BulkProductSelectionDialog } from "../Common/BulkProductSelectionDialog";
+import { BulkProductSelectionDialog, BulkProductItem } from "../Common/BulkProductSelectionDialog";
+import { ExcelProductImportDialog } from "../Common/ExcelProductImportDialog";
 
 @Decorators.registerEditor("SYP.Warehouse.StockExitDetailsEditor")
 export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> {
@@ -36,6 +37,13 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
             onClick: () => this.openBulkProductDialog()
         });
 
+        buttons.push({
+            title: "Excel ile Yükle",
+            cssClass: "excel-import-button",
+            icon: "fa-file-excel-o",
+            onClick: () => this.openExcelImportDialog()
+        });
+
         return buttons;
     }
 
@@ -43,15 +51,19 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
         // Mevcut ürün ID'lerini al
         const existingProductIds = this.getItems().map(x => x.ProductId).filter(x => x != null) as number[];
 
-        new BulkProductSelectionDialog({
+        const dlg = new BulkProductSelectionDialog({
             excludeProductIds: existingProductIds,
-            onSelect: (products) => {
-                for (const product of products) {
+            onSelect: (items: BulkProductItem[]) => {
+                for (const item of items) {
                     const newRow: StockExitDetailsRow = {
-                        ProductId: product.Id,
-                        ProductCode: product.Code,
-                        ProductName: product.Name,
-                        Quantity: 1
+                        ProductId: item.ProductId,
+                        ProductCode: item.ProductCode,
+                        ProductName: item.ProductName,
+                        Quantity: item.Quantity,
+                        Unit: item.Unit,
+                        Currency: item.Currency,
+                        VatRate: item.VatRate,
+                        UnitPrice: item.UnitPrice
                     };
 
                     const id = this.getNextId();
@@ -61,7 +73,57 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
 
                 this.view.refresh();
             }
-        }).dialogOpen();
+        });
+        dlg.dialogOpen();
+    }
+
+    private openExcelImportDialog(): void {
+        const existingProductIds = this.getItems().map(x => x.ProductId).filter(x => x != null) as number[];
+
+        const dlg = new ExcelProductImportDialog({
+            excludeProductIds: existingProductIds,
+            onImport: (items) => {
+                for (const item of items) {
+                    // Lookup'tan ürün bilgilerini al
+                    let productCode = item.ProductCode;
+                    let productName = item.ProductName;
+                    let unit: string | undefined;
+                    let currency: string | undefined;
+                    let vatRate: number | undefined;
+                    let unitPrice: number | undefined;
+
+                    if (this.productLookup && item.ProductId) {
+                        const product = this.productLookup.itemById[item.ProductId];
+                        if (product) {
+                            productCode = product.Code || productCode;
+                            productName = product.Name || productName;
+                            unit = product.Unit;
+                            currency = product.Currency;
+                            vatRate = product.VatRate;
+                            unitPrice = product.UnitPrice;
+                        }
+                    }
+
+                    const newRow: StockExitDetailsRow = {
+                        ProductId: item.ProductId,
+                        ProductCode: productCode,
+                        ProductName: productName,
+                        Quantity: item.Quantity,
+                        Unit: unit,
+                        Currency: currency,
+                        VatRate: vatRate,
+                        UnitPrice: unitPrice
+                    };
+
+                    const id = this.getNextId();
+                    newRow[this.getIdProperty()] = id;
+                    this.view.addItem(newRow);
+                }
+
+                this.view.refresh();
+            }
+        });
+        dlg.dialogOpen();
     }
 
     protected validateEntity(row: StockExitDetailsRow, id: number): boolean {
@@ -75,6 +137,10 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
             if (product) {
                 row.ProductCode = product.Code;
                 row.ProductName = product.Name;
+                row.Unit = product.Unit;
+                row.Currency = product.Currency;
+                row.VatRate = product.VatRate;
+                row.UnitPrice = product.UnitPrice;
             }
         }
 

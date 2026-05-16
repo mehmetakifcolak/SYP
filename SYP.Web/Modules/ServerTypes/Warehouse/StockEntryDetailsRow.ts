@@ -5,6 +5,10 @@ export interface StockEntryDetailsRow {
     StockEntryId?: number;
     ProductId?: number;
     Quantity?: number;
+    Unit?: string;
+    Currency?: string;
+    VatRate?: number;
+    UnitPrice?: number;
     Notes?: string;
     ProductCode?: string;
     ProductName?: string;

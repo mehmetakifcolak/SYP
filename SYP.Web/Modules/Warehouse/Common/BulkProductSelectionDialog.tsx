@@ -1,56 +1,68 @@
-import { Decorators, DialogButton, BaseDialog, getLookupAsync, WidgetProps, htmlEncode, Lookup } from "@serenity-is/corelib";
+import { Decorators, DialogButton, TemplatedDialog, getLookupAsync, htmlEncode, Lookup, notifyWarning } from "@serenity-is/corelib";
 import { ProductsRow } from "../../ServerTypes/Catalog";
 
+export interface SelectedProductWithQuantity {
+    product: ProductsRow;
+    quantity: number;
+}
+
+export interface BulkProductItem {
+    ProductId: number;
+    ProductCode: string;
+    ProductName: string;
+    Quantity: number;
+    Unit?: string;
+    Currency?: string;
+    VatRate?: number;
+    UnitPrice?: number;
+}
+
 export interface BulkProductSelectionDialogOptions {
-    onSelect?: (products: ProductsRow[]) => void;
+    onSelect?: (items: BulkProductItem[]) => void;
     excludeProductIds?: number[];
 }
 
 @Decorators.registerClass("SYP.Warehouse.BulkProductSelectionDialog")
-export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionDialogOptions> {
-    private selectedProducts: Map<number, ProductsRow> = new Map();
+export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelectionDialogOptions> {
+    private selectedProducts: Map<number, SelectedProductWithQuantity> = new Map();
     private productListDiv: HTMLElement;
     private searchInput: HTMLInputElement;
     private selectedCountSpan: HTMLElement;
     private productLookup: Lookup<ProductsRow>;
 
-    constructor(props: WidgetProps<BulkProductSelectionDialogOptions>) {
-        super(props);
+    constructor(opt?: BulkProductSelectionDialogOptions) {
+        super(opt);
         this.dialogTitle = "Toplu Ürün Seçimi";
     }
 
-    protected renderContents(): void {
-        const content = this.findById("Content");
-        if (!content) return;
-
-        content.innerHTML = `
+    protected getTemplate(): string {
+        return `
             <div class="bulk-product-selection" style="padding: 10px;">
                 <div class="search-box mb-3">
-                    <input type="text" class="form-control" placeholder="Ürün kodu veya adı ile arayın..." />
+                    <input type="text" id="~_SearchInput" class="form-control" placeholder="Ürün kodu veya adı ile arayın..." />
                 </div>
                 <div class="selected-count mb-2">
-                    <span class="selected-count-number">0</span> ürün seçildi
+                    <span id="~_SelectedCount">0</span> ürün seçildi
                 </div>
-                <div class="product-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                <div id="~_ProductList" class="product-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
                     <div class="text-muted">Ürünler yükleniyor...</div>
                 </div>
             </div>
         `;
+    }
 
-        this.searchInput = content.querySelector('.search-box input') as HTMLInputElement;
-        this.productListDiv = content.querySelector('.product-list') as HTMLElement;
-        this.selectedCountSpan = content.querySelector('.selected-count-number') as HTMLElement;
+    protected onDialogOpen(): void {
+        super.onDialogOpen();
+
+        this.searchInput = this.byId("SearchInput")?.getNode() as HTMLInputElement;
+        this.productListDiv = this.byId("ProductList")?.getNode() as HTMLElement;
+        this.selectedCountSpan = this.byId("SelectedCount")?.getNode() as HTMLElement;
 
         if (this.searchInput) {
             this.searchInput.addEventListener("input", () => this.filterProducts());
         }
 
         this.loadProducts();
-    }
-
-    protected onDialogOpen(): void {
-        super.onDialogOpen();
-        this.renderContents();
     }
 
     protected getDialogButtons(): DialogButton[] {
@@ -60,7 +72,30 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
                 cssClass: "btn btn-primary",
                 click: () => {
                     if (this.selectedProducts.size > 0) {
-                        this.options.onSelect?.(Array.from(this.selectedProducts.values()));
+                        // Miktarları kontrol et
+                        const invalidItems: string[] = [];
+                        this.selectedProducts.forEach((item, id) => {
+                            if (item.quantity <= 0) {
+                                invalidItems.push(item.product.Code || '');
+                            }
+                        });
+
+                        if (invalidItems.length > 0) {
+                            notifyWarning(`Şu ürünlerin miktarı 0'dan büyük olmalıdır: ${invalidItems.join(', ')}`);
+                            return;
+                        }
+
+                        const items: BulkProductItem[] = Array.from(this.selectedProducts.values()).map(item => ({
+                            ProductId: item.product.Id!,
+                            ProductCode: item.product.Code!,
+                            ProductName: item.product.Name!,
+                            Quantity: item.quantity,
+                            Unit: item.product.UnitName,
+                            Currency: item.product.CurrencyCode,
+                            VatRate: item.product.VatRateId, // VatRateId kullanılıyor, gerekirse lookup'tan oran alınabilir
+                            UnitPrice: item.product.UnitPrice
+                        }));
+                        this.options.onSelect?.(items);
                         this.dialogClose();
                     }
                 }
@@ -74,24 +109,31 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
     }
 
     private async loadProducts(): Promise<void> {
-        this.productLookup = await getLookupAsync<ProductsRow>(ProductsRow.lookupKey);
-        const excludeIds = new Set(this.options.excludeProductIds || []);
+        try {
+            this.productLookup = await getLookupAsync<ProductsRow>(ProductsRow.lookupKey);
+            const excludeIds = new Set(this.options?.excludeProductIds || []);
 
-        const products = this.productLookup.items.filter(p =>
-            p.IsActive === 1 && !excludeIds.has(p.Id!)
-        );
+            const products = this.productLookup.items.filter(p =>
+                !excludeIds.has(p.Id!)
+            );
 
-        this.renderProductList(products);
+            this.renderProductList(products);
+        } catch (e) {
+            console.error("Ürünler yüklenirken hata:", e);
+            if (this.productListDiv) {
+                this.productListDiv.innerHTML = '<div class="text-danger">Ürünler yüklenemedi</div>';
+            }
+        }
     }
 
     private filterProducts(): void {
         if (!this.productLookup) return;
 
         const searchTerm = this.searchInput?.value?.toLowerCase().trim() || '';
-        const excludeIds = new Set(this.options.excludeProductIds || []);
+        const excludeIds = new Set(this.options?.excludeProductIds || []);
 
         let products = this.productLookup.items.filter(p =>
-            p.IsActive === 1 && !excludeIds.has(p.Id!)
+            !excludeIds.has(p.Id!)
         );
 
         if (searchTerm) {
@@ -113,15 +155,27 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
         }
 
         let html = '<table class="table table-hover table-sm mb-0">';
-        html += '<thead><tr><th style="width: 40px;"><input type="checkbox" class="select-all-checkbox" /></th><th>Ürün Kodu</th><th>Ürün Adı</th></tr></thead>';
+        html += '<thead><tr><th style="width: 40px;"><input type="checkbox" class="select-all-checkbox" /></th><th>Ürün Kodu</th><th>Ürün Adı</th><th style="width: 100px;">Miktar</th></tr></thead>';
         html += '<tbody>';
 
         for (const product of products) {
-            const isChecked = this.selectedProducts.has(product.Id!);
-            html += `<tr class="product-row" data-id="${product.Id}" style="cursor: pointer;">
+            const selectedItem = this.selectedProducts.get(product.Id!);
+            const isChecked = selectedItem != null;
+            const quantity = selectedItem?.quantity || 1;
+
+            html += `<tr class="product-row" data-id="${product.Id}">
                 <td><input type="checkbox" class="product-checkbox" data-id="${product.Id}" ${isChecked ? 'checked' : ''} /></td>
                 <td>${htmlEncode(product.Code || '')}</td>
                 <td>${htmlEncode(product.Name || '')}</td>
+                <td>
+                    <input type="number" class="form-control form-control-sm quantity-input"
+                           data-id="${product.Id}"
+                           value="${quantity}"
+                           min="0.0001"
+                           step="1"
+                           style="width: 80px;"
+                           ${!isChecked ? 'disabled' : ''} />
+                </td>
             </tr>`;
         }
 
@@ -135,15 +189,54 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
                 const target = e.target as HTMLInputElement;
                 const productId = parseInt(target.dataset.id!, 10);
                 const product = this.productLookup.itemById[productId];
+                const row = target.closest('tr');
+                const quantityInput = row?.querySelector('.quantity-input') as HTMLInputElement;
 
                 if (target.checked) {
-                    this.selectedProducts.set(productId, product);
+                    const quantity = parseFloat(quantityInput?.value) || 1;
+                    this.selectedProducts.set(productId, { product, quantity });
+                    if (quantityInput) {
+                        quantityInput.disabled = false;
+                        quantityInput.focus();
+                        quantityInput.select();
+                    }
                 } else {
                     this.selectedProducts.delete(productId);
+                    if (quantityInput) {
+                        quantityInput.disabled = true;
+                    }
                 }
 
                 this.updateSelectedCount();
                 this.updateSelectAllCheckbox();
+            });
+        });
+
+        // Event listeners for quantity inputs
+        const quantityInputs = this.productListDiv.querySelectorAll('.quantity-input');
+        quantityInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                const productId = parseInt(target.dataset.id!, 10);
+                const quantity = parseFloat(target.value) || 1;
+
+                const selectedItem = this.selectedProducts.get(productId);
+                if (selectedItem) {
+                    selectedItem.quantity = quantity;
+                }
+            });
+
+            // Miktar girildiğinde otomatik seç
+            input.addEventListener('focus', (e) => {
+                const target = e.target as HTMLInputElement;
+                const productId = parseInt(target.dataset.id!, 10);
+                const row = target.closest('tr');
+                const checkbox = row?.querySelector('.product-checkbox') as HTMLInputElement;
+
+                if (checkbox && !checkbox.checked) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
             });
         });
 
@@ -158,11 +251,16 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
                     checkbox.checked = target.checked;
                     const productId = parseInt(checkbox.dataset.id!, 10);
                     const product = this.productLookup.itemById[productId];
+                    const row = checkbox.closest('tr');
+                    const quantityInput = row?.querySelector('.quantity-input') as HTMLInputElement;
 
                     if (target.checked) {
-                        this.selectedProducts.set(productId, product);
+                        const quantity = parseFloat(quantityInput?.value) || 1;
+                        this.selectedProducts.set(productId, { product, quantity });
+                        if (quantityInput) quantityInput.disabled = false;
                     } else {
                         this.selectedProducts.delete(productId);
+                        if (quantityInput) quantityInput.disabled = true;
                     }
                 });
 
@@ -170,7 +268,7 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
             });
         }
 
-        // Row click to toggle
+        // Row click to toggle (exclude quantity input)
         const rows = this.productListDiv.querySelectorAll('.product-row');
         rows.forEach(row => {
             row.addEventListener('click', (e) => {
@@ -206,11 +304,7 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
 
     protected getDialogOptions() {
         const opt = super.getDialogOptions();
-        opt.width = 600;
+        opt.width = 700;
         return opt;
-    }
-
-    protected getTemplate(): string {
-        return `<div id="~_Content"></div>`;
     }
 }

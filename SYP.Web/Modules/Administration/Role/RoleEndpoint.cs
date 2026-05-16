@@ -1,4 +1,6 @@
-﻿using MyRow = SYP.Administration.RoleRow;
+﻿using Serenity.Reporting;
+using System.Globalization;
+using MyRow = SYP.Administration.RoleRow;
 
 namespace SYP.Administration.Endpoints;
 
@@ -32,5 +34,16 @@ public class RoleEndpoint : ServiceEndpoint
     public ListResponse<MyRow> List(IDbConnection connection, ListRequest request, [FromServices] IRoleListHandler handler)
     {
         return handler.List(connection, request);
+    }
+
+    [HttpPost, AuthorizeList(typeof(MyRow))]
+    public FileContentResult ListExcel(IDbConnection connection, ListRequest request,
+        [FromServices] IRoleListHandler handler,
+        [FromServices] IExcelExporter exporter)
+    {
+        var data = List(connection, request, handler).Entities;
+        var bytes = exporter.Export(data, typeof(Forms.RoleColumns), request.ExportColumns);
+        return ExcelContentResult.Create(bytes, "Roles_" +
+            DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".xlsx");
     }
 }

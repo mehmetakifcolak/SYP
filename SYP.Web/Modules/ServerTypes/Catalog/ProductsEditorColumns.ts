@@ -9,8 +9,6 @@ export interface ProductsEditorColumns {
     Name2: Column<ProductsRow>;
     Description: Column<ProductsRow>;
     Barcode: Column<ProductsRow>;
-    Currency: Column<ProductsRow>;
-    VatRate: Column<ProductsRow>;
     InsertDate: Column<ProductsRow>;
     InsertUserId: Column<ProductsRow>;
     UpdateDate: Column<ProductsRow>;

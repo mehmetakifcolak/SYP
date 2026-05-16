@@ -172,9 +172,9 @@ body {
 }
 .s-sidebar-search-icon { color: var(--syp-text-muted) !important; top: .45em !important; }
 
-/* Logo */
+/* Logo - Kaldırıldı */
 .s-site-logo-img {
-  content: url(../../Serenity.Assets/logo/white-128.png);
+  display: none !important;
 }
 
 /* ================================================================
@@ -746,11 +746,7 @@ body#s-LoginPage .s-full-page {
 }
 
 .login-brand-logo .s-site-logo-img {
-  width: 56px;
-  height: 56px;
-  filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.3));
-  opacity: 0.95;
-  animation: float 6s ease-in-out infinite;
+  display: none !important;
 }
 
 .login-brand-title {
@@ -1368,8 +1364,7 @@ body#s-LoginPage .s-full-page {
   }
 
   .login-brand-logo .s-site-logo-img {
-    width: 64px;
-    height: 64px;
+    display: none !important;
   }
 
   .login-brand-title {
@@ -1429,8 +1424,7 @@ body#s-LoginPage .s-full-page {
   }
 
   .login-brand-logo .s-site-logo-img {
-    width: 80px;
-    height: 80px;
+    display: none !important;
   }
 
   .login-brand-title {

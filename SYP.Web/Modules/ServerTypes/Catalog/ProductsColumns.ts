@@ -8,7 +8,12 @@ export interface ProductsColumns {
     ProductImage: Column<ProductsRow>;
     Code: Column<ProductsRow>;
     Name: Column<ProductsRow>;
-    Description: Column<ProductsRow>;
+    CategoryName: Column<ProductsRow>;
+    BrandName: Column<ProductsRow>;
+    UnitName: Column<ProductsRow>;
+    UnitPrice: Column<ProductsRow>;
+    CurrencyCode: Column<ProductsRow>;
+    VatRateName: Column<ProductsRow>;
     Barcode: Column<ProductsRow>;
     IsActive: Column<ProductsRow>;
 }

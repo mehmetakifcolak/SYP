@@ -9,11 +9,22 @@ export interface ProductsRow {
     Description?: string;
     Barcode?: string;
     ProductImage?: string;
+    CategoryId?: number;
+    BrandId?: number;
+    UnitId?: number;
+    CurrencyId?: number;
+    VatRateId?: number;
+    UnitPrice?: number;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;
     UpdateUserId?: number;
     IsActive?: number;
+    CategoryName?: string;
+    UnitName?: string;
+    CurrencyCode?: string;
+    VatRateName?: string;
+    BrandName?: string;
 }
 
 export abstract class ProductsRow {

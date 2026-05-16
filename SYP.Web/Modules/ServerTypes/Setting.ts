@@ -29,6 +29,7 @@ export * from "./Setting/NumberTemplatesEditorForm";
 export * from "./Setting/NumberTemplatesForm";
 export * from "./Setting/NumberTemplatesRow";
 export * from "./Setting/NumberTemplatesService";
+export * from "./Setting/UnitsRow";
 export * from "./Setting/VatRatesColumns";
 export * from "./Setting/VatRatesEditorColumns";
 export * from "./Setting/VatRatesEditorForm";

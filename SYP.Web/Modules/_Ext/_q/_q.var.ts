@@ -1,7 +1,7 @@
 export var queryString = {};
 export var jsPDFHeaderImageData: string = null
 export var jsPDFHeaderTitle: string = 'Report Title';
-export var ListExcelServiceMethodName: string = null;
+export var ListExcelServiceMethodName: string = 'ListExcel';
 export var useSerenityInlineEditors: boolean = true;
 
 export var DefaultMainGridOptions: ExtGridOptions = {

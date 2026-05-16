@@ -18,7 +18,17 @@
       "Bash(dotnet ef migrations:*)",
       "Bash(sqlcmd:*)",
       "Bash(ren:*)",
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "WebFetch(domain:vidicrm.com)",
+      "Bash(sort:*)",
+      "Bash(npx tsc:*)",
+      "WebSearch",
+      "WebFetch(domain:serenity.is)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(node:*)",
+      "Bash(dotnet run:*)",
+      "Bash(npm run build:*)",
+      "Bash(dotnet clean:*)"
     ]
   }
 }
