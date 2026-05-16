@@ -4,6 +4,7 @@ export interface ProductsRow {
     Id?: number;
     Code?: string;
     Name?: string;
+    CodeName?: string;
     Name2?: string;
     Description?: string;
     Barcode?: string;
@@ -17,7 +18,7 @@ export interface ProductsRow {
 
 export abstract class ProductsRow {
     static readonly idProperty = 'Id';
-    static readonly nameProperty = 'Code';
+    static readonly nameProperty = 'CodeName';
     static readonly localTextPrefix = 'Catalog.Products';
     static readonly lookupKey = 'Catalog.Products';
 

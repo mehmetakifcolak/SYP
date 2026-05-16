@@ -15,6 +15,7 @@ public class CustomersSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>
     private readonly IEmailQueueSender _emailQueueSender;
     private readonly IConfiguration _configuration;
     private string? _plainPassword; // Şifreyi hash'lemeden önce sakla
+    private bool _shouldCreateUser; // Kullanıcı oluşturulmalı mı flag'i
 
     public CustomersSaveHandler(IRequestContext context, IEmailQueueSender emailQueueSender, IConfiguration configuration)
         : base(context)
@@ -86,17 +87,26 @@ public class CustomersSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>
             }
         }
 
-        // Email zorunluluk kontrolü (User oluşturulacaksa)
-        if (!Row.Password.IsNullOrEmpty() && Row.Email.IsNullOrEmpty())
+        // Güncelleme işleminde mevcut kullanıcı kontrolü
+        int? existingUserId = null;
+        if (IsUpdate)
+        {
+            // Mevcut kaydın UserId'sini kontrol et
+            existingUserId = Old.UserId;
+        }
+
+        // Email zorunluluk kontrolü (User oluşturulacaksa - sadece UserId yoksa)
+        if (!Row.Password.IsNullOrEmpty() && Row.Email.IsNullOrEmpty() && existingUserId == null)
         {
             throw new ValidationError("Kullanıcı oluşturmak için email adresi zorunludur!");
         }
 
-        // Password validation (User oluşturulacaksa)
-        if (!Row.Password.IsNullOrEmpty())
+        // Password validation (User oluşturulacaksa - sadece UserId yoksa)
+        if (!Row.Password.IsNullOrEmpty() && existingUserId == null)
         {
             ValidatePasswordForUserCreation();
             _plainPassword = Row.Password; // Mail için şifreyi sakla
+            _shouldCreateUser = true; // Kullanıcı oluşturulacak
         }
     }
 
@@ -104,8 +114,8 @@ public class CustomersSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>
     {
         base.AfterSave();
 
-        // Eğer password girilmişse ve UserId yoksa User oluştur
-        if (!Row.Password.IsNullOrEmpty() && Row.UserId == null)
+        // Eğer kullanıcı oluşturulması gerekiyorsa (BeforeSave'de belirlendi)
+        if (_shouldCreateUser)
         {
             CreateUserForCustomer();
 

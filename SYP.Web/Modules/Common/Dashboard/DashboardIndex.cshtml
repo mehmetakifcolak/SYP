@@ -121,3 +121,211 @@
         <i class="fa fa-box icon"></i>
     </div>
 </div>
+
+<div class="recent-movements-section">
+    <div class="section-header">
+        <h3><i class="fa fa-exchange-alt me-2"></i>Son Stok Hareketleri</h3>
+        <a href="/Warehouse/StockMovements" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover movements-table">
+            <thead>
+                <tr>
+                    <th style="width: 100px;">Tip</th>
+                    <th style="width: 120px;">Fiş No</th>
+                    <th style="width: 150px;">Tarih</th>
+                    <th>Depo</th>
+                    <th>Ürün Kodu</th>
+                    <th>Ürün Adı</th>
+                    <th style="width: 100px; text-align: right;">Miktar</th>
+                    <th style="width: 100px;">Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.RecentMovements != null && Model.RecentMovements.Any())
+                {
+                    @foreach (var item in Model.RecentMovements)
+                    {
+                        <tr>
+                            <td>
+                                @if (item.MovementType == "Entry")
+                                {
+                                    <span class="badge bg-success"><i class="fa fa-arrow-down me-1"></i>Giriş</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger"><i class="fa fa-arrow-up me-1"></i>Çıkış</span>
+                                }
+                            </td>
+                            <td><strong>@item.DocumentNo</strong></td>
+                            <td>@item.MovementDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@item.WarehouseName</td>
+                            <td><code>@item.ProductCode</code></td>
+                            <td>@item.ProductName</td>
+                            <td style="text-align: right;">
+                                @if (item.Quantity > 0)
+                                {
+                                    <span class="text-success fw-bold">+@item.Quantity.ToString("N2")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-bold">@item.Quantity.ToString("N2")</span>
+                                }
+                            </td>
+                            <td>
+                                @switch (item.Status)
+                                {
+                                    case 0:
+                                        <span class="badge bg-secondary">Taslak</span>
+                                        break;
+                                    case 1:
+                                        <span class="badge bg-success">Onaylandı</span>
+                                        break;
+                                    case 2:
+                                        <span class="badge bg-danger">İptal</span>
+                                        break;
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+                            Henüz stok hareketi bulunmuyor
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="dashboard-section">
+    <div class="section-header">
+        <h3><i class="fa fa-history me-2"></i>Son İşlem Hareketleri</h3>
+        <a href="/Administration/AuditLog" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover dashboard-table">
+            <thead>
+                <tr>
+                    <th style="width: 100px;">İşlem</th>
+                    <th style="width: 150px;">Tablo</th>
+                    <th>Kayıt Adı</th>
+                    <th style="width: 150px;">Tarih</th>
+                    <th style="width: 150px;">Kullanıcı</th>
+                    <th style="width: 120px;">IP Adresi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.RecentAuditLogs != null && Model.RecentAuditLogs.Any())
+                {
+                    @foreach (var item in Model.RecentAuditLogs)
+                    {
+                        <tr>
+                            <td>
+                                @switch (item.ActionType)
+                                {
+                                    case "Insert":
+                                        <span class="badge bg-success"><i class="fa fa-plus me-1"></i>Ekleme</span>
+                                        break;
+                                    case "Update":
+                                        <span class="badge bg-warning text-dark"><i class="fa fa-edit me-1"></i>Güncelleme</span>
+                                        break;
+                                    case "Delete":
+                                        <span class="badge bg-danger"><i class="fa fa-trash me-1"></i>Silme</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@item.ActionType</span>
+                                        break;
+                                }
+                            </td>
+                            <td><code>@item.EntityType</code></td>
+                            <td>@item.EntityName</td>
+                            <td>@item.ActionDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td><i class="fa fa-user me-1 text-muted"></i>@item.Username</td>
+                            <td><small class="text-muted">@item.IpAddress</small></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+                            Henüz işlem kaydı bulunmuyor
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.recent-movements-section,
+.dashboard-section {
+    margin: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.movements-table,
+.dashboard-table {
+    margin: 0;
+}
+
+.movements-table thead th,
+.dashboard-table thead th {
+    background: #f8f9fa;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.movements-table tbody td,
+.dashboard-table tbody td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    font-size: 13px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.movements-table tbody tr:hover,
+.dashboard-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.movements-table code,
+.dashboard-table code {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+</style>

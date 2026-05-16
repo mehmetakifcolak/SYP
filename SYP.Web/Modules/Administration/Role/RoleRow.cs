@@ -5,7 +5,7 @@
 [ReadPermission(PermissionKeys.Security)]
 [ModifyPermission(PermissionKeys.Security)]
 [LookupScript]
-public sealed class RoleRow : Row<RoleRow.RowFields>, IIdRow, INameRow
+public sealed class RoleRow : Row<RoleRow.RowFields>, IIdRow, INameRow, IAuditedRow
 {
     [DisplayName("Role Id"), Identity, ForeignKey("Roles", "RoleId"), LeftJoin("jRole"), IdProperty]
     public int? RoleId { get => fields.RoleId[this]; set => fields.RoleId[this] = value; }

@@ -9,7 +9,7 @@ namespace SYP.Email;
 [UpdatePermission("Email:EmailTemplates:Update")]
 [DeletePermission("Email:EmailTemplates:Delete")]
 [ServiceLookupPermission("Email:EmailTemplates:Read")]
-public sealed class EmailTemplatesRow : Row<EmailTemplatesRow.RowFields>, IIdRow, INameRow
+public sealed class EmailTemplatesRow : Row<EmailTemplatesRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }

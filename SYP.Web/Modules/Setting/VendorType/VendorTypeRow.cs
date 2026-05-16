@@ -9,7 +9,7 @@
 [UpdatePermission("Setting:VendorType:Update")]
 [DeletePermission("Setting:VendorType:Delete")]
 [ServiceLookupPermission("Setting:VendorType:Lookup")]
-public sealed class VendorTypeRow : Row<VendorTypeRow.RowFields>, IIdRow, INameRow
+public sealed class VendorTypeRow : Row<VendorTypeRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }

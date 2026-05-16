@@ -8,7 +8,7 @@
 [UpdatePermission("Setting:DailyExchanges:Update")]
 [DeletePermission("Setting:DailyExchanges:Delete")]
 [ServiceLookupPermission("Setting:DailyExchanges:Lookup")]
-public sealed class DailyExchangesRow : Row<DailyExchangesRow.RowFields>, IIdRow, INameRow
+public sealed class DailyExchangesRow : Row<DailyExchangesRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }

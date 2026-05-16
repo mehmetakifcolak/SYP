@@ -4,9 +4,17 @@ export interface CustomersRow {
     Id?: number;
     Code?: string;
     Name?: string;
+    FirstName?: string;
+    LastName?: string;
     Email?: string;
     Phone?: string;
+    Phone2?: string;
     Address?: string;
+    CountryId?: number;
+    City?: string;
+    District?: string;
+    TaxOffice?: string;
+    TaxNumber?: string;
     IsActive?: boolean;
     VendorTypeId?: number;
     InsertDate?: string;

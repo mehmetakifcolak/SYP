@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Serenity.Reporting;
 using Serenity.Services;
+using SYP.Setting;
 using System.Data;
 using System.Globalization;
+using _Ext;
 
 namespace SYP.Warehouse.Endpoints;
 
@@ -54,5 +56,48 @@ public class StockEntriesEndpoint : ServiceEndpoint
         var bytes = exporter.Export(data, typeof(Columns.StockEntriesColumns), request.ExportColumns);
         return ExcelContentResult.Create(bytes, "StokGirisleri_" +
             DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".xlsx");
+    }
+
+    [HttpPost, AuthorizeCreate(typeof(StockEntriesRow))]
+    public GetNextNumberResponse GetNextEntryNo(IDbConnection connection)
+    {
+        var template = connection.TryFirst<NumberTemplatesRow>(q => q.SelectTableFields()
+            .Where(NumberTemplatesRow.Fields.Type == (int)NumberTemplateType.StokGirisi &
+                   NumberTemplatesRow.Fields.Active == 1));
+
+        string prefix;
+        int length;
+
+        if (template != null)
+        {
+            prefix = template.Prefix ?? "SGR";
+
+            if (!template.DateFormat.IsEmptyOrNull())
+            {
+                prefix = prefix + DateTime.Now.ToString(template.DateFormat);
+                if (!template.Suffix.IsEmptyOrNull())
+                    prefix = prefix + template.Suffix;
+            }
+
+            length = prefix.Length + (template.Length ?? 5);
+        }
+        else
+        {
+            prefix = "SGR" + DateTime.Now.ToString("yyyyMM");
+            length = prefix.Length + 5;
+        }
+
+        var request = new GetNextNumberRequest
+        {
+            Length = length,
+            Prefix = prefix
+        };
+
+        return GetNextNumberHelper.GetNextNumber(
+            connection,
+            request,
+            StockEntriesRow.Fields.EntryNo,
+            StockEntriesRow.Fields.Id
+        );
     }
 }

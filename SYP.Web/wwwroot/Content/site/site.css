@@ -6,13 +6,13 @@
 
 /* ── Design Tokens ── */
 :root {
-  /* Brand – Amber / Orange */
-  --syp-primary:        #f59e0b;
-  --syp-primary-dark:   #d97706;
-  --syp-primary-light:  #fcd34d;
-  --syp-primary-rgb:    245, 158, 11;
-  --syp-primary-bg:     #fffbeb;
-  --syp-primary-muted:  #fef3c7;
+  /* Brand – Modern Purple / Violet (Kozmetik E-Ticaret Teması) */
+  --syp-primary:        #8B5CF6;
+  --syp-primary-dark:   #7C3AED;
+  --syp-primary-light:  #A78BFA;
+  --syp-primary-rgb:    139, 92, 246;
+  --syp-primary-bg:     #F5F3FF;
+  --syp-primary-muted:  #EDE9FE;
 
   /* Surface */
   --syp-body-bg:        #f9fafb;
@@ -65,7 +65,7 @@
   --bs-border-radius-lg:  10px;
   --bs-border-radius-sm:  5px;
   --bs-link-color:        var(--syp-primary-dark);
-  --bs-link-hover-color:  #b45309;
+  --bs-link-hover-color:  #6D28D9;
 }
 
 /* ── Base ── */
@@ -166,7 +166,7 @@ body {
 }
 .s-sidebar-search-input:focus {
   border-color: var(--syp-primary) !important;
-  box-shadow: 0 0 0 3px rgba(245,158,11,.15) !important;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.15) !important;
   outline: none !important;
   background: #fff !important;
 }
@@ -186,7 +186,7 @@ body {
   border-bottom: 2px solid var(--syp-primary) !important;
   height: 54px !important;
   padding: 0 1rem;
-  box-shadow: 0 2px 8px rgba(245,158,11,.12);
+  box-shadow: 0 2px 8px rgba(139,92,246,.12);
 }
 
 .s-sidebar-header-title {
@@ -328,7 +328,7 @@ section.content-header h1 {
 }
 .slick-headerrow-column input:focus {
   border-color: var(--syp-primary) !important;
-  box-shadow: 0 0 0 3px rgba(245,158,11,.18) !important;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.18) !important;
   outline: none !important;
 }
 
@@ -357,12 +357,12 @@ section.content-header h1 {
   background: var(--syp-primary) !important;
   border-color: var(--syp-primary) !important;
   color: #fff !important;
-  box-shadow: 0 1px 3px rgba(245,158,11,.3);
+  box-shadow: 0 1px 3px rgba(139,92,246,.3);
 }
 .btn-primary:hover {
   background: var(--syp-primary-dark) !important;
   border-color: var(--syp-primary-dark) !important;
-  box-shadow: 0 4px 12px rgba(245,158,11,.35);
+  box-shadow: 0 4px 12px rgba(139,92,246,.35);
   transform: translateY(-1px);
 }
 
@@ -392,7 +392,7 @@ section.content-header h1 {
 }
 .form-control:focus, .form-select:focus {
   border-color: var(--syp-primary) !important;
-  box-shadow: 0 0 0 3px rgba(245,158,11,.18) !important;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.18) !important;
   outline: none !important;
 }
 .form-control::placeholder { color: #9ca3af !important; }
@@ -529,7 +529,7 @@ section.content-header h1 {
 .select2-container.select2-container-active .select2-choice,
 .select2-container.select2-container-multi.select2-container-active .select2-choices {
   border-color: var(--syp-primary) !important;
-  box-shadow: 0 0 0 3px rgba(245,158,11,.18) !important;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.18) !important;
 }
 .select2-drop {
   border: 1px solid var(--syp-input-border) !important;
@@ -668,7 +668,9 @@ body#s-LoginPage .s-full-page {
 .login-brand-panel {
   flex: 0 0 auto;
   min-height: 200px;
-  background: linear-gradient(135deg, var(--syp-primary) 0%, var(--syp-primary-dark) 50%, #b45309 100%);
+  background: linear-gradient(-45deg, #8B5CF6, #7C3AED, #6D28D9, #5B21B6, #4C1D95);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -679,27 +681,55 @@ body#s-LoginPage .s-full-page {
   overflow: hidden;
 }
 
-/* Dekoratif arka plan deseni */
-.login-brand-panel::before {
-  content: '';
+/* Partikül Canvas */
+.login-particles-canvas {
   position: absolute;
-  top: -50%;
-  right: -50%;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  height: 100%;
   pointer-events: none;
+  z-index: 1;
 }
 
-.login-brand-panel::after {
-  content: '';
+/* Animasyonlu Grid Arka Plan */
+.login-bg-grid {
   position: absolute;
-  bottom: -30%;
-  left: -30%;
-  width: 80%;
-  height: 80%;
-  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
   pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes gridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+/* Glow Efekti */
+.login-bg-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(139,92,246,0.4) 0%, transparent 70%);
+  animation: glowPulse 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
 }
 
 .login-brand-content {
@@ -718,8 +748,9 @@ body#s-LoginPage .s-full-page {
 .login-brand-logo .s-site-logo-img {
   width: 56px;
   height: 56px;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.3));
   opacity: 0.95;
+  animation: float 6s ease-in-out infinite;
 }
 
 .login-brand-title {
@@ -727,7 +758,8 @@ body#s-LoginPage .s-full-page {
   font-weight: 700;
   margin: 0 0 0.25rem 0;
   letter-spacing: -0.02em;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2), 0 0 40px rgba(255,255,255,0.1);
+  animation: fadeInUp 0.8s ease-out both;
 }
 
 .login-brand-tagline {
@@ -735,36 +767,7 @@ body#s-LoginPage .s-full-page {
   opacity: 0.9;
   margin: 0 0 1rem 0;
   font-weight: 400;
-}
-
-.login-brand-features {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-  justify-content: center;
-}
-
-.login-feature-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  opacity: 0.9;
-  background: rgba(255,255,255,0.12);
-  padding: 0.4rem 0.75rem;
-  border-radius: 50px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.login-feature-item i {
-  font-size: 0.85rem;
-  width: 16px;
-  text-align: center;
+  animation: fadeInUp 0.8s ease-out 0.1s both;
 }
 
 .login-brand-footer {
@@ -870,7 +873,7 @@ body#s-LoginPage .s-full-page {
 .login-input:focus {
   background: #fff;
   border-color: var(--syp-primary);
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
 }
 
 .login-input:focus + .login-input-icon,
@@ -948,7 +951,7 @@ body#s-LoginPage .s-full-page {
   left: 50%;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--syp-primary), var(--syp-primary-dark));
+  background: linear-gradient(90deg, #8B5CF6, #7C3AED, #6D28D9);
   transition: all 0.3s ease;
   transform: translateX(-50%);
   border-radius: 2px;
@@ -1008,7 +1011,7 @@ body#s-LoginPage .s-full-page {
 
 .login-forgot:hover,
 .login-forgot:active {
-  color: #b45309;
+  color: #6D28D9;
 }
 
 /* Giriş butonu */
@@ -1029,12 +1032,12 @@ body#s-LoginPage .s-full-page {
 
 .login-submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(245,158,11,0.35);
+  box-shadow: 0 6px 20px rgba(139,92,246,0.35);
 }
 
 .login-submit-btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+  box-shadow: 0 2px 8px rgba(139,92,246,0.3);
 }
 
 /* Ayırıcı */
@@ -1078,7 +1081,7 @@ body#s-LoginPage .s-full-page {
 
 .login-signup a:hover,
 .login-signup a:active {
-  color: #b45309;
+  color: #6D28D9;
 }
 
 /* ── Animasyonlar ── */
@@ -1110,6 +1113,249 @@ body#s-LoginPage .s-full-page {
   }
 }
 
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+@keyframes moveParticle {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(10px, -10px); }
+  50% { transform: translate(20px, 0); }
+  75% { transform: translate(10px, 10px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   3D CAROUSEL
+   ══════════════════════════════════════════════════════════════ */
+
+.login-carousel-wrapper {
+  width: 100%;
+  max-width: 400px;
+  margin: 2rem auto;
+  perspective: 1000px;
+  position: relative;
+}
+
+.login-carousel {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  transform-style: preserve-3d;
+}
+
+.login-carousel-card {
+  position: absolute;
+  width: 280px;
+  left: 50%;
+  top: 50%;
+  margin-left: -140px;
+  margin-top: -90px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  text-align: center;
+  color: #fff;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  opacity: 0;
+  transform: translateX(100%) rotateY(-45deg) scale(0.8);
+  pointer-events: none;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* İlk kart varsayılan olarak görünsün (JS yüklenmeden önce) */
+.login-carousel-card[data-index="0"]:not(.prev):not(.next):not(.far-prev):not(.far-next) {
+  opacity: 1;
+  transform: translateX(0) rotateY(0deg) scale(1);
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.login-carousel-card.active {
+  opacity: 1;
+  transform: translateX(0) rotateY(0deg) scale(1);
+  z-index: 10;
+  pointer-events: auto;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(139, 92, 246, 0.3),
+    inset 0 0 60px rgba(255, 255, 255, 0.05);
+}
+
+.login-carousel-card.prev {
+  opacity: 0.6;
+  transform: translateX(-60%) rotateY(35deg) scale(0.85);
+  z-index: 5;
+}
+
+.login-carousel-card.next {
+  opacity: 0.6;
+  transform: translateX(60%) rotateY(-35deg) scale(0.85);
+  z-index: 5;
+}
+
+.login-carousel-card.far-prev {
+  opacity: 0;
+  transform: translateX(-120%) rotateY(45deg) scale(0.7);
+  z-index: 1;
+}
+
+.login-carousel-card.far-next {
+  opacity: 0;
+  transform: translateX(120%) rotateY(-45deg) scale(0.7);
+  z-index: 1;
+}
+
+.login-card-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+  border-radius: 16px;
+  font-size: 1.5rem;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.login-carousel-card.active .login-card-icon {
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1); }
+  50% { transform: scale(1.05); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.15), 0 0 20px rgba(139, 92, 246, 0.4); }
+}
+
+.login-carousel-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.login-carousel-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
+  line-height: 1.5;
+}
+
+/* Carousel Dots */
+.login-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+.login-carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.login-carousel-dot:hover {
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(1.2);
+}
+
+.login-carousel-dot.active {
+  background: #fff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  transform: scale(1.3);
+}
+
+/* ── Demo Admin Butonu ── */
+.btn-demo-admin {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--syp-primary);
+  background: var(--syp-primary-bg);
+  border: 2px solid var(--syp-primary-muted);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.btn-demo-admin:hover {
+  background: var(--syp-primary-muted);
+  border-color: var(--syp-primary);
+  color: var(--syp-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.btn-demo-admin:active {
+  transform: translateY(0);
+}
+
+.btn-demo-admin i {
+  font-size: 1.1rem;
+}
+
 /* ══════════════════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
    ══════════════════════════════════════════════════════════════ */
@@ -1117,7 +1363,7 @@ body#s-LoginPage .s-full-page {
 /* ── Tablet Portrait (768px+) ── */
 @media (min-width: 768px) {
   .login-brand-panel {
-    min-height: 240px;
+    min-height: 280px;
     padding: 2rem;
   }
 
@@ -1132,12 +1378,21 @@ body#s-LoginPage .s-full-page {
 
   .login-brand-tagline {
     font-size: 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
   }
 
-  .login-feature-item {
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
+  .login-carousel-wrapper {
+    max-width: 450px;
+  }
+
+  .login-carousel {
+    height: 220px;
+  }
+
+  .login-carousel-card {
+    width: 300px;
+    margin-left: -150px;
+    padding: 1.75rem;
   }
 
   .login-form-panel {
@@ -1185,22 +1440,36 @@ body#s-LoginPage .s-full-page {
 
   .login-brand-tagline {
     font-size: 1.1rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1rem;
   }
 
-  .login-brand-features {
-    flex-direction: column;
-    gap: 0.75rem;
+  .login-carousel-wrapper {
+    max-width: 500px;
+    margin: 2.5rem auto;
   }
 
-  .login-feature-item {
-    font-size: 0.95rem;
-    padding: 0.6rem 1.25rem;
+  .login-carousel {
+    height: 240px;
   }
 
-  .login-feature-item:hover {
-    background: rgba(255,255,255,0.18);
-    transform: translateX(5px);
+  .login-carousel-card {
+    width: 320px;
+    margin-left: -160px;
+    padding: 2rem;
+  }
+
+  .login-carousel-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .login-carousel-card p {
+    font-size: 0.9rem;
+  }
+
+  .login-card-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 1.75rem;
   }
 
   .login-brand-footer {
@@ -1253,11 +1522,20 @@ body#s-LoginPage .s-full-page {
   }
 
   .login-brand-tagline {
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
   }
 
-  .login-brand-features {
-    gap: 1rem;
+  .login-carousel-wrapper {
+    max-width: 550px;
+  }
+
+  .login-carousel {
+    height: 260px;
+  }
+
+  .login-carousel-card {
+    width: 350px;
+    margin-left: -175px;
   }
 }
 
@@ -1286,16 +1564,11 @@ body#s-LoginPage .s-full-page {
 
   .login-brand-tagline {
     font-size: 0.8rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
-  .login-brand-features {
-    gap: 0.35rem;
-  }
-
-  .login-feature-item {
-    font-size: 0.7rem;
-    padding: 0.3rem 0.6rem;
+  .login-carousel-wrapper {
+    display: none;
   }
 
   .login-form-panel {
@@ -1349,9 +1622,8 @@ body#s-LoginPage .s-full-page {
     font-size: 0.8rem;
   }
 
-  .login-feature-item {
-    font-size: 0.7rem;
-    padding: 0.35rem 0.6rem;
+  .login-carousel-wrapper {
+    display: none;
   }
 
   .login-form-panel {
@@ -1374,6 +1646,11 @@ body#s-LoginPage .s-full-page {
 
   .login-submit-btn {
     height: 48px;
+  }
+
+  .btn-demo-admin {
+    height: 44px;
+    font-size: 0.9rem;
   }
 }
 

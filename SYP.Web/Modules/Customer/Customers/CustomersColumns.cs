@@ -9,8 +9,30 @@ public class CustomersColumns
     [EditLink]
     public string Code { get; set; }
     public string Name { get; set; }
+
+    [DisplayName("Ad")]
+    public string FirstName { get; set; }
+
+    [DisplayName("Soyad")]
+    public string LastName { get; set; }
+
     public string Email { get; set; }
     public string Phone { get; set; }
+
+    [DisplayName("Telefon 2")]
+    public string Phone2 { get; set; }
+
+    [DisplayName("Şehir")]
+    public string City { get; set; }
+
+    [DisplayName("İlçe")]
+    public string District { get; set; }
+
+    [DisplayName("Vergi Dairesi")]
+    public string TaxOffice { get; set; }
+
+    [DisplayName("Vergi No")]
+    public string TaxNumber { get; set; }
 
     [DisplayName("Satıcı Tipi"), Width(150)]
     public string VendorTypeTitle { get; set; }

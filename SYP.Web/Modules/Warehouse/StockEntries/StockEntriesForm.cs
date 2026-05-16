@@ -13,7 +13,7 @@ public class StockEntriesForm
     [HalfWidth]
     public int WarehouseId { get; set; }
 
-    [HalfWidth]
+    [HalfWidth, DateTimeEditor]
     public DateTime EntryDate { get; set; }
 
     [HalfWidth]

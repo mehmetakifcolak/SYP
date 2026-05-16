@@ -8,6 +8,8 @@ export enum NumberTemplateType {
     SatinalmaTeklifi = 5,
     SatinalmaSiparisi = 6,
     Fatura = 7,
-    Irsaliye = 8
+    Irsaliye = 8,
+    StokGirisi = 9,
+    StokCikisi = 10
 }
 registerEnum(NumberTemplateType, '_Ext.NumberTemplateType', 'NumberTemplateType');

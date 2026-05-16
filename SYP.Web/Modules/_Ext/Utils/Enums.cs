@@ -67,7 +67,11 @@ namespace _Ext //enums must have namespace otherwise it transforms to wrong type
         [Description("Fatura")]
         Fatura = 7,
         [Description("İrsaliye")]
-        Irsaliye = 8
+        Irsaliye = 8,
+        [Description("Stok Girişi")]
+        StokGirisi = 9,
+        [Description("Stok Çıkışı")]
+        StokCikisi = 10
     }
 
     [EnumKey("Email.EmailQueueStatus"), ScriptInclude]
@@ -115,6 +119,17 @@ namespace _Ext //enums must have namespace otherwise it transforms to wrong type
 
     [EnumKey("Warehouse.StockEntryStatus"), ScriptInclude]
     public enum StockEntryStatus
+    {
+        [Description("Taslak")]
+        Draft = 0,
+        [Description("Onaylandı")]
+        Approved = 1,
+        [Description("İptal")]
+        Cancelled = 2
+    }
+
+    [EnumKey("Warehouse.StockExitStatus"), ScriptInclude]
+    public enum StockExitStatus
     {
         [Description("Taslak")]
         Draft = 0,

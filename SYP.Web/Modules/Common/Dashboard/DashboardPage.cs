@@ -1,5 +1,6 @@
 using Serenity.Data;
 using Dapper;
+using System.Data;
 
 namespace SYP.Common.Pages;
 
@@ -13,6 +14,8 @@ public class DashboardPage : Controller
 
         using (var connection = sqlConnections.NewByKey("Default"))
         {
+            connection.EnsureOpen();
+
             // Toplam Bayi
             model.TotalDealers = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM Customers");
 
@@ -24,6 +27,23 @@ public class DashboardPage : Controller
 
             // Toplam Urun
             model.TotalProducts = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM Products");
+
+            // Son 20 Stok Hareketi
+            model.RecentMovements = Dapper.SqlMapper.Query<StockMovementDto>(connection, @"
+                SELECT TOP 20
+                    Id, MovementType, DocumentNo, WarehouseName,
+                    ProductCode, ProductName, Quantity, MovementDate, Status
+                FROM StockMovements
+                ORDER BY MovementDate DESC, Id DESC
+            ").ToList();
+
+            // Son 20 İşlem Logu
+            model.RecentAuditLogs = Dapper.SqlMapper.Query<AuditLogDto>(connection, @"
+                SELECT TOP 20
+                    Id, EntityType, EntityName, ActionType, ActionDate, Username, IpAddress
+                FROM AuditLog
+                ORDER BY ActionDate DESC, Id DESC
+            ").ToList();
         }
 
         return View(MVC.Views.Common.Dashboard.DashboardIndex, model);

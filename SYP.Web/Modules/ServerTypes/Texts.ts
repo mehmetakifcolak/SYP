@@ -108,6 +108,7 @@ namespace texts {
                 export function asTry(): typeof Products;
                 export const Barcode: string;
                 export const Code: string;
+                export const CodeName: string;
                 export const Description: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
@@ -129,18 +130,26 @@ namespace texts {
                 export function asKey(): typeof Customers;
                 export function asTry(): typeof Customers;
                 export const Address: string;
+                export const City: string;
                 export const Code: string;
+                export const CountryId: string;
+                export const District: string;
                 export const Email: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
+                export const FirstName: string;
                 export const Id: string;
                 export const InsertDate: string;
                 export const InsertUserId: string;
                 export const IsActive: string;
+                export const LastName: string;
                 export const Name: string;
                 export const Password: string;
                 export const PasswordConfirm: string;
                 export const Phone: string;
+                export const Phone2: string;
+                export const TaxNumber: string;
+                export const TaxOffice: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
                 export const UserId: string;
@@ -286,6 +295,22 @@ namespace texts {
                 export const Swift: string;
                 export const TenantId: string;
             }
+            namespace Country {
+                export function asKey(): typeof Country;
+                export function asTry(): typeof Country;
+                export const Code: string;
+                export const CountryNr: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsoCode3: string;
+                export const Name: string;
+                export const PhoneCode: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
             namespace CurrencyList {
                 export function asKey(): typeof CurrencyList;
                 export function asTry(): typeof CurrencyList;
@@ -403,6 +428,59 @@ namespace texts {
                 export const ProductName: string;
                 export const Quantity: string;
                 export const StockEntryId: string;
+            }
+            namespace StockExitDetails {
+                export function asKey(): typeof StockExitDetails;
+                export function asTry(): typeof StockExitDetails;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const Notes: string;
+                export const ProductCode: string;
+                export const ProductId: string;
+                export const ProductName: string;
+                export const Quantity: string;
+                export const StockExitId: string;
+            }
+            namespace StockExits {
+                export function asKey(): typeof StockExits;
+                export function asTry(): typeof StockExits;
+                export const Description: string;
+                export const DetailList: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const ExitDate: string;
+                export const ExitNo: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const Status: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+                export const WarehouseCode: string;
+                export const WarehouseId: string;
+                export const WarehouseName: string;
+            }
+            namespace StockMovements {
+                export function asKey(): typeof StockMovements;
+                export function asTry(): typeof StockMovements;
+                export const Description: string;
+                export const DocumentNo: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const MovementDate: string;
+                export const MovementType: string;
+                export const ProductCode: string;
+                export const ProductId: string;
+                export const ProductName: string;
+                export const Quantity: string;
+                export const Status: string;
+                export const WarehouseCode: string;
+                export const WarehouseId: string;
+                export const WarehouseName: string;
             }
             namespace WarehouseStock {
                 export function asKey(): typeof WarehouseStock;
@@ -563,6 +641,7 @@ const Texts: typeof texts = proxyTexts({}, '', {
         },
         Setting: {
             BankAccountInformations: {},
+            Country: {},
             CurrencyList: {},
             DailyExchanges: {},
             NumberTemplates: {},
@@ -572,6 +651,9 @@ const Texts: typeof texts = proxyTexts({}, '', {
         Warehouse: {
             StockEntries: {},
             StockEntryDetails: {},
+            StockExitDetails: {},
+            StockExits: {},
+            StockMovements: {},
             WarehouseStock: {},
             Warehouses: {}
         }

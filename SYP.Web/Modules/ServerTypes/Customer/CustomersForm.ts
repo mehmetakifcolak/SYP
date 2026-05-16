@@ -1,13 +1,21 @@
-﻿import { BooleanEditor, EmailAddressEditor, initFormType, IntegerEditor, LookupEditor, PasswordEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
+﻿import { BooleanEditor, EmailAddressEditor, initFormType, IntegerEditor, LookupEditor, PasswordEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
 
 export interface CustomersForm {
     Code: StringEditor;
-    Name: StringEditor;
-    Email: EmailAddressEditor;
-    Phone: StringEditor;
-    Address: StringEditor;
     VendorTypeId: LookupEditor;
+    Name: StringEditor;
     IsActive: BooleanEditor;
+    FirstName: StringEditor;
+    LastName: StringEditor;
+    Phone: StringEditor;
+    Phone2: StringEditor;
+    Email: EmailAddressEditor;
+    Address: TextAreaEditor;
+    CountryId: IntegerEditor;
+    City: StringEditor;
+    District: StringEditor;
+    TaxOffice: StringEditor;
+    TaxNumber: StringEditor;
     UserId: IntegerEditor;
     Username: StringEditor;
     Password: PasswordEditor;
@@ -25,24 +33,33 @@ export class CustomersForm extends PrefixedContext {
             CustomersForm.init = true;
 
             var w0 = StringEditor;
-            var w1 = EmailAddressEditor;
-            var w2 = LookupEditor;
-            var w3 = BooleanEditor;
-            var w4 = IntegerEditor;
-            var w5 = PasswordEditor;
+            var w1 = LookupEditor;
+            var w2 = BooleanEditor;
+            var w3 = EmailAddressEditor;
+            var w4 = TextAreaEditor;
+            var w5 = IntegerEditor;
+            var w6 = PasswordEditor;
 
             initFormType(CustomersForm, [
                 'Code', w0,
+                'VendorTypeId', w1,
                 'Name', w0,
-                'Email', w1,
+                'IsActive', w2,
+                'FirstName', w0,
+                'LastName', w0,
                 'Phone', w0,
-                'Address', w0,
-                'VendorTypeId', w2,
-                'IsActive', w3,
-                'UserId', w4,
+                'Phone2', w0,
+                'Email', w3,
+                'Address', w4,
+                'CountryId', w5,
+                'City', w0,
+                'District', w0,
+                'TaxOffice', w0,
+                'TaxNumber', w0,
+                'UserId', w5,
                 'Username', w0,
-                'Password', w5,
-                'PasswordConfirm', w5
+                'Password', w6,
+                'PasswordConfirm', w6
             ]);
         }
     }

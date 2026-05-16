@@ -4,6 +4,7 @@ public static partial class ESM
 {
     public const string AuditLogPage = "~/esm/Modules/Administration/AuditLog/AuditLogPage.js";
     public const string BankAccountInformationsPage = "~/esm/Modules/Setting/BankAccountInformations/BankAccountInformationsPage.js";
+    public const string CountryPage = "~/esm/Modules/Setting/Country/CountryPage.js";
     public const string CurrencyListPage = "~/esm/Modules/Setting/CurrencyList/CurrencyListPage.js";
     public const string CustomersPage = "~/esm/Modules/Customer/Customers/CustomersPage.js";
     public const string DailyExchangesPage = "~/esm/Modules/Setting/DailyExchanges/DailyExchangesPage.js";
@@ -20,6 +21,8 @@ public static partial class ESM
     public const string SignUpPage = "~/esm/Modules/Membership/Account/SignUp/SignUpPage.js";
     public const string SmtpSettingsPage = "~/esm/Modules/Email/SmtpSettings/SmtpSettingsPage.js";
     public const string StockEntriesPage = "~/esm/Modules/Warehouse/StockEntries/StockEntriesPage.js";
+    public const string StockExitsPage = "~/esm/Modules/Warehouse/StockExits/StockExitsPage.js";
+    public const string StockMovementsPage = "~/esm/Modules/Warehouse/StockMovements/StockMovementsPage.js";
     public const string TranslationPage = "~/esm/Modules/Administration/Translation/TranslationPage.js";
     public const string UserPage = "~/esm/Modules/Administration/User/UserPage.js";
     public const string VatRatesPage = "~/esm/Modules/Setting/VatRates/VatRatesPage.js";
@@ -129,6 +132,11 @@ public static partial class ESM
                 public const string BankAccountInformationsPage = "~/esm/Modules/Setting/BankAccountInformations/BankAccountInformationsPage.js";
             }
 
+            public static partial class Country
+            {
+                public const string CountryPage = "~/esm/Modules/Setting/Country/CountryPage.js";
+            }
+
             public static partial class CurrencyList
             {
                 public const string CurrencyListPage = "~/esm/Modules/Setting/CurrencyList/CurrencyListPage.js";
@@ -160,6 +168,16 @@ public static partial class ESM
             public static partial class StockEntries
             {
                 public const string StockEntriesPage = "~/esm/Modules/Warehouse/StockEntries/StockEntriesPage.js";
+            }
+
+            public static partial class StockExits
+            {
+                public const string StockExitsPage = "~/esm/Modules/Warehouse/StockExits/StockExitsPage.js";
+            }
+
+            public static partial class StockMovements
+            {
+                public const string StockMovementsPage = "~/esm/Modules/Warehouse/StockMovements/StockMovementsPage.js";
             }
 
             public static partial class Warehouses

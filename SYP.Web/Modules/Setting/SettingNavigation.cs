@@ -8,3 +8,4 @@ using MyPages = SYP.Setting.Pages;
 [assembly: NavigationLink(8400, "Ayarlar/Para Birimleri", typeof(MyPages.CurrencyListPage), icon: "fa-money")]
 [assembly: NavigationLink(8500, "Ayarlar/KDV Oranları", typeof(MyPages.VatRatesPage), icon: "fa-percent")]
 [assembly: NavigationLink(8600, "Ayarlar/Tedarikçi Tipleri", typeof(MyPages.VendorTypePage), icon: "fa-truck")]
+[assembly: NavigationLink(int.MaxValue, "Setting/Country", typeof(MyPages.CountryPage), icon: null)]

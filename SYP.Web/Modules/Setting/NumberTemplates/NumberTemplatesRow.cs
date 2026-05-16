@@ -10,7 +10,7 @@ namespace SYP.Setting;
 [UpdatePermission("Setting:NumberTemplates:Update")]
 [DeletePermission("Setting:NumberTemplates:Delete")]
 [ServiceLookupPermission("Setting:NumberTemplates:Lookup")]
-public sealed class NumberTemplatesRow : Row<NumberTemplatesRow.RowFields>, IIdRow, INameRow
+public sealed class NumberTemplatesRow : Row<NumberTemplatesRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }

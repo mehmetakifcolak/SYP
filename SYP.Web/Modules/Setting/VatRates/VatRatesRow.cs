@@ -8,7 +8,7 @@
 [UpdatePermission("Setting:VatRates:Update")]
 [DeletePermission("Setting:VatRates:Delete")]
 [ServiceLookupPermission("Setting:VatRates:Lookup")]
-public sealed class VatRatesRow : Row<VatRatesRow.RowFields>, IIdRow, INameRow
+public sealed class VatRatesRow : Row<VatRatesRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     [DisplayName("Id"), PrimaryKey, NotNull, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }

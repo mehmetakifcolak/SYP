@@ -12,7 +12,7 @@ public class StockEntriesColumns
     [Width(150)]
     public string WarehouseName { get; set; }
 
-    [Width(120)]
+    [Width(150), DisplayFormat("dd.MM.yyyy HH:mm")]
     public DateTime EntryDate { get; set; }
 
     [Width(100)]
@@ -21,6 +21,6 @@ public class StockEntriesColumns
     [Width(250)]
     public string Description { get; set; }
 
-    [Width(120)]
+    [Width(150), DisplayFormat("dd.MM.yyyy HH:mm")]
     public DateTime InsertDate { get; set; }
 }

@@ -32,7 +32,7 @@ public class StockEntriesSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyR
         if (IsCreate && Row.EntryNo.IsNullOrEmpty())
         {
             var template = Connection.TryFirst<NumberTemplatesRow>(q => q.SelectTableFields()
-                .Where(NumberTemplatesRow.Fields.Type == (int)NumberTemplateType.Irsaliye &
+                .Where(NumberTemplatesRow.Fields.Type == (int)NumberTemplateType.StokGirisi &
                        NumberTemplatesRow.Fields.Active == 1));
 
             if (template != null)

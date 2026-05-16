@@ -9,7 +9,7 @@ namespace SYP.Warehouse;
 [InsertPermission("Warehouse:StockEntries:Insert")]
 [UpdatePermission("Warehouse:StockEntries:Update")]
 [DeletePermission("Warehouse:StockEntries:Delete")]
-public sealed class StockEntriesRow : Row<StockEntriesRow.RowFields>, IIdRow, INameRow
+public sealed class StockEntriesRow : Row<StockEntriesRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     const string jWarehouse = nameof(jWarehouse);
 

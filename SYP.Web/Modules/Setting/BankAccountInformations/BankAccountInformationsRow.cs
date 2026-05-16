@@ -10,7 +10,7 @@ using DocumentFormat.OpenXml.VariantTypes;
 [UpdatePermission("Setting:BankAccountInformations:Update")]
 [DeletePermission("Setting:BankAccountInformations:Delete")]
 [ServiceLookupPermission("Setting:BankAccountInformations:Lookup")]
-public sealed class BankAccountInformationsRow : Row<BankAccountInformationsRow.RowFields>, IIdRow, INameRow
+public sealed class BankAccountInformationsRow : Row<BankAccountInformationsRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     const string jCurrency = nameof(jCurrency);
     [DisplayName("Id"), Identity, IdProperty]

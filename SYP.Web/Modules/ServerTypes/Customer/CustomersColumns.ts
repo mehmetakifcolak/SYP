@@ -7,8 +7,15 @@ export interface CustomersColumns {
     Id: Column<CustomersRow>;
     Code: Column<CustomersRow>;
     Name: Column<CustomersRow>;
+    FirstName: Column<CustomersRow>;
+    LastName: Column<CustomersRow>;
     Email: Column<CustomersRow>;
     Phone: Column<CustomersRow>;
+    Phone2: Column<CustomersRow>;
+    City: Column<CustomersRow>;
+    District: Column<CustomersRow>;
+    TaxOffice: Column<CustomersRow>;
+    TaxNumber: Column<CustomersRow>;
     VendorTypeTitle: Column<CustomersRow>;
     IsActive: Column<CustomersRow>;
     Username: Column<CustomersRow>;

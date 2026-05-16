@@ -13,7 +13,10 @@
       "Bash(tree:*)",
       "Bash(dotnet sergen:*)",
       "Bash(taskkill:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebFetch(domain:eticaretv8kozmetik.demobul.com.tr)",
+      "Bash(dotnet ef migrations:*)",
+      "Bash(sqlcmd:*)"
     ]
   }
 }
