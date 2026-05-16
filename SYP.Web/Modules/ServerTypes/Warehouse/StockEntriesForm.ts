@@ -1,4 +1,4 @@
-﻿import { DateTimeEditor, EnumEditor, initFormType, LookupEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
+﻿import { DateTimeEditor, EnumEditor, initFormType, LookupEditor, MultipleImageUploadEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
 import { StockEntryDetailsEditor } from "../../Warehouse/StockEntryDetails/StockEntryDetailsEditor";
 import { StockEntryStatus } from "../_Ext/StockEntryStatus";
 
@@ -9,6 +9,7 @@ export interface StockEntriesForm {
     Status: EnumEditor;
     Description: StringEditor;
     DetailList: StockEntryDetailsEditor;
+    Attachments: MultipleImageUploadEditor;
 }
 
 export class StockEntriesForm extends PrefixedContext {
@@ -26,6 +27,7 @@ export class StockEntriesForm extends PrefixedContext {
             var w2 = DateTimeEditor;
             var w3 = EnumEditor;
             var w4 = StockEntryDetailsEditor;
+            var w5 = MultipleImageUploadEditor;
 
             initFormType(StockEntriesForm, [
                 'EntryNo', w0,
@@ -33,7 +35,8 @@ export class StockEntriesForm extends PrefixedContext {
                 'EntryDate', w2,
                 'Status', w3,
                 'Description', w0,
-                'DetailList', w4
+                'DetailList', w4,
+                'Attachments', w5
             ]);
         }
     }

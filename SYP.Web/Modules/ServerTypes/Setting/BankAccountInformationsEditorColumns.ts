@@ -11,7 +11,7 @@ export interface BankAccountInformationsEditorColumns {
     AccountNo: Column<BankAccountInformationsRow>;
     Iban: Column<BankAccountInformationsRow>;
     Swift: Column<BankAccountInformationsRow>;
-    Currency: Column<BankAccountInformationsRow>;
+    CurrencyCode: Column<BankAccountInformationsRow>;
     Origin: Column<BankAccountInformationsRow>;
     Payment: Column<BankAccountInformationsRow>;
     Shipment: Column<BankAccountInformationsRow>;

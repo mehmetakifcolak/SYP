@@ -48,7 +48,8 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public string Address { get => fields.Address[this]; set => fields.Address[this] = value; }
     public partial class RowFields { public StringField Address; }
 
-    [DisplayName("Country Id")]
+    [DisplayName("Ülke"), ForeignKey("[dbo].[Country]", "Id"), LeftJoin("jCountry")]
+    [LookupEditor("Setting.Country")]
     public int? CountryId { get => fields.CountryId[this]; set => fields.CountryId[this] = value; }
     public partial class RowFields { public Int32Field CountryId; }
 
@@ -118,6 +119,10 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     [DisplayName("Kullanıcı Aktif"), Expression("jUser.[IsActive]")]
     public short? UserIsActive { get => fields.UserIsActive[this]; set => fields.UserIsActive[this] = value; }
     public partial class RowFields { public Int16Field UserIsActive; }
+
+    [DisplayName("Ülke"), Expression("jCountry.[Name]")]
+    public string CountryName { get => fields.CountryName[this]; set => fields.CountryName[this] = value; }
+    public partial class RowFields { public StringField CountryName; }
 
     #endregion Foreign Fields
 

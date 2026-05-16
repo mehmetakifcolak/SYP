@@ -1,4 +1,4 @@
-import { Decorators, getLookup } from "@serenity-is/corelib";
+import { Decorators, getLookupAsync, Lookup } from "@serenity-is/corelib";
 import { GridEditorBase } from "@serenity-is/extensions";
 import { StockExitDetailsColumns, StockExitDetailsRow } from "../../ServerTypes/Warehouse";
 import { StockExitDetailsEditDialog } from "./StockExitDetailsEditDialog";
@@ -11,8 +11,15 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
     protected getDialogType() { return StockExitDetailsEditDialog; }
     protected getLocalTextPrefix() { return StockExitDetailsRow.localTextPrefix; }
 
+    private productLookup: Lookup<ProductsRow>;
+
     constructor(props: any) {
         super(props);
+
+        // Lookup'ı önceden yükle
+        getLookupAsync<ProductsRow>(ProductsRow.lookupKey).then(lookup => {
+            this.productLookup = lookup;
+        });
     }
 
     protected getAddButtonCaption() {
@@ -63,8 +70,8 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
         }
 
         // Ürün bilgilerini lookup'tan al
-        if (row.ProductId) {
-            const product = getLookup<ProductsRow>(ProductsRow.lookupKey).itemById[row.ProductId];
+        if (row.ProductId && this.productLookup) {
+            const product = this.productLookup.itemById[row.ProductId];
             if (product) {
                 row.ProductCode = product.Code;
                 row.ProductName = product.Name;

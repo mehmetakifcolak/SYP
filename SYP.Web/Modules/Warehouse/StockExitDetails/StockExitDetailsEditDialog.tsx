@@ -1,4 +1,4 @@
-import { Decorators, getLookup } from "@serenity-is/corelib";
+import { Decorators, getLookupAsync } from "@serenity-is/corelib";
 import { GridEditorDialog } from "@serenity-is/extensions";
 import { StockExitDetailsForm, StockExitDetailsRow } from "../../ServerTypes/Warehouse";
 import { ProductsRow } from "../../ServerTypes/Catalog";
@@ -14,10 +14,11 @@ export class StockExitDetailsEditDialog extends GridEditorDialog<StockExitDetail
         super(props);
 
         // Ürün seçildiğinde kod ve adı doldur
-        this.form.ProductId.changeSelect2(e => {
+        this.form.ProductId.changeSelect2(async e => {
             const productId = this.form.ProductId.value;
             if (productId) {
-                const product = getLookup<ProductsRow>(ProductsRow.lookupKey).itemById[productId];
+                const lookup = await getLookupAsync<ProductsRow>(ProductsRow.lookupKey);
+                const product = lookup.itemById[productId];
                 if (product) {
                     (this.entity as any).ProductCode = product.Code;
                     (this.entity as any).ProductName = product.Name;
@@ -30,13 +31,14 @@ export class StockExitDetailsEditDialog extends GridEditorDialog<StockExitDetail
         return this.isNew() ? "Yeni Ürün Ekle" : "Ürün Düzenle";
     }
 
-    protected updateInterface(): void {
+    protected async updateInterface(): Promise<void> {
         super.updateInterface();
 
         // Ürün seçiliyse ve kod/ad boşsa doldur
         const productId = this.form.ProductId.value;
         if (productId && (!(this.entity as any).ProductCode || !(this.entity as any).ProductName)) {
-            const product = getLookup<ProductsRow>(ProductsRow.lookupKey).itemById[productId];
+            const lookup = await getLookupAsync<ProductsRow>(ProductsRow.lookupKey);
+            const product = lookup.itemById[productId];
             if (product) {
                 (this.entity as any).ProductCode = product.Code;
                 (this.entity as any).ProductName = product.Name;

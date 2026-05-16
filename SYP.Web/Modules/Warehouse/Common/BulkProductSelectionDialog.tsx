@@ -1,4 +1,4 @@
-import { Decorators, DialogButton, BaseDialog, getLookup, WidgetProps, htmlEncode } from "@serenity-is/corelib";
+import { Decorators, DialogButton, BaseDialog, getLookupAsync, WidgetProps, htmlEncode, Lookup } from "@serenity-is/corelib";
 import { ProductsRow } from "../../ServerTypes/Catalog";
 
 export interface BulkProductSelectionDialogOptions {
@@ -12,6 +12,7 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
     private productListDiv: HTMLElement;
     private searchInput: HTMLInputElement;
     private selectedCountSpan: HTMLElement;
+    private productLookup: Lookup<ProductsRow>;
 
     constructor(props: WidgetProps<BulkProductSelectionDialogOptions>) {
         super(props);
@@ -31,6 +32,7 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
                     <span class="selected-count-number">0</span> ürün seçildi
                 </div>
                 <div class="product-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                    <div class="text-muted">Ürünler yükleniyor...</div>
                 </div>
             </div>
         `;
@@ -71,11 +73,11 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
         ];
     }
 
-    private loadProducts(): void {
-        const lookup = getLookup<ProductsRow>(ProductsRow.lookupKey);
+    private async loadProducts(): Promise<void> {
+        this.productLookup = await getLookupAsync<ProductsRow>(ProductsRow.lookupKey);
         const excludeIds = new Set(this.options.excludeProductIds || []);
 
-        const products = lookup.items.filter(p =>
+        const products = this.productLookup.items.filter(p =>
             p.IsActive === 1 && !excludeIds.has(p.Id!)
         );
 
@@ -83,11 +85,12 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
     }
 
     private filterProducts(): void {
+        if (!this.productLookup) return;
+
         const searchTerm = this.searchInput?.value?.toLowerCase().trim() || '';
-        const lookup = getLookup<ProductsRow>(ProductsRow.lookupKey);
         const excludeIds = new Set(this.options.excludeProductIds || []);
 
-        let products = lookup.items.filter(p =>
+        let products = this.productLookup.items.filter(p =>
             p.IsActive === 1 && !excludeIds.has(p.Id!)
         );
 
@@ -131,8 +134,7 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
             cb.addEventListener('change', (e) => {
                 const target = e.target as HTMLInputElement;
                 const productId = parseInt(target.dataset.id!, 10);
-                const lookup = getLookup<ProductsRow>(ProductsRow.lookupKey);
-                const product = lookup.itemById[productId];
+                const product = this.productLookup.itemById[productId];
 
                 if (target.checked) {
                     this.selectedProducts.set(productId, product);
@@ -150,13 +152,12 @@ export class BulkProductSelectionDialog extends BaseDialog<BulkProductSelectionD
         if (selectAll) {
             selectAll.addEventListener('change', (e) => {
                 const target = e.target as HTMLInputElement;
-                const lookup = getLookup<ProductsRow>(ProductsRow.lookupKey);
 
                 checkboxes.forEach(cb => {
                     const checkbox = cb as HTMLInputElement;
                     checkbox.checked = target.checked;
                     const productId = parseInt(checkbox.dataset.id!, 10);
-                    const product = lookup.itemById[productId];
+                    const product = this.productLookup.itemById[productId];
 
                     if (target.checked) {
                         this.selectedProducts.set(productId, product);

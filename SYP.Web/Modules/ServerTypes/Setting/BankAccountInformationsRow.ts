@@ -14,6 +14,7 @@ export interface BankAccountInformationsRow {
     Payment?: string;
     Shipment?: string;
     TenantId?: number;
+    CurrencyCode?: string;
 }
 
 export abstract class BankAccountInformationsRow {

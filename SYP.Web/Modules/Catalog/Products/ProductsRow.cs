@@ -11,7 +11,6 @@ namespace SYP.Catalog;
 [InsertPermission("Catalog:Products:Insert")]
 [UpdatePermission("Catalog:Products:Update")]
 [DeletePermission("Catalog:Products:Delete")]
-[ServiceLookupPermission("Catalog:Products:Lookup")]
 public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]

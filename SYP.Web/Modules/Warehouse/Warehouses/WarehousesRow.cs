@@ -53,6 +53,10 @@ public sealed class WarehousesRow : Row<WarehousesRow.RowFields>, IIdRow, INameR
     public bool? IsActive { get => fields.IsActive[this]; set => fields.IsActive[this] = value; }
     public partial class RowFields { public BooleanField IsActive; }
 
+    [DisplayName("Varsayılan Depo"), NotNull, DefaultValue(false), LookupInclude]
+    public bool? IsDefault { get => fields.IsDefault[this]; set => fields.IsDefault[this] = value; }
+    public partial class RowFields { public BooleanField IsDefault; }
+
     [DisplayName("Oluşturma Tarihi"), Insertable(false), Updatable(false)]
     public DateTime? InsertDate { get => fields.InsertDate[this]; set => fields.InsertDate[this] = value; }
     public partial class RowFields { public DateTimeField InsertDate; }

@@ -38,6 +38,11 @@ public sealed class StockExitsRow : Row<StockExitsRow.RowFields>, IIdRow, INameR
     public StockExitStatus? Status { get => (StockExitStatus?)fields.Status[this]; set => fields.Status[this] = (short?)value; }
     public partial class RowFields { public Int16Field Status; }
 
+    [DisplayName("Ekli Dosyalar")]
+    [MultipleImageUploadEditor(FilenameFormat = "StockExits/~", AllowNonImage = true, MaxSize = 10485760)]
+    public string Attachments { get => fields.Attachments[this]; set => fields.Attachments[this] = value; }
+    public partial class RowFields { public StringField Attachments; }
+
     [DisplayName("Oluşturma Tarihi"), Insertable(false), Updatable(false)]
     public DateTime? InsertDate { get => fields.InsertDate[this]; set => fields.InsertDate[this] = value; }
     public partial class RowFields { public DateTimeField InsertDate; }

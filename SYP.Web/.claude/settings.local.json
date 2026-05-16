@@ -16,7 +16,9 @@
       "Bash(ls:*)",
       "WebFetch(domain:eticaretv8kozmetik.demobul.com.tr)",
       "Bash(dotnet ef migrations:*)",
-      "Bash(sqlcmd:*)"
+      "Bash(sqlcmd:*)",
+      "Bash(ren:*)",
+      "Bash(del:*)"
     ]
   }
 }

@@ -70,6 +70,10 @@ public sealed class BankAccountInformationsRow : Row<BankAccountInformationsRow.
     
     #region Foreign Fields
 
+    [DisplayName("Para Birimi Kodu"), Expression("jCurrency.[Code]")]
+    public string CurrencyCode { get => fields.CurrencyCode[this]; set => fields.CurrencyCode[this] = value; }
+    public partial class RowFields { public StringField CurrencyCode; }
+
     #endregion Foreign Fields
 
     public partial class RowFields : RowFieldsBase { }

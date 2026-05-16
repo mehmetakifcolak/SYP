@@ -12,6 +12,7 @@ export interface CustomersColumns {
     Email: Column<CustomersRow>;
     Phone: Column<CustomersRow>;
     Phone2: Column<CustomersRow>;
+    CountryName: Column<CustomersRow>;
     City: Column<CustomersRow>;
     District: Column<CustomersRow>;
     TaxOffice: Column<CustomersRow>;

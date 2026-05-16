@@ -27,6 +27,7 @@ export interface CustomersRow {
     Username?: string;
     VendorTypeTitle?: string;
     UserIsActive?: number;
+    CountryName?: string;
 }
 
 export abstract class CustomersRow {

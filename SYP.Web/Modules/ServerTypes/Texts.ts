@@ -133,6 +133,7 @@ namespace texts {
                 export const City: string;
                 export const Code: string;
                 export const CountryId: string;
+                export const CountryName: string;
                 export const District: string;
                 export const Email: string;
                 export const EntityPlural: string;
@@ -284,6 +285,7 @@ namespace texts {
                 export const Branch: string;
                 export const BranchCode: string;
                 export const Currency: string;
+                export const CurrencyCode: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
                 export const Firm: string;
@@ -400,6 +402,7 @@ namespace texts {
             namespace StockEntries {
                 export function asKey(): typeof StockEntries;
                 export function asTry(): typeof StockEntries;
+                export const Attachments: string;
                 export const Description: string;
                 export const DetailList: string;
                 export const EntityPlural: string;
@@ -445,6 +448,7 @@ namespace texts {
             namespace StockExits {
                 export function asKey(): typeof StockExits;
                 export function asTry(): typeof StockExits;
+                export const Attachments: string;
                 export const Description: string;
                 export const DetailList: string;
                 export const EntityPlural: string;
@@ -511,6 +515,7 @@ namespace texts {
                 export const InsertDate: string;
                 export const InsertUserId: string;
                 export const IsActive: string;
+                export const IsDefault: string;
                 export const ManagerName: string;
                 export const Name: string;
                 export const Phone: string;

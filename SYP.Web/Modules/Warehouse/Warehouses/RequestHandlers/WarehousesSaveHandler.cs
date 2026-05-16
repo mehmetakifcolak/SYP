@@ -1,3 +1,4 @@
+using Serenity.Data;
 using Serenity.Services;
 using SYP.Administration;
 
@@ -24,6 +25,21 @@ public class WarehousesSaveHandler(IRequestContext context) :
         {
             Row.UpdateDate = DateTime.Now;
             Row.UpdateUserId = currentUserId;
+        }
+    }
+
+    protected override void AfterSave()
+    {
+        base.AfterSave();
+
+        // Eğer bu depo varsayılan yapıldıysa, diğer depoların varsayılan özelliğini kaldır
+        if (Row.IsDefault == true)
+        {
+            Connection.Execute($@"
+                UPDATE Warehouses
+                SET IsDefault = 0
+                WHERE Id <> @id AND IsDefault = 1",
+                new { id = Row.Id });
         }
     }
 }

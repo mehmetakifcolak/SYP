@@ -25,4 +25,8 @@ public class StockEntriesForm
     [Tab("Ürünler")]
     [StockEntryDetailsEditor, IgnoreName]
     public List<StockEntryDetailsRow> DetailList { get; set; }
+
+    [Tab("Dosyalar")]
+    [FullWidth]
+    public string Attachments { get; set; }
 }

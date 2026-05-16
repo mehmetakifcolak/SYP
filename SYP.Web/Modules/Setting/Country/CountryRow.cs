@@ -2,6 +2,7 @@
 
 [ConnectionKey("Default"), Module("Setting"), TableName("Country")]
 [DisplayName("Country"), InstanceName("Country")]
+[LookupScript("Setting.Country")]
 [NavigationPermission("Setting:Country:Navigation")]
 [ReadPermission("Setting:Country:Read")]
 [InsertPermission("Setting:Country:Insert")]

@@ -22,6 +22,9 @@ public class CustomersColumns
     [DisplayName("Telefon 2")]
     public string Phone2 { get; set; }
 
+    [DisplayName("Ülke"), Width(120)]
+    public string CountryName { get; set; }
+
     [DisplayName("Şehir")]
     public string City { get; set; }
 

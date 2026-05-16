@@ -9,6 +9,7 @@ export interface StockEntriesRow {
     EntryDate?: string;
     Description?: string;
     Status?: StockEntryStatus;
+    Attachments?: string;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;

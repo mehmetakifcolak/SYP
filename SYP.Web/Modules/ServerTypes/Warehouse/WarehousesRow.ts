@@ -11,6 +11,7 @@ export interface WarehousesRow {
     ManagerName?: string;
     Description?: string;
     IsActive?: boolean;
+    IsDefault?: boolean;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;

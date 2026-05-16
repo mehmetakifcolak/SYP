@@ -10,6 +10,7 @@ export interface WarehousesForm {
     ManagerName: StringEditor;
     Description: TextAreaEditor;
     IsActive: BooleanEditor;
+    IsDefault: BooleanEditor;
 }
 
 export class WarehousesForm extends PrefixedContext {
@@ -36,7 +37,8 @@ export class WarehousesForm extends PrefixedContext {
                 'Email', w2,
                 'ManagerName', w0,
                 'Description', w1,
-                'IsActive', w3
+                'IsActive', w3,
+                'IsDefault', w3
             ]);
         }
     }

@@ -11,7 +11,7 @@ export interface CustomersForm {
     Phone2: StringEditor;
     Email: EmailAddressEditor;
     Address: TextAreaEditor;
-    CountryId: IntegerEditor;
+    CountryId: LookupEditor;
     City: StringEditor;
     District: StringEditor;
     TaxOffice: StringEditor;
@@ -51,7 +51,7 @@ export class CustomersForm extends PrefixedContext {
                 'Phone2', w0,
                 'Email', w3,
                 'Address', w4,
-                'CountryId', w5,
+                'CountryId', w1,
                 'City', w0,
                 'District', w0,
                 'TaxOffice', w0,

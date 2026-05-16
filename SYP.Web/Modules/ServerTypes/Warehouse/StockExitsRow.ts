@@ -1,4 +1,4 @@
-import { fieldsProxy } from "@serenity-is/corelib";
+﻿import { fieldsProxy } from "@serenity-is/corelib";
 import { StockExitStatus } from "../_Ext/StockExitStatus";
 import { StockExitDetailsRow } from "./StockExitDetailsRow";
 
@@ -9,6 +9,7 @@ export interface StockExitsRow {
     ExitDate?: string;
     Description?: string;
     Status?: StockExitStatus;
+    Attachments?: string;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;

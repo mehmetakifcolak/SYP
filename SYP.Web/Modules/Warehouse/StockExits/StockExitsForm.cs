@@ -25,4 +25,8 @@ public class StockExitsForm
     [Tab("Ürünler")]
     [StockExitDetailsEditor, IgnoreName]
     public List<StockExitDetailsRow> DetailList { get; set; }
+
+    [Tab("Dosyalar")]
+    [FullWidth]
+    public string Attachments { get; set; }
 }

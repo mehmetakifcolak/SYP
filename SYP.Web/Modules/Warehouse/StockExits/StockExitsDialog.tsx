@@ -1,5 +1,5 @@
-import { Decorators, EntityDialog, serviceRequest } from "@serenity-is/corelib";
-import { StockExitsForm, StockExitsRow, StockExitsService } from "../../ServerTypes/Warehouse";
+import { Decorators, EntityDialog, serviceRequest, getLookupAsync } from "@serenity-is/corelib";
+import { StockExitsForm, StockExitsRow, StockExitsService, WarehousesRow } from "../../ServerTypes/Warehouse";
 import { GetNextNumberResponse } from "../../ServerTypes/GetNextNumberResponse";
 
 @Decorators.registerClass("SYP.Warehouse.StockExitsDialog")
@@ -25,6 +25,19 @@ export class StockExitsDialog extends EntityDialog<StockExitsRow, any> {
             if (!this.form.ExitDate.value) {
                 this.form.ExitDate.valueAsDate = new Date();
             }
+
+            // Varsayılan depoyu seç
+            if (!this.form.WarehouseId.value) {
+                this.setDefaultWarehouse();
+            }
+        }
+    }
+
+    private async setDefaultWarehouse() {
+        const lookup = await getLookupAsync<WarehousesRow>(WarehousesRow.lookupKey);
+        const defaultWarehouse = lookup.items.find(w => w.IsDefault && w.IsActive);
+        if (defaultWarehouse) {
+            this.form.WarehouseId.value = defaultWarehouse.Id;
         }
     }
 }

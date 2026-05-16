@@ -28,5 +28,9 @@ public class WarehousesForm
     [TextAreaEditor(Rows = 3)]
     public string Description { get; set; }
 
+    [HalfWidth]
     public bool IsActive { get; set; }
+
+    [HalfWidth]
+    public bool IsDefault { get; set; }
 }
