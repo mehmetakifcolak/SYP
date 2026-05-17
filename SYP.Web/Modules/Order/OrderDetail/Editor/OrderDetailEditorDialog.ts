@@ -1,6 +1,6 @@
 ﻿import { EditorDialogBase } from '@/Common/Editors/EditorDialogBase';
 import { Decorators } from '@serenity-is/corelib';
-import { OrderDetailEditorForm, OrderDetailRow } from '../../ServerTypes/Order';
+import { OrderDetailEditorForm, OrderDetailRow } from '../../../ServerTypes/Order';
 
 @Decorators.registerClass('SYP.Order.OrderDetailEditorDialog')
 export class OrderDetailEditorDialog extends EditorDialogBase<OrderDetailRow> {

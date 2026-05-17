@@ -261,11 +261,15 @@ export class GridEditorBaseWithOption<TEntity, TOptions> extends EntityGrid<TEnt
         return opt;
     }
 
+    protected resetRowNumber() {
+        let i = 1;
+        this.view.getItems().forEach(item => (item as any).RowNum = i++);
+        this.view.refresh();
+    }
+
     parentDialog: EntityDialog<any, any>;
 
-    //custom events
     onItemsChanged() {
-
     }
     onBeforeGetValue(items: TEntity[]) {
 
