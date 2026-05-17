@@ -37,7 +37,10 @@
       "Bash(git checkout:*)",
       "Bash(git commit:*)",
       "Bash(git rm:*)",
-      "Bash(exit 0)"
+      "Bash(exit 0)",
+      "Bash(git merge:*)",
+      "Bash(git stash:*)",
+      "Bash(git push:*)"
     ]
   }
 }
