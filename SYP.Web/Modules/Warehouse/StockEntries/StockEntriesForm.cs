@@ -6,7 +6,7 @@ namespace SYP.Warehouse.Forms;
 [BasedOnRow(typeof(StockEntriesRow), CheckNames = true)]
 public class StockEntriesForm
 {
-    [Tab("Genel Bilgiler")]
+    [Tab("General Information")]
     [HalfWidth]
     public string EntryNo { get; set; }
 
@@ -22,11 +22,11 @@ public class StockEntriesForm
     [FullWidth]
     public string Description { get; set; }
 
-    [Tab("Ürünler")]
+    [Tab("Products")]
     [StockEntryDetailsEditor, IgnoreName]
     public List<StockEntryDetailsRow> DetailList { get; set; }
 
-    [Tab("Dosyalar")]
+    [Tab("Files")]
     [FullWidth]
     public string Attachments { get; set; }
 }

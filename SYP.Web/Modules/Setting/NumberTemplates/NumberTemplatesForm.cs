@@ -6,15 +6,15 @@ namespace SYP.Setting.Forms;
 [BasedOnRow(typeof(NumberTemplatesRow), CheckNames = true)]
 public class NumberTemplatesForm
 {
-    [Category("Şablon Ayarları")]
-    [DisplayName("Şablon Tipi"), EnumEditor]
+    [Category("Template Settings")]
+    [DisplayName("Template Type"), EnumEditor]
     public global::_Ext.NumberTemplateType Type { get; set; }
 
-    [Placeholder("Ön Ek (örn: MUS-, URN-)")]
+    [Placeholder("Prefix (e.g., MUS-, URN-)")]
     public string Prefix { get; set; }
 
-    [Placeholder("Boş bırakılırsa tarih eklenmez"), Hint(@"
-Örnek Formatlar:
+    [Placeholder("Leave blank to exclude date"), Hint(@"
+Example Formats:
 yyyy     => 2024
 yy       => 24
 yyyyMM   => 202401
@@ -23,10 +23,10 @@ MMyyyy   => 012024
 ")]
     public string DateFormat { get; set; }
 
-    [Placeholder("Son Ek (tarihten sonra)")]
+    [Placeholder("Suffix (after date)")]
     public string Suffix { get; set; }
 
-    [Placeholder("Seri numarası uzunluğu (örn: 5 => 00001)")]
+    [Placeholder("Serial number length (e.g., 5 => 00001)")]
     public int Length { get; set; }
 
     [DefaultValue(true)]

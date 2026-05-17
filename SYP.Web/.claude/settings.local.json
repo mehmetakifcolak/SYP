@@ -40,7 +40,8 @@
       "Bash(exit 0)",
       "Bash(git merge:*)",
       "Bash(git stash:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(grep:*)"
     ]
   }
 }

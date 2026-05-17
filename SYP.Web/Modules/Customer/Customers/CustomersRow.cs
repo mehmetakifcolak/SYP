@@ -4,12 +4,12 @@ namespace SYP.Customer;
 
 [ConnectionKey("Default"), Module("Customer"), TableName("Customers")]
 [DisplayName("Customers"), InstanceName("Customers")]
-[NavigationPermission("Customer:Customers:Navigation")]
 [ReadPermission("Customer:Customers:Read")]
 [InsertPermission("Customer:Customers:Insert")]
 [UpdatePermission("Customer:Customers:Update")]
 [DeletePermission("Customer:Customers:Delete")]
-[ServiceLookupPermission("Customer:Customers:Lookup")]
+[NavigationPermission("Customer:Customers:Navigation")]
+[LookupScript("Customer.Customers", Permission = "Customer:Customers:Read")]
 public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow, IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]
@@ -48,7 +48,7 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public string Address { get => fields.Address[this]; set => fields.Address[this] = value; }
     public partial class RowFields { public StringField Address; }
 
-    [DisplayName("Ülke"), ForeignKey("[dbo].[Country]", "Id"), LeftJoin("jCountry")]
+    [DisplayName("Country"), ForeignKey("[dbo].[Country]", "Id"), LeftJoin("jCountry")]
     [LookupEditor("Setting.Country")]
     public int? CountryId { get => fields.CountryId[this]; set => fields.CountryId[this] = value; }
     public partial class RowFields { public Int32Field CountryId; }
@@ -98,6 +98,11 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public int? UserId { get => fields.UserId[this]; set => fields.UserId[this] = value; }
     public partial class RowFields { public Int32Field UserId; }
 
+    [DisplayName("Sorumlu Yönetici"), ForeignKey("[dbo].[Users]", "UserId"), LeftJoin("jManager")]
+    [LookupEditor("Administration.User")]
+    public int? ManagerUserId { get => fields.ManagerUserId[this]; set => fields.ManagerUserId[this] = value; }
+    public partial class RowFields { public Int32Field ManagerUserId; }
+
     [DisplayName("Password"), Size(50), NotMapped]
     public string Password { get => fields.Password[this]; set => fields.Password[this] = value; }
     public partial class RowFields { public StringField Password; }
@@ -108,21 +113,25 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
 
     #region Foreign Fields
 
-    [DisplayName("Kullanıcı Adı"), Expression("jUser.[Username]")]
+    [DisplayName("Username"), Expression("jUser.[Username]")]
     public string Username { get => fields.Username[this]; set => fields.Username[this] = value; }
     public partial class RowFields { public StringField Username; }
 
-    [DisplayName("Satıcı Tipi"), Expression("jVendorType.[Title]")]
+    [DisplayName("Vendor Type Title"), Expression("jVendorType.[Title]")]
     public string VendorTypeTitle { get => fields.VendorTypeTitle[this]; set => fields.VendorTypeTitle[this] = value; }
     public partial class RowFields { public StringField VendorTypeTitle; }
 
-    [DisplayName("Kullanıcı Aktif"), Expression("jUser.[IsActive]")]
+    [DisplayName("User Is Active"), Expression("jUser.[IsActive]")]
     public short? UserIsActive { get => fields.UserIsActive[this]; set => fields.UserIsActive[this] = value; }
     public partial class RowFields { public Int16Field UserIsActive; }
 
-    [DisplayName("Ülke"), Expression("jCountry.[Name]")]
+    [DisplayName("Country Name"), Expression("jCountry.[Name]")]
     public string CountryName { get => fields.CountryName[this]; set => fields.CountryName[this] = value; }
     public partial class RowFields { public StringField CountryName; }
+
+    [DisplayName("Yönetici Adı"), Expression("jManager.[DisplayName]")]
+    public string ManagerName { get => fields.ManagerName[this]; set => fields.ManagerName[this] = value; }
+    public partial class RowFields { public StringField ManagerName; }
 
     #endregion Foreign Fields
 

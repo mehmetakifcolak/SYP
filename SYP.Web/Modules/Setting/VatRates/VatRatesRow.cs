@@ -1,7 +1,7 @@
 ﻿namespace SYP.Setting;
 
 [ConnectionKey("Default"), Module("Setting"), TableName("VatRates")]
-[DisplayName("KDV Oranları"), InstanceName("KDV Oranı")]
+[DisplayName("VAT Rates"), InstanceName("VAT Rate")]
 [LookupScript("Setting.VatRates", Permission = "*")]
 [NavigationPermission("Setting:VatRates:Navigation")]
 [ReadPermission("Setting:VatRates:Read")]
@@ -15,15 +15,15 @@ public sealed class VatRatesRow : Row<VatRatesRow.RowFields>, IIdRow, INameRow, 
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
     
-    [DisplayName("Ad"), Size(50), NotNull, QuickSearch, NameProperty, LookupInclude]
+    [DisplayName("Name"), Size(50), NotNull, QuickSearch, NameProperty, LookupInclude]
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
 
-    [DisplayName("Kod"), Size(10), LookupInclude]
+    [DisplayName("Code"), Size(10), LookupInclude]
     public string Code { get => fields.Code[this]; set => fields.Code[this] = value; }
     public partial class RowFields { public StringField Code; }
 
-    [DisplayName("Oran"), LookupInclude]
+    [DisplayName("Rate"), LookupInclude]
     public decimal? Rate { get => fields.Rate[this]; set => fields.Rate[this] = value; }
     public partial class RowFields { public DecimalField Rate; }
     

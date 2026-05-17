@@ -11,6 +11,7 @@ export enum NumberTemplateType {
     Irsaliye = 8,
     StokGirisi = 9,
     StokCikisi = 10,
-    FiyatListesi = 11
+    FiyatListesi = 11,
+    B2BSiparis = 12
 }
 registerEnum(NumberTemplateType, '_Ext.NumberTemplateType', 'NumberTemplateType');

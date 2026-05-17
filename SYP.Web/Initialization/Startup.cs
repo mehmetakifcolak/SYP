@@ -119,6 +119,7 @@ public partial class Startup
         services.AddSingleton<IUploadAVScanner, ClamAVUploadScanner>();
         services.AddSingleton<IUserPasswordValidator, AppServices.UserPasswordValidator>();
         services.AddUserProvider<AppServices.UserAccessor, AppServices.UserRetrieveService>();
+        services.AddScoped<Order.IOrderStatusService, Order.OrderStatusService>();
         services.AddServiceHandlers();
         services.AddDynamicScripts();
         services.AddCssBundling();

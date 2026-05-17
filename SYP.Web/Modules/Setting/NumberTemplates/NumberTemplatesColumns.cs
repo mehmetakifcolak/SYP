@@ -10,7 +10,7 @@ public class NumberTemplatesColumns
     [EditLink, DisplayName("Db.Shared.RecordId"), AlignRight, Width(80)]
     public int Id { get; set; }
 
-    [DisplayName("Şablon Tipi"), Width(150)]
+    [DisplayName("Template Type"), Width(150)]
     public global::_Ext.NumberTemplateType Type { get; set; }
 
     [EditLink, Width(100)]
@@ -22,9 +22,9 @@ public class NumberTemplatesColumns
     [Width(80)]
     public string Suffix { get; set; }
 
-    [DisplayName("Uzunluk"), Width(80)]
+    [DisplayName("Length"), Width(80)]
     public int Length { get; set; }
 
-    [DisplayName("Aktif"), Width(80)]
+    [DisplayName("Active"), Width(80)]
     public bool Active { get; set; }
 }

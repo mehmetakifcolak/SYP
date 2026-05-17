@@ -6,7 +6,7 @@ namespace SYP.Warehouse.Forms;
 [BasedOnRow(typeof(StockExitsRow), CheckNames = true)]
 public class StockExitsForm
 {
-    [Tab("Genel Bilgiler")]
+    [Tab("General Information")]
     [HalfWidth]
     public string ExitNo { get; set; }
 
@@ -22,11 +22,11 @@ public class StockExitsForm
     [FullWidth]
     public string Description { get; set; }
 
-    [Tab("Ürünler")]
+    [Tab("Products")]
     [StockExitDetailsEditor, IgnoreName]
     public List<StockExitDetailsRow> DetailList { get; set; }
 
-    [Tab("Dosyalar")]
+    [Tab("Files")]
     [FullWidth]
     public string Attachments { get; set; }
 }

@@ -226,6 +226,8 @@ namespace texts {
                 export const InsertUserId: string;
                 export const IsActive: string;
                 export const LastName: string;
+                export const ManagerName: string;
+                export const ManagerUserId: string;
                 export const Name: string;
                 export const Password: string;
                 export const PasswordConfirm: string;
@@ -354,6 +356,109 @@ namespace texts {
                 export const UpdateUserId: string;
                 export const UseSsl: string;
                 export const Username: string;
+            }
+        }
+        namespace Order {
+            export function asKey(): typeof Order;
+            export function asTry(): typeof Order;
+            namespace Order {
+                export function asKey(): typeof Order;
+                export function asTry(): typeof Order;
+                export const CurrencyCode: string;
+                export const CurrencyId: string;
+                export const CustomerCode: string;
+                export const CustomerId: string;
+                export const CustomerName: string;
+                export const DetailList: string;
+                export const DiscountAmount: string;
+                export const DiscountPercentage: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const ManagerName: string;
+                export const ManagerUserId: string;
+                export const NetAmount: string;
+                export const Notes: string;
+                export const OrderDate: string;
+                export const OrderNumber: string;
+                export const RejectReason: string;
+                export const Status: string;
+                export const TotalAmount: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
+            namespace OrderDetail {
+                export function asKey(): typeof OrderDetail;
+                export function asTry(): typeof OrderDetail;
+                export const Discount: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const LineTotal: string;
+                export const Notes: string;
+                export const OrderId: string;
+                export const OrderNumber: string;
+                export const ProductCodeName: string;
+                export const ProductId: string;
+                export const Quantity: string;
+                export const UnitCode: string;
+                export const UnitId: string;
+                export const UnitPrice: string;
+                export const VatRate: string;
+                export const VatRateId: string;
+                export const VatRateName: string;
+            }
+            namespace OrderDocument {
+                export function asKey(): typeof OrderDocument;
+                export function asTry(): typeof OrderDocument;
+                export const DocumentType: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const FileName: string;
+                export const FilePath: string;
+                export const FileSize: string;
+                export const Id: string;
+                export const IsActive: string;
+                export const MimeType: string;
+                export const Notes: string;
+                export const OrderId: string;
+                export const OrderNumber: string;
+                export const UploadDate: string;
+                export const UploadedByUserId: string;
+                export const UploadedByUserUsername: string;
+            }
+            namespace OrderStatusHist {
+                export function asKey(): typeof OrderStatusHist;
+                export function asTry(): typeof OrderStatusHist;
+                export const ChangeDate: string;
+                export const ChangeReason: string;
+                export const ChangedByUserId: string;
+                export const ChangedByUserRole: string;
+                export const ChangedByUserUsername: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const NewStatus: string;
+                export const OldStatus: string;
+                export const OrderId: string;
+                export const OrderNumber: string;
+            }
+            namespace TieredDiscountSettings {
+                export function asKey(): typeof TieredDiscountSettings;
+                export function asTry(): typeof TieredDiscountSettings;
+                export const DiscountPercentage: string;
+                export const DisplayOrder: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const MinAmount: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
             }
         }
         namespace Setting {
@@ -749,6 +854,13 @@ const Texts: typeof texts = proxyTexts({}, '', {
             EmailQueue: {},
             EmailTemplates: {},
             SmtpSettings: {}
+        },
+        Order: {
+            Order: {},
+            OrderDetail: {},
+            OrderDocument: {},
+            OrderStatusHist: {},
+            TieredDiscountSettings: {}
         },
         Setting: {
             BankAccountInformations: {},

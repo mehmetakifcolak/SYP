@@ -73,7 +73,7 @@ public sealed class PriceListsRow : Row<PriceListsRow.RowFields>, IIdRow, INameR
 
     #endregion Foreign Fields
 
-    [DisplayName("Ürünler"), NotMapped]
+    [DisplayName("Products"), NotMapped]
     [MasterDetailRelation(foreignKey: "PriceListId", IncludeColumns = "ProductCode,ProductName,UnitPrice,DiscountRate,Notes")]
     public List<PriceListItemsRow> ItemList
     {

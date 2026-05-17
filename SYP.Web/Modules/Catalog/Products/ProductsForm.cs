@@ -6,8 +6,8 @@ namespace SYP.Catalog.Forms;
 [BasedOnRow(typeof(ProductsRow), CheckNames = true)]
 public class ProductsForm
 {
-    [Tab("Genel Bilgiler")]
-    [HalfWidth, Placeholder("Boş bırakılırsa otomatik oluşturulur")]
+    [Tab("General Information")]
+    [HalfWidth, Placeholder("Will be auto-generated if left blank")]
     public string Code { get; set; }
 
     [HalfWidth]
@@ -28,7 +28,7 @@ public class ProductsForm
     [FullWidth, TextAreaEditor(Rows = 3)]
     public string Description { get; set; }
 
-    [Tab("Fiyat Bilgileri")]
+    [Tab("Pricing Information")]
     [HalfWidth]
     public int? UnitId { get; set; }
 
@@ -41,10 +41,10 @@ public class ProductsForm
     [HalfWidth, ReadOnly(true)]
     public decimal? CurrentValidPrice { get; set; }
 
-    [Tab("Görsel")]
+    [Tab("Image")]
     [FullWidth]
     public string ProductImage { get; set; }
 
-    [Tab("Durum")]
+    [Tab("Status")]
     public bool IsActive { get; set; }
 }

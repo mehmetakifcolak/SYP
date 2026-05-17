@@ -14,7 +14,7 @@ public class BankAccountInformationsColumns
     public string AccountNo { get; set; }
     public string Iban { get; set; }
     public string Swift { get; set; }
-    [DisplayName("Para Birimi")]
+    [DisplayName("Currency")]
     public string CurrencyCode { get; set; }
     public string Origin { get; set; }
     public string Payment { get; set; }

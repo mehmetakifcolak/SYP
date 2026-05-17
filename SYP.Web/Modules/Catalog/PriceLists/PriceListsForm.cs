@@ -6,8 +6,8 @@ namespace SYP.Catalog.Forms;
 [BasedOnRow(typeof(PriceListsRow), CheckNames = true)]
 public class PriceListsForm
 {
-    [Tab("Genel Bilgiler")]
-    [HalfWidth, Placeholder("Boş bırakılırsa otomatik oluşturulur")]
+    [Tab("General Information")]
+    [HalfWidth, Placeholder("Leave blank to auto-generate")]
     public string Code { get; set; }
 
     [HalfWidth]
@@ -31,7 +31,7 @@ public class PriceListsForm
     [HalfWidth]
     public bool IsDefault { get; set; }
 
-    [Tab("Ürünler")]
+    [Tab("Products")]
     [PriceListItemsEditor, IgnoreName]
     public List<PriceListItemsRow> ItemList { get; set; }
 }

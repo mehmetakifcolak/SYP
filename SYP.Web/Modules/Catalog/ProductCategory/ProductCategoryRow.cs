@@ -1,6 +1,6 @@
 namespace SYP.Catalog;
 [ConnectionKey("Default"), Module("Catalog"), TableName("ProductCategory")]
-[DisplayName("Kategoriler"), InstanceName("Kategori")]
+[DisplayName("Categories"), InstanceName("Category")]
 [NavigationPermission("Catalog:ProductCategory:Navigation")]
 [ReadPermission("Catalog:ProductCategory:Read")]
 [InsertPermission("Catalog:ProductCategory:Insert")]
@@ -15,16 +15,16 @@ public sealed class ProductCategoryRow : Row<ProductCategoryRow.RowFields>, IIdR
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
 
-    [DisplayName("Üst Kategori"), ForeignKey(typeof(ProductCategoryRow)), LeftJoin(jParent), TextualField(nameof(ParentName)), LookupInclude]
+    [DisplayName("Parent Category"), ForeignKey(typeof(ProductCategoryRow)), LeftJoin(jParent), TextualField(nameof(ParentName)), LookupInclude]
     [LookupEditor("Catalog.ProductCategory")]
     public int? ParentId { get => fields.ParentId[this]; set => fields.ParentId[this] = value; }
     public partial class RowFields { public Int32Field ParentId; }
 
-    [DisplayName("Ad"), Size(200), NotNull, QuickSearch, NameProperty, LookupInclude]
+    [DisplayName("Name"), Size(200), NotNull, QuickSearch, NameProperty, LookupInclude]
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
 
-    [DisplayName("Tam Yol"), NotMapped, LookupInclude]
+    [DisplayName("Full Path"), NotMapped, LookupInclude]
     public string FullPath { get => fields.FullPath[this]; set => fields.FullPath[this] = value; }
     public partial class RowFields { public StringField FullPath; }
     

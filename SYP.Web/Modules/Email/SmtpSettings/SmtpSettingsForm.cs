@@ -4,7 +4,7 @@ namespace SYP.Email.Forms;
 [BasedOnRow(typeof(SmtpSettingsRow), CheckNames = true)]
 public class SmtpSettingsForm
 {
-    [Tab("Genel")]
+    [Tab("General")]
     public string Name { get; set; }
     public string Host { get; set; }
 
@@ -14,18 +14,18 @@ public class SmtpSettingsForm
     [HalfWidth]
     public bool UseSsl { get; set; }
 
-    [Tab("Kimlik Bilgileri")]
+    [Tab("Credentials")]
     public string Username { get; set; }
 
     [PasswordEditor]
     public string Password { get; set; }
 
-    [Tab("Gönderici Bilgileri")]
+    [Tab("Sender Information")]
     [EmailAddressEditor]
     public string FromAddress { get; set; }
     public string FromName { get; set; }
 
-    [Tab("Ayarlar")]
+    [Tab("Settings")]
     [HalfWidth]
     public bool IsDefault { get; set; }
 

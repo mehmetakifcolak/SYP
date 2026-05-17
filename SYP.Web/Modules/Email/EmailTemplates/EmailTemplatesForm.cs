@@ -4,7 +4,7 @@ namespace SYP.Email.Forms;
 [BasedOnRow(typeof(EmailTemplatesRow), CheckNames = true)]
 public class EmailTemplatesForm
 {
-    [Tab("Genel")]
+    [Tab("General")]
     [HalfWidth]
     public string TemplateKey { get; set; }
 
@@ -24,11 +24,11 @@ public class EmailTemplatesForm
 
     public bool IsActive { get; set; }
 
-    [Tab("HTML İçerik")]
+    [Tab("HTML Content")]
     [HtmlContentEditor(Rows = 20)]
     public string Body { get; set; }
 
-    [Tab("Text İçerik")]
+    [Tab("Text Content")]
     [TextAreaEditor(Rows = 15)]
     public string BodyText { get; set; }
 }

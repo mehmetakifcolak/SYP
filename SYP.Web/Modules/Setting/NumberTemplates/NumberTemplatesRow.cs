@@ -40,7 +40,7 @@ public sealed class NumberTemplatesRow : Row<NumberTemplatesRow.RowFields>, IIdR
     public bool? Active { get => fields.Active[this]; set => fields.Active[this] = value; }
     public partial class RowFields { public BooleanField Active; }
     
-    [DisplayName("Şablon Tipi")]
+    [DisplayName("Template Type")]
     public global::_Ext.NumberTemplateType? Type { get => fields.Type[this]; set => fields.Type[this] = value; }
     public partial class RowFields { public EnumField<global::_Ext.NumberTemplateType> Type; }
     

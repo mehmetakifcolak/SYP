@@ -16,6 +16,10 @@ public static partial class ESM
     public const string LanguagePage = "~/esm/Modules/Administration/Language/LanguagePage.js";
     public const string LoginPage = "~/esm/Modules/Membership/Account/Login/LoginPage.js";
     public const string NumberTemplatesPage = "~/esm/Modules/Setting/NumberTemplates/NumberTemplatesPage.js";
+    public const string OrderDetailPage = "~/esm/Modules/Order/OrderDetail/OrderDetailPage.js";
+    public const string OrderDocumentPage = "~/esm/Modules/Order/OrderDocument/OrderDocumentPage.js";
+    public const string OrderPage = "~/esm/Modules/Order/Order/OrderPage.js";
+    public const string OrderStatusHistPage = "~/esm/Modules/Order/OrderStatusHist/OrderStatusHistPage.js";
     public const string PriceListsPage = "~/esm/Modules/Catalog/PriceLists/PriceListsPage.js";
     public const string ProductCategoryPage = "~/esm/Modules/Catalog/ProductCategory/ProductCategoryPage.js";
     public const string ProductsPage = "~/esm/Modules/Catalog/Products/ProductsPage.js";
@@ -26,6 +30,7 @@ public static partial class ESM
     public const string StockEntriesPage = "~/esm/Modules/Warehouse/StockEntries/StockEntriesPage.js";
     public const string StockExitsPage = "~/esm/Modules/Warehouse/StockExits/StockExitsPage.js";
     public const string StockMovementsPage = "~/esm/Modules/Warehouse/StockMovements/StockMovementsPage.js";
+    public const string TieredDiscountSettingsPage = "~/esm/Modules/Order/TieredDiscountSettings/TieredDiscountSettingsPage.js";
     public const string TranslationPage = "~/esm/Modules/Administration/Translation/TranslationPage.js";
     public const string UserPage = "~/esm/Modules/Administration/User/UserPage.js";
     public const string VatRatesPage = "~/esm/Modules/Setting/VatRates/VatRatesPage.js";
@@ -140,6 +145,34 @@ public static partial class ESM
                 {
                     public const string SignUpPage = "~/esm/Modules/Membership/Account/SignUp/SignUpPage.js";
                 }
+            }
+        }
+
+        public static partial class Order
+        {
+            public static partial class Order_
+            {
+                public const string OrderPage = "~/esm/Modules/Order/Order/OrderPage.js";
+            }
+
+            public static partial class OrderDetail
+            {
+                public const string OrderDetailPage = "~/esm/Modules/Order/OrderDetail/OrderDetailPage.js";
+            }
+
+            public static partial class OrderDocument
+            {
+                public const string OrderDocumentPage = "~/esm/Modules/Order/OrderDocument/OrderDocumentPage.js";
+            }
+
+            public static partial class OrderStatusHist
+            {
+                public const string OrderStatusHistPage = "~/esm/Modules/Order/OrderStatusHist/OrderStatusHistPage.js";
+            }
+
+            public static partial class TieredDiscountSettings
+            {
+                public const string TieredDiscountSettingsPage = "~/esm/Modules/Order/TieredDiscountSettings/TieredDiscountSettingsPage.js";
             }
         }
 
