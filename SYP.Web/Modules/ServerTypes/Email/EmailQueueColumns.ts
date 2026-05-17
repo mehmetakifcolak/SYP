@@ -1,6 +1,6 @@
 ﻿import { ColumnsBase, fieldsProxy } from "@serenity-is/corelib";
 import { Column } from "@serenity-is/sleekgrid";
-import { EmailPriority } from "../_Ext/EmailPriority";
+import { EmailPriority } from "./EmailPriority";
 import { EmailQueueRow } from "./EmailQueueRow";
 
 export interface EmailQueueColumns {

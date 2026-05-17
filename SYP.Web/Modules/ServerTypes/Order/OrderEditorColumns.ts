@@ -1,13 +1,12 @@
 ﻿import { ColumnsBase, fieldsProxy } from "@serenity-is/corelib";
 import { Column } from "@serenity-is/sleekgrid";
-import { OrderStatus } from "../_Ext/OrderStatus";
 import { OrderRow } from "./OrderRow";
+import { OrderStatus } from "./OrderStatus";
 
 export interface OrderEditorColumns {
     Id: Column<OrderRow>;
     OrderNumber: Column<OrderRow>;
     CustomerCode: Column<OrderRow>;
-    ManagerUserUsername: Column<OrderRow>;
     Status: Column<OrderRow>;
     OrderDate: Column<OrderRow>;
     TotalAmount: Column<OrderRow>;

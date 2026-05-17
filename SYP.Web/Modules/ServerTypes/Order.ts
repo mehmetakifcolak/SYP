@@ -1,4 +1,5 @@
-﻿export * from "./Order/OrderColumns";
+﻿export * from "./Order/DocumentType";
+export * from "./Order/OrderColumns";
 export * from "./Order/OrderDetailColumns";
 export * from "./Order/OrderDetailEditorColumns";
 export * from "./Order/OrderDetailEditorForm";
@@ -16,6 +17,7 @@ export * from "./Order/OrderEditorForm";
 export * from "./Order/OrderForm";
 export * from "./Order/OrderRow";
 export * from "./Order/OrderService";
+export * from "./Order/OrderStatus";
 export * from "./Order/OrderStatusHistColumns";
 export * from "./Order/OrderStatusHistEditorColumns";
 export * from "./Order/OrderStatusHistEditorForm";

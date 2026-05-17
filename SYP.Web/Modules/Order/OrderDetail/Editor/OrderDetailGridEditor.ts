@@ -1,6 +1,6 @@
-﻿import { GridEditorBase } from '@/_Ext/Editors/GridEditorBase';
-import { Decorators, getLookupAsync, Lookup } from '@serenity-is/corelib';
-import { OrderDetailEditorColumns, OrderDetailRow } from '../../../ServerTypes/Order';
+﻿import { GridEditorBase } from '@/Common/Editors/GridEditorBase';
+import { Decorators } from '@serenity-is/corelib';
+import { OrderDetailEditorColumns, OrderDetailRow } from '../../ServerTypes/Order';
 import { OrderDetailEditorDialog } from './OrderDetailEditorDialog';
 import { ProductsRow } from '../../../ServerTypes/Catalog';
 import { CustomersRow } from '../../../ServerTypes/Customer';

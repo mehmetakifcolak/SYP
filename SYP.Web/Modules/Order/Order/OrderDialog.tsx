@@ -1,5 +1,4 @@
-ï»¿import { DialogBase } from '@/_Ext/Bases/DialogBase';
-import { Decorators, getLookupAsync } from '@serenity-is/corelib';
+import { Decorators, EntityDialog} from '@serenity-is/corelib';
 import { OrderForm, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { CustomersRow } from '../../ServerTypes/Customer';
 import { VendorTypeRow } from '../../ServerTypes/Setting';
@@ -7,7 +6,7 @@ import '../OrderDetail/Editor/OrderDetailEditorDialog';
 import '../OrderDetail/Editor/OrderDetailGridEditor';
 
 @Decorators.registerClass('SYP.Order.OrderDialog')
-export class OrderDialog extends DialogBase<OrderRow, any> {
+export class OrderDialog extends EntityDialog<OrderRow, any> {
     protected getFormKey() { return OrderForm.formKey; }
     protected getRowDefinition() { return OrderRow; }
     protected getService() { return OrderService.baseUrl; }
@@ -17,7 +16,7 @@ export class OrderDialog extends DialogBase<OrderRow, any> {
     constructor(props?: any) {
         super(props);
 
-        // Bayi seÃ§ildiÄŸinde iskonto bilgilerini gÃ¼ncelle
+        // Bayi seçildiðinde iskonto bilgilerini güncelle
         this.form.CustomerId.changeSelect2(async e => {
             await this.updateDiscountPercentage();
         });
@@ -31,12 +30,12 @@ export class OrderDialog extends DialogBase<OrderRow, any> {
         }
 
         try {
-            // Customer lookup'Ä±nÄ± al
+            // Customer lookup'ýný al
             const customerLookup = await getLookupAsync<CustomersRow>(CustomersRow.lookupKey);
             const customer = customerLookup.itemById[customerId];
 
             if (customer?.VendorTypeId) {
-                // VendorType lookup'Ä±nÄ± al
+                // VendorType lookup'ýný al
                 const vendorTypeLookup = await getLookupAsync<VendorTypeRow>(VendorTypeRow.lookupKey);
                 const vendorType = vendorTypeLookup.itemById[customer.VendorTypeId];
 
@@ -54,7 +53,7 @@ export class OrderDialog extends DialogBase<OrderRow, any> {
     protected afterLoadEntity(): void {
         super.afterLoadEntity();
 
-        // Entity yÃ¼klendikten sonra iskonto bilgilerini gÃ¼ncelle
+        // Entity yüklendikten sonra iskonto bilgilerini güncelle
         if (this.entity.CustomerId) {
             this.updateDiscountPercentage();
         }

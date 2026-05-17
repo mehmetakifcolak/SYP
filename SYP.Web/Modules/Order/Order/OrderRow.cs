@@ -1,7 +1,5 @@
 namespace SYP.Order;
 
-using global::_Ext;
-
 [ConnectionKey("Default"), Module("Order"), TableName("Orders")]
 [DisplayName("Order"), InstanceName("Order")]
 [NavigationPermission("Order:Order:Navigation")]

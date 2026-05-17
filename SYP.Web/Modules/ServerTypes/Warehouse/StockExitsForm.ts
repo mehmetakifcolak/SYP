@@ -1,6 +1,6 @@
 ﻿import { DateTimeEditor, EnumEditor, initFormType, LookupEditor, MultipleImageUploadEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
 import { StockExitDetailsEditor } from "../../Warehouse/StockExitDetails/StockExitDetailsEditor";
-import { StockExitStatus } from "../_Ext/StockExitStatus";
+import { StockExitStatus } from "./StockExitStatus";
 
 export interface StockExitsForm {
     ExitNo: StringEditor;

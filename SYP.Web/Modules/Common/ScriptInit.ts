@@ -7,7 +7,6 @@ import { getLanguageList } from "./Helpers/LanguageList";
 import DOMPurify from "dompurify";
 
 Config.rootNamespaces.push('SYP');
-Config.rootNamespaces.push('_Ext');
 DataGrid.defaultPersistanceStorage = new UserPreferenceStorage();
 TranslationConfig.getLanguageList = getLanguageList;
 gridDefaults.sanitizer = (globalThis.DOMPurify = DOMPurify).sanitize;

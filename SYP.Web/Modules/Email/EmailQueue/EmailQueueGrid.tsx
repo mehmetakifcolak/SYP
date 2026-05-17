@@ -1,10 +1,9 @@
-import { Decorators, ToolButton, confirmDialog, notifySuccess, serviceRequest } from '@serenity-is/corelib';
+import { Decorators, ToolButton, confirmDialog, notifySuccess, serviceRequest, EntityGrid} from '@serenity-is/corelib';
 import { EmailQueueColumns, EmailQueueRow, EmailQueueService } from '../../ServerTypes/Email';
 import { EmailQueueDialog } from './EmailQueueDialog';
-import { GridBase } from '../../_Ext/Bases/GridBase';
 
 @Decorators.registerClass('SYP.Email.EmailQueueGrid')
-export class EmailQueueGrid extends GridBase<EmailQueueRow, any> {
+export class EmailQueueGrid extends EntityGrid<EmailQueueRow, any> {
     protected getColumnsKey() { return EmailQueueColumns.columnsKey; }
     protected getDialogType() { return EmailQueueDialog; }
     protected getRowDefinition() { return EmailQueueRow; }

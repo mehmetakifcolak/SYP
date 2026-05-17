@@ -1,5 +1,5 @@
 ﻿import { fieldsProxy } from "@serenity-is/corelib";
-import { NumberTemplateType } from "../_Ext/NumberTemplateType";
+import { NumberTemplateType } from "./NumberTemplateType";
 
 export interface NumberTemplatesRow {
     Id?: number;

@@ -1,5 +1,5 @@
 ﻿import { DateEditor, EnumEditor, initFormType, IntegerEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
-import { EmailLogStatus } from "../_Ext/EmailLogStatus";
+import { EmailLogStatus } from "./EmailLogStatus";
 
 export interface EmailLogsForm {
     EmailQueueId: StringEditor;

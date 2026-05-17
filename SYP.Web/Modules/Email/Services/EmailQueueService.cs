@@ -7,7 +7,6 @@ using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Text.Json;
-using _Ext;
 
 namespace SYP.Email.Services;
 
@@ -36,21 +35,31 @@ public class EmailQueueService : BackgroundService
     {
         _logger.LogInformation("Email Queue Service starting...");
 
-        // İlk başlangıçta biraz bekle
-        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
-            {
-                await ProcessQueueAsync(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing email queue");
-            }
+            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
-            await Task.Delay(_pollingInterval, stoppingToken);
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await ProcessQueueAsync(stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing email queue");
+                }
+
+                await Task.Delay(_pollingInterval, stoppingToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal shutdown
         }
 
         _logger.LogInformation("Email Queue Service stopping...");

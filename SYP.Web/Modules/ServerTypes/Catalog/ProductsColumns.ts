@@ -1,6 +1,6 @@
 ﻿import { ColumnsBase, fieldsProxy } from "@serenity-is/corelib";
 import { Column } from "@serenity-is/sleekgrid";
-import { InlineImageFormatter } from "../../_Ext/Formatters/InlineImageFormatter";
+import { InlineImageFormatter } from "../../Common/Formatters/InlineImageFormatter";
 import { ProductsRow } from "./ProductsRow";
 
 export interface ProductsColumns {

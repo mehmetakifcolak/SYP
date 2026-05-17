@@ -3,7 +3,6 @@
 export interface ProductCategoryEditorForm {
     ParentId: LookupEditor;
     Name: StringEditor;
-    Path: StringEditor;
     FullPath: StringEditor;
     SortOrder: IntegerEditor;
     IsActive: BooleanEditor;
@@ -29,7 +28,6 @@ export class ProductCategoryEditorForm extends PrefixedContext {
             initFormType(ProductCategoryEditorForm, [
                 'ParentId', w0,
                 'Name', w1,
-                'Path', w1,
                 'FullPath', w1,
                 'SortOrder', w2,
                 'IsActive', w3,

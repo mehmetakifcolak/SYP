@@ -41,8 +41,8 @@ public sealed class NumberTemplatesRow : Row<NumberTemplatesRow.RowFields>, IIdR
     public partial class RowFields { public BooleanField Active; }
     
     [DisplayName("Template Type")]
-    public global::_Ext.NumberTemplateType? Type { get => fields.Type[this]; set => fields.Type[this] = value; }
-    public partial class RowFields { public EnumField<global::_Ext.NumberTemplateType> Type; }
+    public NumberTemplateType? Type { get => fields.Type[this]; set => fields.Type[this] = value; }
+    public partial class RowFields { public EnumField<NumberTemplateType> Type; }
     
     [DisplayName("Department Id")]
     public int? DepartmentId { get => fields.DepartmentId[this]; set => fields.DepartmentId[this] = value; }

@@ -1,12 +1,11 @@
-import { GridBase } from '@/_Ext/Bases/GridBase';
-import { Decorators } from '@serenity-is/corelib';
+import { Decorators, EntityGrid} from '@serenity-is/corelib';
 import { Column } from '@serenity-is/sleekgrid';
 import { CustomersColumns, CustomersRow, CustomersService } from '../../ServerTypes/Customer';
 import { CustomersDialog } from './CustomersDialog';
 import { UserStatusFormatter } from './UserStatusFormatter';
 
 @Decorators.registerClass('SYP.Customer.CustomersGrid')
-export class CustomersGrid extends GridBase<CustomersRow, any> {
+export class CustomersGrid extends EntityGrid<CustomersRow, any> {
     protected getColumnsKey() { return CustomersColumns.columnsKey; }
     protected getDialogType() { return CustomersDialog; }
     protected getRowDefinition() { return CustomersRow; }

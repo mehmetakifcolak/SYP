@@ -1,7 +1,7 @@
 ﻿import { ColumnsBase, fieldsProxy } from "@serenity-is/corelib";
 import { Column } from "@serenity-is/sleekgrid";
-import { EmailLogStatus } from "../_Ext/EmailLogStatus";
 import { EmailLogsRow } from "./EmailLogsRow";
+import { EmailLogStatus } from "./EmailLogStatus";
 
 export interface EmailLogsColumns {
     Id: Column<EmailLogsRow>;

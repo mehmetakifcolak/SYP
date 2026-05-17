@@ -9,7 +9,6 @@ public class OrderEditorColumns
     [EditLink]
     public string OrderNumber { get; set; }
     public string CustomerCode { get; set; }
-    public string ManagerUserUsername { get; set; }
     public int Status { get; set; }
     public DateTime OrderDate { get; set; }
     public decimal TotalAmount { get; set; }
