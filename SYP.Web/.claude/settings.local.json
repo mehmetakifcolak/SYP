@@ -31,7 +31,13 @@
       "Bash(dotnet clean:*)",
       "Bash(tsc)",
       "Bash(tsc:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(iconv:*)",
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(git rm:*)",
+      "Bash(exit 0)"
     ]
   }
 }
