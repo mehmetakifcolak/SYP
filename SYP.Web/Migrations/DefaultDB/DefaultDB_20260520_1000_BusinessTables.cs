@@ -954,12 +954,13 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
                     AND DATA_TYPE = 'smallint'
                 )
                 BEGIN
-                    ALTER TABLE Products ADD IsActive_Temp BIT NULL;
-                    UPDATE Products SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
-                    ALTER TABLE Products DROP COLUMN IsActive;
+                    EXEC sp_executesql N'ALTER TABLE Products ADD IsActive_Temp BIT NULL';
+                    EXEC sp_executesql N'UPDATE Products SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END';
+                    EXEC sp_executesql N'ALTER TABLE Products DROP COLUMN IsActive';
                     EXEC sp_rename 'Products.IsActive_Temp', 'IsActive', 'COLUMN';
-                    ALTER TABLE Products ALTER COLUMN IsActive BIT NOT NULL;
-                    ALTER TABLE Products ADD CONSTRAINT DF_Products_IsActive DEFAULT 1 FOR IsActive;
+                    EXEC sp_executesql N'ALTER TABLE Products ALTER COLUMN IsActive BIT NOT NULL';
+                    IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE name = 'DF_Products_IsActive')
+                        EXEC sp_executesql N'ALTER TABLE Products ADD CONSTRAINT DF_Products_IsActive DEFAULT 1 FOR IsActive';
                 END
             ");
         }
@@ -975,12 +976,12 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
                     AND DATA_TYPE = 'smallint'
                 )
                 BEGIN
-                    ALTER TABLE Brands ADD IsActive_Temp BIT NULL;
-                    UPDATE Brands SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
-                    ALTER TABLE Brands DROP COLUMN IsActive;
+                    EXEC sp_executesql N'ALTER TABLE Brands ADD IsActive_Temp BIT NULL';
+                    EXEC sp_executesql N'UPDATE Brands SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END';
+                    EXEC sp_executesql N'ALTER TABLE Brands DROP COLUMN IsActive';
                     EXEC sp_rename 'Brands.IsActive_Temp', 'IsActive', 'COLUMN';
-                    ALTER TABLE Brands ALTER COLUMN IsActive BIT NULL;
-                    ALTER TABLE Brands ADD CONSTRAINT DF_Brands_IsActive DEFAULT 1 FOR IsActive;
+                    IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE name = 'DF_Brands_IsActive')
+                        EXEC sp_executesql N'ALTER TABLE Brands ADD CONSTRAINT DF_Brands_IsActive DEFAULT 1 FOR IsActive';
                 END
             ");
         }
@@ -996,12 +997,13 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
                     AND DATA_TYPE = 'smallint'
                 )
                 BEGIN
-                    ALTER TABLE PriceLists ADD IsActive_Temp BIT NULL;
-                    UPDATE PriceLists SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
-                    ALTER TABLE PriceLists DROP COLUMN IsActive;
+                    EXEC sp_executesql N'ALTER TABLE PriceLists ADD IsActive_Temp BIT NULL';
+                    EXEC sp_executesql N'UPDATE PriceLists SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END';
+                    EXEC sp_executesql N'ALTER TABLE PriceLists DROP COLUMN IsActive';
                     EXEC sp_rename 'PriceLists.IsActive_Temp', 'IsActive', 'COLUMN';
-                    ALTER TABLE PriceLists ALTER COLUMN IsActive BIT NOT NULL;
-                    ALTER TABLE PriceLists ADD CONSTRAINT DF_PriceLists_IsActive DEFAULT 1 FOR IsActive;
+                    EXEC sp_executesql N'ALTER TABLE PriceLists ALTER COLUMN IsActive BIT NOT NULL';
+                    IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE name = 'DF_PriceLists_IsActive')
+                        EXEC sp_executesql N'ALTER TABLE PriceLists ADD CONSTRAINT DF_PriceLists_IsActive DEFAULT 1 FOR IsActive';
                 END
             ");
         }
@@ -1021,12 +1023,13 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
                         AND DATA_TYPE = 'smallint'
                     )
                     BEGIN
-                        ALTER TABLE FileArchive ADD IsActive_Temp BIT NULL;
-                        UPDATE FileArchive SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
-                        ALTER TABLE FileArchive DROP COLUMN IsActive;
+                        EXEC sp_executesql N'ALTER TABLE FileArchive ADD IsActive_Temp BIT NULL';
+                        EXEC sp_executesql N'UPDATE FileArchive SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END';
+                        EXEC sp_executesql N'ALTER TABLE FileArchive DROP COLUMN IsActive';
                         EXEC sp_rename 'FileArchive.IsActive_Temp', 'IsActive', 'COLUMN';
-                        ALTER TABLE FileArchive ALTER COLUMN IsActive BIT NOT NULL;
-                        ALTER TABLE FileArchive ADD CONSTRAINT DF_FileArchive_IsActive DEFAULT 1 FOR IsActive;
+                        EXEC sp_executesql N'ALTER TABLE FileArchive ALTER COLUMN IsActive BIT NOT NULL';
+                        IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE name = 'DF_FileArchive_IsActive')
+                            EXEC sp_executesql N'ALTER TABLE FileArchive ADD CONSTRAINT DF_FileArchive_IsActive DEFAULT 1 FOR IsActive';
                     END
                 ");
             }
@@ -1040,12 +1043,13 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
                         AND DATA_TYPE = 'smallint'
                     )
                     BEGIN
-                        ALTER TABLE FileArchive ADD IsActive_Temp BIT NULL;
-                        UPDATE FileArchive SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
-                        ALTER TABLE FileArchive DROP COLUMN IsActive;
+                        EXEC sp_executesql N'ALTER TABLE FileArchive ADD IsActive_Temp BIT NULL';
+                        EXEC sp_executesql N'UPDATE FileArchive SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END';
+                        EXEC sp_executesql N'ALTER TABLE FileArchive DROP COLUMN IsActive';
                         EXEC sp_rename 'FileArchive.IsActive_Temp', 'IsActive', 'COLUMN';
-                        ALTER TABLE FileArchive ALTER COLUMN IsActive BIT NOT NULL;
-                        ALTER TABLE FileArchive ADD CONSTRAINT DF_FileArchive_IsActive DEFAULT 1 FOR IsActive;
+                        EXEC sp_executesql N'ALTER TABLE FileArchive ALTER COLUMN IsActive BIT NOT NULL';
+                        IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE name = 'DF_FileArchive_IsActive')
+                            EXEC sp_executesql N'ALTER TABLE FileArchive ADD CONSTRAINT DF_FileArchive_IsActive DEFAULT 1 FOR IsActive';
                     END
                 ");
             }
@@ -1080,24 +1084,21 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
                 )
                 BEGIN
                     -- Add temporary column
-                    ALTER TABLE Users ADD IsActive_Temp BIT NULL;
+                    EXEC sp_executesql N'ALTER TABLE Users ADD IsActive_Temp BIT NULL';
 
                     -- Copy values (SMALLINT -> BIT)
-                    UPDATE Users
-                    SET IsActive_Temp = CASE
-                        WHEN IsActive = 1 THEN 1
-                        ELSE 0
-                    END;
+                    EXEC sp_executesql N'UPDATE Users SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END';
 
                     -- Drop old column
-                    ALTER TABLE Users DROP COLUMN IsActive;
+                    EXEC sp_executesql N'ALTER TABLE Users DROP COLUMN IsActive';
 
                     -- Rename temp column
                     EXEC sp_rename 'Users.IsActive_Temp', 'IsActive', 'COLUMN';
 
                     -- Add NOT NULL constraint with default
-                    ALTER TABLE Users ALTER COLUMN IsActive BIT NOT NULL;
-                    ALTER TABLE Users ADD CONSTRAINT DF_Users_IsActive DEFAULT 1 FOR IsActive;
+                    EXEC sp_executesql N'ALTER TABLE Users ALTER COLUMN IsActive BIT NOT NULL';
+                    IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE name = 'DF_Users_IsActive')
+                        EXEC sp_executesql N'ALTER TABLE Users ADD CONSTRAINT DF_Users_IsActive DEFAULT 1 FOR IsActive';
                 END
             ");
         }
