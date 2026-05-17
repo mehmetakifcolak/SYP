@@ -1,9 +1,6 @@
 using MyPages = SYP.Order.Pages;
 using Serenity.Navigation;
 
-
-[assembly: NavigationLink(int.MaxValue, "Order/Order Detail", typeof(MyPages.OrderDetailPage), icon: null)]
-[assembly: NavigationLink(int.MaxValue, "Order/Order Document", typeof(MyPages.OrderDocumentPage), icon: null)]
-[assembly: NavigationLink(int.MaxValue, "Order/Order", typeof(MyPages.OrderPage), icon: null)]
-[assembly: NavigationLink(int.MaxValue, "Order/Order Status Hist", typeof(MyPages.OrderStatusHistPage), icon: null)]
-[assembly: NavigationLink(int.MaxValue, "Order/Tiered Discount Settings", typeof(MyPages.TieredDiscountSettingsPage), icon: null)]
+[assembly: NavigationMenu(3000, "Sipariş", icon: "fa-shopping-cart")]
+[assembly: NavigationLink(3010, "Sipariş/Siparişler", typeof(MyPages.OrderPage), icon: "fa-list-alt")]
+[assembly: NavigationLink(3020, "Sipariş/Kademeli İndirim Ayarları", typeof(MyPages.TieredDiscountSettingsPage), icon: "fa-percent")]

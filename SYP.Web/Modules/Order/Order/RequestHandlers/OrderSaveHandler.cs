@@ -43,6 +43,17 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
 
             if (Row.Status == null)
                 Row.Status = OrderStatus.TALEP_GONDERILDI;
+
+            // Audit alanlarını doldur
+            Row.InsertDate = DateTime.Now;
+            Row.InsertUserId = int.Parse(Context.User.GetIdentifier());
+        }
+
+        // Update için audit alanlarını doldur
+        if (IsUpdate)
+        {
+            Row.UpdateDate = DateTime.Now;
+            Row.UpdateUserId = int.Parse(Context.User.GetIdentifier());
         }
 
         // 3. Bayi'nin yöneticisini otomatik ata

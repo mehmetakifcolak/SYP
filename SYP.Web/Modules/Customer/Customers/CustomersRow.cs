@@ -73,7 +73,7 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public bool? IsActive { get => fields.IsActive[this]; set => fields.IsActive[this] = value; }
     public partial class RowFields { public BooleanField IsActive; }
 
-    [DisplayName("Vendor Type"), ForeignKey("[dbo].[VendorType]", "Id"), LeftJoin("jVendorType")]
+    [DisplayName("Vendor Type"), ForeignKey("[dbo].[VendorType]", "Id"), LeftJoin("jVendorType"), LookupInclude]
     [LookupEditor("Setting.VendorType")]
     public int? VendorTypeId { get => fields.VendorTypeId[this]; set => fields.VendorTypeId[this] = value; }
     public partial class RowFields { public Int32Field VendorTypeId; }

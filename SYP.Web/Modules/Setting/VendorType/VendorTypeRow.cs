@@ -15,15 +15,15 @@ public sealed class VendorTypeRow : Row<VendorTypeRow.RowFields>, IIdRow, INameR
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
     
-    [DisplayName("Title"), Size(100), QuickSearch, NameProperty]
+    [DisplayName("Title"), Size(100), QuickSearch, NameProperty, LookupInclude]
     public string Title { get => fields.Title[this]; set => fields.Title[this] = value; }
     public partial class RowFields { public StringField Title; }
-    
-    [DisplayName("Discount Type"), Size(10)]
+
+    [DisplayName("Discount Type"), Size(10), LookupInclude]
     public string DiscountType { get => fields.DiscountType[this]; set => fields.DiscountType[this] = value; }
     public partial class RowFields { public StringField DiscountType; }
-    
-    [DisplayName("Discount Value"), Size(18), Scale(2)]
+
+    [DisplayName("Discount Value"), Size(18), Scale(2), LookupInclude]
     public decimal? DiscountValue { get => fields.DiscountValue[this]; set => fields.DiscountValue[this] = value; }
     public partial class RowFields { public DecimalField DiscountValue; }
     

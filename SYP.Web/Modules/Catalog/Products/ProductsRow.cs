@@ -78,7 +78,7 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     public int? VatRateId { get => fields.VatRateId[this]; set => fields.VatRateId[this] = value; }
     public partial class RowFields { public Int32Field VatRateId; }
 
-    [DisplayName("Unit Price (Base)"), DecimalEditor(Decimals = 4, MinValue = "0")]
+    [DisplayName("Unit Price (Base)"), DecimalEditor(Decimals = 4, MinValue = "0"), LookupInclude]
     public decimal? UnitPrice { get => fields.UnitPrice[this]; set => fields.UnitPrice[this] = value; }
     public partial class RowFields { public DecimalField UnitPrice; }
 
@@ -123,6 +123,10 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     [DisplayName("VAT Rate Name"), Expression($"{jVatRate}.[Name]"), LookupInclude]
     public string VatRateName { get => fields.VatRateName[this]; set => fields.VatRateName[this] = value; }
     public partial class RowFields { public StringField VatRateName; }
+
+    [DisplayName("VAT Rate Value"), Expression($"{jVatRate}.[Rate]"), LookupInclude]
+    public decimal? VatRate { get => fields.VatRate[this]; set => fields.VatRate[this] = value; }
+    public partial class RowFields { public DecimalField VatRate; }
 
     [DisplayName("Brand Name"), Expression($"{jBrand}.[Name]"), LookupInclude]
     public string BrandName { get => fields.BrandName[this]; set => fields.BrandName[this] = value; }

@@ -10,7 +10,7 @@ public class OrderForm
 {
     [Tab("Genel Bilgiler")]
     [Category("Sipariş Bilgileri")]
-    [HalfWidth, ReadOnly(true), Placeholder("Otomatik oluşturulacak")]
+    [HalfWidth, ReadOnly(true), Placeholder("Otomatik oluşturulacak"), Required(false)]
     public string OrderNumber { get; set; }
 
     [HalfWidth]
@@ -41,8 +41,10 @@ public class OrderForm
     [HalfWidth, ReadOnly(true), DisplayFormat("#,##0.00")]
     public decimal NetAmount { get; set; }
 
-    [Tab("Sipariş Kalemleri")]
+
+    [Category("Sipariş Kalemleri")]
     [MasterDetailRelation(foreignKey: "OrderId"), DisplayName("Sipariş Kalemleri")]
+    [OrderDetailGridEditor]
     public List<OrderDetailRow> DetailList { get; set; }
 
     [Tab("Notlar ve Açıklamalar")]

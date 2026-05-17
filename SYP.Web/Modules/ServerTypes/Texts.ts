@@ -201,6 +201,7 @@ namespace texts {
                 export const UnitPrice: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
+                export const VatRate: string;
                 export const VatRateId: string;
                 export const VatRateName: string;
             }

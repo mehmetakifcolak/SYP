@@ -25,6 +25,7 @@ export interface ProductsRow {
     UnitName?: string;
     CurrencyCode?: string;
     VatRateName?: string;
+    VatRate?: number;
     BrandName?: string;
 }
 

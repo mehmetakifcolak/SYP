@@ -14,6 +14,9 @@ public class CustomersForm
     [HalfWidth, DisplayName("Satıcı Tipi")]
     public int? VendorTypeId { get; set; }
 
+    [HalfWidth, DisplayName("Sorumlu Yönetici")]
+    public int? ManagerUserId { get; set; }
+
     [HalfWidth, DisplayName("Firma/Müşteri Adı")]
     public string Name { get; set; }
 

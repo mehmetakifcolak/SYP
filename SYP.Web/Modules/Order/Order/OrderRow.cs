@@ -10,13 +10,13 @@ using global::_Ext;
 [UpdatePermission("Order:Order:Update")]
 [DeletePermission("Order:Order:Delete")]
 [ServiceLookupPermission("Order:Order:Lookup")]
-public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow
+public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
 
-    [DisplayName("Sipariş No"), Size(50), NotNull, QuickSearch, NameProperty]
+    [DisplayName("Sipariş No"), Size(50), NotNull, QuickSearch, NameProperty, Insertable(false)]
     public string OrderNumber { get => fields.OrderNumber[this]; set => fields.OrderNumber[this] = value; }
     public partial class RowFields { public StringField OrderNumber; }
 

@@ -1,6 +1,10 @@
 ﻿import { DialogBase } from '@/_Ext/Bases/DialogBase';
-import { Decorators } from '@serenity-is/corelib';
+import { Decorators, getLookupAsync } from '@serenity-is/corelib';
 import { OrderForm, OrderRow, OrderService } from '../../ServerTypes/Order';
+import { CustomersRow } from '../../ServerTypes/Customer';
+import { VendorTypeRow } from '../../ServerTypes/Setting';
+import '../OrderDetail/Editor/OrderDetailEditorDialog';
+import '../OrderDetail/Editor/OrderDetailGridEditor';
 
 @Decorators.registerClass('SYP.Order.OrderDialog')
 export class OrderDialog extends DialogBase<OrderRow, any> {
@@ -9,4 +13,50 @@ export class OrderDialog extends DialogBase<OrderRow, any> {
     protected getService() { return OrderService.baseUrl; }
 
     protected form = new OrderForm(this.idPrefix);
+
+    constructor(props?: any) {
+        super(props);
+
+        // Bayi seçildiğinde iskonto bilgilerini güncelle
+        this.form.CustomerId.changeSelect2(async e => {
+            await this.updateDiscountPercentage();
+        });
+    }
+
+    private async updateDiscountPercentage(): Promise<void> {
+        const customerId = this.form.CustomerId.value;
+        if (!customerId) {
+            this.form.DiscountPercentage.value = 0;
+            return;
+        }
+
+        try {
+            // Customer lookup'ını al
+            const customerLookup = await getLookupAsync<CustomersRow>(CustomersRow.lookupKey);
+            const customer = customerLookup.itemById[customerId];
+
+            if (customer?.VendorTypeId) {
+                // VendorType lookup'ını al
+                const vendorTypeLookup = await getLookupAsync<VendorTypeRow>(VendorTypeRow.lookupKey);
+                const vendorType = vendorTypeLookup.itemById[customer.VendorTypeId];
+
+                if (vendorType?.DiscountValue && vendorType.DiscountType === 'Percentage') {
+                    this.form.DiscountPercentage.value = vendorType.DiscountValue;
+                } else {
+                    this.form.DiscountPercentage.value = 0;
+                }
+            }
+        } catch (error) {
+            console.error('Error updating discount percentage:', error);
+        }
+    }
+
+    protected afterLoadEntity(): void {
+        super.afterLoadEntity();
+
+        // Entity yüklendikten sonra iskonto bilgilerini güncelle
+        if (this.entity.CustomerId) {
+            this.updateDiscountPercentage();
+        }
+    }
 }

@@ -18,6 +18,9 @@ public sealed class OrderDetailRow : Row<OrderDetailRow.RowFields>, IIdRow, INam
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
+
+    [NotMapped, Ignore]
+    public int? __id { get; set; }
     
     [DisplayName("Order"), NotNull, ForeignKey(typeof(OrderRow)), LeftJoin(jOrder), TextualField(nameof(OrderNumber))]
     [ServiceLookupEditor(typeof(OrderRow))]

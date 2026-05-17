@@ -27,8 +27,11 @@ export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelec
     private selectedProducts: Map<number, SelectedProductWithQuantity> = new Map();
     private productListDiv: HTMLElement;
     private searchInput: HTMLInputElement;
+    private categorySelect: HTMLSelectElement;
+    private brandSelect: HTMLSelectElement;
     private selectedCountSpan: HTMLElement;
     private productLookup: Lookup<ProductsRow>;
+    private allProducts: ProductsRow[] = [];
 
     constructor(opt?: BulkProductSelectionDialogOptions) {
         super(opt);
@@ -38,13 +41,27 @@ export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelec
     protected getTemplate(): string {
         return `
             <div class="bulk-product-selection" style="padding: 10px;">
-                <div class="search-box mb-3">
-                    <input type="text" id="~_SearchInput" class="form-control" placeholder="Ürün kodu veya adı ile arayın..." />
+                <div class="filters-row mb-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" id="~_SearchInput" class="form-control" placeholder="Ürün kodu veya adı ile arayın..." />
+                        </div>
+                        <div class="col-md-3">
+                            <select id="~_CategorySelect" class="form-control">
+                                <option value="">Tüm Kategoriler</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="~_BrandSelect" class="form-control">
+                                <option value="">Tüm Markalar</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="selected-count mb-2">
-                    <span id="~_SelectedCount">0</span> ürün seçildi
+                    <strong><span id="~_SelectedCount">0</span></strong> ürün seçildi
                 </div>
-                <div id="~_ProductList" class="product-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                <div id="~_ProductList" class="product-list" style="max-height: 450px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
                     <div class="text-muted">Ürünler yükleniyor...</div>
                 </div>
             </div>
@@ -55,11 +72,21 @@ export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelec
         super.onDialogOpen();
 
         this.searchInput = this.byId("SearchInput")?.getNode() as HTMLInputElement;
+        this.categorySelect = this.byId("CategorySelect")?.getNode() as HTMLSelectElement;
+        this.brandSelect = this.byId("BrandSelect")?.getNode() as HTMLSelectElement;
         this.productListDiv = this.byId("ProductList")?.getNode() as HTMLElement;
         this.selectedCountSpan = this.byId("SelectedCount")?.getNode() as HTMLElement;
 
         if (this.searchInput) {
             this.searchInput.addEventListener("input", () => this.filterProducts());
+        }
+
+        if (this.categorySelect) {
+            this.categorySelect.addEventListener("change", () => this.filterProducts());
+        }
+
+        if (this.brandSelect) {
+            this.brandSelect.addEventListener("change", () => this.filterProducts());
         }
 
         this.loadProducts();
@@ -113,11 +140,15 @@ export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelec
             this.productLookup = await getLookupAsync<ProductsRow>(ProductsRow.lookupKey);
             const excludeIds = new Set(this.options?.excludeProductIds || []);
 
-            const products = this.productLookup.items.filter(p =>
+            this.allProducts = this.productLookup.items.filter(p =>
                 !excludeIds.has(p.Id!)
             );
 
-            this.renderProductList(products);
+            // Kategori ve marka listelerini doldur
+            this.populateCategoryFilter();
+            this.populateBrandFilter();
+
+            this.renderProductList(this.allProducts);
         } catch (e) {
             console.error("Ürünler yüklenirken hata:", e);
             if (this.productListDiv) {
@@ -126,21 +157,79 @@ export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelec
         }
     }
 
+    private populateCategoryFilter(): void {
+        if (!this.categorySelect || !this.allProducts) return;
+
+        // Benzersiz kategorileri al
+        const categories = new Map<number, string>();
+        this.allProducts.forEach(p => {
+            if (p.CategoryId && p.CategoryName) {
+                categories.set(p.CategoryId, p.CategoryName);
+            }
+        });
+
+        // Kategorileri sırala ve select'e ekle
+        const sortedCategories = Array.from(categories.entries())
+            .sort((a, b) => a[1].localeCompare(b[1], 'tr'));
+
+        sortedCategories.forEach(([id, name]) => {
+            const option = document.createElement('option');
+            option.value = id.toString();
+            option.textContent = name;
+            this.categorySelect.appendChild(option);
+        });
+    }
+
+    private populateBrandFilter(): void {
+        if (!this.brandSelect || !this.allProducts) return;
+
+        // Benzersiz markaları al
+        const brands = new Map<number, string>();
+        this.allProducts.forEach(p => {
+            if (p.BrandId && p.BrandName) {
+                brands.set(p.BrandId, p.BrandName);
+            }
+        });
+
+        // Markaları sırala ve select'e ekle
+        const sortedBrands = Array.from(brands.entries())
+            .sort((a, b) => a[1].localeCompare(b[1], 'tr'));
+
+        sortedBrands.forEach(([id, name]) => {
+            const option = document.createElement('option');
+            option.value = id.toString();
+            option.textContent = name;
+            this.brandSelect.appendChild(option);
+        });
+    }
+
     private filterProducts(): void {
-        if (!this.productLookup) return;
+        if (!this.allProducts) return;
 
         const searchTerm = this.searchInput?.value?.toLowerCase().trim() || '';
-        const excludeIds = new Set(this.options?.excludeProductIds || []);
+        const selectedCategory = this.categorySelect?.value || '';
+        const selectedBrand = this.brandSelect?.value || '';
 
-        let products = this.productLookup.items.filter(p =>
-            !excludeIds.has(p.Id!)
-        );
+        let products = this.allProducts;
 
+        // Arama filtresi
         if (searchTerm) {
             products = products.filter(p =>
                 (p.Code?.toLowerCase().includes(searchTerm)) ||
                 (p.Name?.toLowerCase().includes(searchTerm))
             );
+        }
+
+        // Kategori filtresi
+        if (selectedCategory) {
+            const categoryId = parseInt(selectedCategory);
+            products = products.filter(p => p.CategoryId === categoryId);
+        }
+
+        // Marka filtresi
+        if (selectedBrand) {
+            const brandId = parseInt(selectedBrand);
+            products = products.filter(p => p.BrandId === brandId);
         }
 
         this.renderProductList(products);
@@ -154,8 +243,8 @@ export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelec
             return;
         }
 
-        let html = '<table class="table table-hover table-sm mb-0">';
-        html += '<thead><tr><th style="width: 40px;"><input type="checkbox" class="select-all-checkbox" /></th><th>Ürün Kodu</th><th>Ürün Adı</th><th style="width: 100px;">Miktar</th></tr></thead>';
+        let html = '<table class="table table-hover table-sm mb-0" style="font-size: 0.9em;">';
+        html += '<thead><tr><th style="width: 30px;"><input type="checkbox" class="select-all-checkbox" /></th><th style="width: 100px;">Ürün Kodu</th><th>Ürün Adı</th><th style="width: 120px;">Kategori</th><th style="width: 120px;">Marka</th><th style="width: 90px;">Miktar</th></tr></thead>';
         html += '<tbody>';
 
         for (const product of products) {
@@ -163,17 +252,19 @@ export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelec
             const isChecked = selectedItem != null;
             const quantity = selectedItem?.quantity || 1;
 
-            html += `<tr class="product-row" data-id="${product.Id}">
+            html += `<tr class="product-row" data-id="${product.Id}" style="cursor: pointer;">
                 <td><input type="checkbox" class="product-checkbox" data-id="${product.Id}" ${isChecked ? 'checked' : ''} /></td>
-                <td>${htmlEncode(product.Code || '')}</td>
+                <td><strong>${htmlEncode(product.Code || '')}</strong></td>
                 <td>${htmlEncode(product.Name || '')}</td>
+                <td><small class="text-muted">${htmlEncode(product.CategoryName || '-')}</small></td>
+                <td><small class="text-muted">${htmlEncode(product.BrandName || '-')}</small></td>
                 <td>
                     <input type="number" class="form-control form-control-sm quantity-input"
                            data-id="${product.Id}"
                            value="${quantity}"
                            min="0.0001"
                            step="1"
-                           style="width: 80px;"
+                           style="width: 75px;"
                            ${!isChecked ? 'disabled' : ''} />
                 </td>
             </tr>`;
@@ -304,7 +395,7 @@ export class BulkProductSelectionDialog extends TemplatedDialog<BulkProductSelec
 
     protected getDialogOptions() {
         const opt = super.getDialogOptions();
-        opt.width = 700;
+        opt.width = 900;
         return opt;
     }
 }
