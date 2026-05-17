@@ -11,7 +11,7 @@ export interface ProductsForm {
     UnitId: LookupEditor;
     CurrencyId: LookupEditor;
     VatRateId: LookupEditor;
-    UnitPrice: DecimalEditor;
+    CurrentValidPrice: DecimalEditor;
     ProductImage: ImageUploadEditor;
     IsActive: BooleanEditor;
 }
@@ -44,7 +44,7 @@ export class ProductsForm extends PrefixedContext {
                 'UnitId', w1,
                 'CurrencyId', w1,
                 'VatRateId', w1,
-                'UnitPrice', w3,
+                'CurrentValidPrice', w3,
                 'ProductImage', w4,
                 'IsActive', w5
             ]);

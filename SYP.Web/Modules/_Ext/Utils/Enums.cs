@@ -71,7 +71,9 @@ namespace _Ext //enums must have namespace otherwise it transforms to wrong type
         [Description("Stok Girişi")]
         StokGirisi = 9,
         [Description("Stok Çıkışı")]
-        StokCikisi = 10
+        StokCikisi = 10,
+        [Description("Fiyat Listesi")]
+        FiyatListesi = 11
     }
 
     [EnumKey("Email.EmailQueueStatus"), ScriptInclude]

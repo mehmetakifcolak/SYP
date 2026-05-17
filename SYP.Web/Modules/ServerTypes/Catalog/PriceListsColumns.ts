@@ -3,8 +3,10 @@ import { Column } from "@serenity-is/sleekgrid";
 import { PriceListsRow } from "./PriceListsRow";
 
 export interface PriceListsColumns {
+    Id: Column<PriceListsRow>;
     Code: Column<PriceListsRow>;
     Name: Column<PriceListsRow>;
+    Description: Column<PriceListsRow>;
     CurrencyCode: Column<PriceListsRow>;
     ValidFrom: Column<PriceListsRow>;
     ValidTo: Column<PriceListsRow>;

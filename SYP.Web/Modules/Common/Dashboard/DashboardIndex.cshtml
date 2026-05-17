@@ -6,326 +6,592 @@
 }
 
 <style>
+/* Ana Kartlar */
 .dashboard-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
     padding: 20px;
 }
 
 .stat-card {
-    flex: 1;
-    min-width: 220px;
-    max-width: 300px;
     background: linear-gradient(135deg, var(--card-bg-start) 0%, var(--card-bg-end) 100%);
     border-radius: 12px;
-    padding: 24px;
+    padding: 20px;
     color: white;
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
+.stat-card:hover { transform: translateY(-3px); }
 
-.stat-card.total-dealers {
-    --card-bg-start: #667eea;
-    --card-bg-end: #764ba2;
-}
-
-.stat-card.active-dealers {
-    --card-bg-start: #11998e;
-    --card-bg-end: #38ef7d;
-}
-
-.stat-card.passive-dealers {
-    --card-bg-start: #eb3349;
-    --card-bg-end: #f45c43;
-}
-
-.stat-card.total-products {
-    --card-bg-start: #4facfe;
-    --card-bg-end: #00f2fe;
-}
+.stat-card.blue { --card-bg-start: #667eea; --card-bg-end: #764ba2; }
+.stat-card.green { --card-bg-start: #11998e; --card-bg-end: #38ef7d; }
+.stat-card.red { --card-bg-start: #eb3349; --card-bg-end: #f45c43; }
+.stat-card.cyan { --card-bg-start: #4facfe; --card-bg-end: #00f2fe; }
+.stat-card.orange { --card-bg-start: #f093fb; --card-bg-end: #f5576c; }
+.stat-card.purple { --card-bg-start: #5f2c82; --card-bg-end: #49a09d; }
+.stat-card.teal { --card-bg-start: #134e5e; --card-bg-end: #71b280; }
+.stat-card.pink { --card-bg-start: #ee9ca7; --card-bg-end: #ffdde1; color: #333; }
 
 .stat-card .icon {
     position: absolute;
     right: 15px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 64px;
+    font-size: 48px;
     opacity: 0.3;
 }
 
-.stat-card .stat-content {
-    position: relative;
-    z-index: 1;
+.stat-card .stat-value { font-size: 32px; font-weight: 700; line-height: 1; }
+.stat-card .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-top: 5px; }
+
+/* Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 20px 20px;
 }
 
-.stat-card .stat-value {
-    font-size: 42px;
-    font-weight: 700;
-    margin-bottom: 5px;
-    line-height: 1;
+.dashboard-grid.three-cols {
+    grid-template-columns: repeat(3, 1fr);
 }
 
-.stat-card .stat-label {
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.9;
+@@media (max-width: 1200px) {
+    .dashboard-grid.three-cols { grid-template-columns: repeat(2, 1fr); }
 }
 
 @@media (max-width: 768px) {
-    .stat-card {
-        min-width: 100%;
-        max-width: 100%;
-    }
+    .dashboard-grid, .dashboard-grid.three-cols { grid-template-columns: 1fr; }
 }
-</style>
 
-<div class="dashboard-stats">
-    <div class="stat-card total-dealers">
-        <div class="stat-content">
-            <div class="stat-value">@Model.TotalDealers</div>
-            <div class="stat-label">Toplam Bayi</div>
-        </div>
-        <i class="fa fa-users icon"></i>
-    </div>
-
-    <div class="stat-card active-dealers">
-        <div class="stat-content">
-            <div class="stat-value">@Model.ActiveDealers</div>
-            <div class="stat-label">Aktif Bayi</div>
-        </div>
-        <i class="fa fa-user-check icon"></i>
-    </div>
-
-    <div class="stat-card passive-dealers">
-        <div class="stat-content">
-            <div class="stat-value">@Model.PassiveDealers</div>
-            <div class="stat-label">Pasif Bayi</div>
-        </div>
-        <i class="fa fa-user-times icon"></i>
-    </div>
-
-    <div class="stat-card total-products">
-        <div class="stat-content">
-            <div class="stat-value">@Model.TotalProducts</div>
-            <div class="stat-label">Toplam Urun</div>
-        </div>
-        <i class="fa fa-box icon"></i>
-    </div>
-</div>
-
-<div class="recent-movements-section">
-    <div class="section-header">
-        <h3><i class="fa fa-exchange-alt me-2"></i>Son Stok Hareketleri</h3>
-        <a href="/Warehouse/StockMovements" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover movements-table">
-            <thead>
-                <tr>
-                    <th style="width: 100px;">Tip</th>
-                    <th style="width: 120px;">Fiş No</th>
-                    <th style="width: 150px;">Tarih</th>
-                    <th>Depo</th>
-                    <th>Ürün Kodu</th>
-                    <th>Ürün Adı</th>
-                    <th style="width: 100px; text-align: right;">Miktar</th>
-                    <th style="width: 100px;">Durum</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.RecentMovements != null && Model.RecentMovements.Any())
-                {
-                    @foreach (var item in Model.RecentMovements)
-                    {
-                        <tr>
-                            <td>
-                                @if (item.MovementType == "Entry")
-                                {
-                                    <span class="badge bg-success"><i class="fa fa-arrow-down me-1"></i>Giriş</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger"><i class="fa fa-arrow-up me-1"></i>Çıkış</span>
-                                }
-                            </td>
-                            <td><strong>@item.DocumentNo</strong></td>
-                            <td>@item.MovementDate.ToString("dd.MM.yyyy HH:mm")</td>
-                            <td>@item.WarehouseName</td>
-                            <td><code>@item.ProductCode</code></td>
-                            <td>@item.ProductName</td>
-                            <td style="text-align: right;">
-                                @if (item.Quantity > 0)
-                                {
-                                    <span class="text-success fw-bold">+@item.Quantity.ToString("N2")</span>
-                                }
-                                else
-                                {
-                                    <span class="text-danger fw-bold">@item.Quantity.ToString("N2")</span>
-                                }
-                            </td>
-                            <td>
-                                @switch (item.Status)
-                                {
-                                    case 0:
-                                        <span class="badge bg-secondary">Taslak</span>
-                                        break;
-                                    case 1:
-                                        <span class="badge bg-success">Onaylandı</span>
-                                        break;
-                                    case 2:
-                                        <span class="badge bg-danger">İptal</span>
-                                        break;
-                                }
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="8" class="text-center text-muted py-4">
-                            <i class="fa fa-inbox fa-2x mb-2 d-block"></i>
-                            Henüz stok hareketi bulunmuyor
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="dashboard-section">
-    <div class="section-header">
-        <h3><i class="fa fa-history me-2"></i>Son İşlem Hareketleri</h3>
-        <a href="/Administration/AuditLog" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover dashboard-table">
-            <thead>
-                <tr>
-                    <th style="width: 100px;">İşlem</th>
-                    <th style="width: 150px;">Tablo</th>
-                    <th>Kayıt Adı</th>
-                    <th style="width: 150px;">Tarih</th>
-                    <th style="width: 150px;">Kullanıcı</th>
-                    <th style="width: 120px;">IP Adresi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.RecentAuditLogs != null && Model.RecentAuditLogs.Any())
-                {
-                    @foreach (var item in Model.RecentAuditLogs)
-                    {
-                        <tr>
-                            <td>
-                                @switch (item.ActionType)
-                                {
-                                    case "Insert":
-                                        <span class="badge bg-success"><i class="fa fa-plus me-1"></i>Ekleme</span>
-                                        break;
-                                    case "Update":
-                                        <span class="badge bg-warning text-dark"><i class="fa fa-edit me-1"></i>Güncelleme</span>
-                                        break;
-                                    case "Delete":
-                                        <span class="badge bg-danger"><i class="fa fa-trash me-1"></i>Silme</span>
-                                        break;
-                                    default:
-                                        <span class="badge bg-secondary">@item.ActionType</span>
-                                        break;
-                                }
-                            </td>
-                            <td><code>@item.EntityType</code></td>
-                            <td>@item.EntityName</td>
-                            <td>@item.ActionDate.ToString("dd.MM.yyyy HH:mm")</td>
-                            <td><i class="fa fa-user me-1 text-muted"></i>@item.Username</td>
-                            <td><small class="text-muted">@item.IpAddress</small></td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
-                            <i class="fa fa-inbox fa-2x mb-2 d-block"></i>
-                            Henüz işlem kaydı bulunmuyor
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<style>
-.recent-movements-section,
+/* Section Cards */
 .dashboard-section {
-    margin: 20px;
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     overflow: hidden;
 }
 
+.dashboard-section.full-width {
+    grid-column: 1 / -1;
+}
+
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
+    padding: 14px 18px;
     background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
 }
 
-.section-header h3 {
+.section-header h4 {
     margin: 0;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: #333;
 }
 
-.movements-table,
-.dashboard-table {
-    margin: 0;
+.section-body { padding: 15px; }
+
+/* Tables */
+.mini-table {
+    width: 100%;
+    font-size: 13px;
 }
 
-.movements-table thead th,
-.dashboard-table thead th {
-    background: #f8f9fa;
-    font-size: 12px;
+.mini-table th {
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
     color: #6c757d;
-    padding: 12px 16px;
+    padding: 8px;
     border-bottom: 2px solid #e9ecef;
 }
 
-.movements-table tbody td,
-.dashboard-table tbody td {
-    padding: 12px 16px;
-    vertical-align: middle;
-    font-size: 13px;
+.mini-table td {
+    padding: 8px;
     border-bottom: 1px solid #f1f3f4;
+    vertical-align: middle;
 }
 
-.movements-table tbody tr:hover,
-.dashboard-table tbody tr:hover {
-    background: #f8f9fa;
-}
-
-.movements-table code,
-.dashboard-table code {
+.mini-table code {
     background: #e9ecef;
     padding: 2px 6px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
 }
+
+/* Progress Bars */
+.progress-item { margin-bottom: 12px; }
+.progress-item:last-child { margin-bottom: 0; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+.progress-bar-bg { height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+/* Stat Row */
+.stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f3f4; }
+.stat-row:last-child { border-bottom: none; }
+.stat-row-label { color: #6c757d; font-size: 13px; }
+.stat-row-value { font-weight: 600; font-size: 14px; }
+
+/* Alert List */
+.alert-item { display: flex; align-items: center; padding: 10px; background: #fff5f5; border-radius: 8px; margin-bottom: 8px; }
+.alert-item:last-child { margin-bottom: 0; }
+.alert-item .alert-icon { color: #e53935; margin-right: 12px; font-size: 18px; }
+.alert-item .alert-content { flex: 1; }
+.alert-item .alert-title { font-weight: 600; font-size: 13px; }
+.alert-item .alert-subtitle { font-size: 11px; color: #6c757d; }
+.alert-item .alert-value { font-weight: 700; color: #e53935; }
+
+/* Exchange Rate */
+.rate-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f3f4; }
+.rate-item:last-child { border-bottom: none; }
+.rate-currency { font-weight: 700; font-size: 16px; width: 50px; }
+.rate-values { flex: 1; display: flex; gap: 20px; }
+.rate-value { font-size: 13px; }
+.rate-value span { color: #6c757d; font-size: 11px; }
+
+/* Movement Summary */
+.movement-summary { display: flex; gap: 20px; }
+.movement-box { flex: 1; text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+.movement-box.entry { background: #e8f5e9; }
+.movement-box.exit { background: #ffebee; }
+.movement-box .count { font-size: 28px; font-weight: 700; }
+.movement-box.entry .count { color: #2e7d32; }
+.movement-box.exit .count { color: #c62828; }
+.movement-box .label { font-size: 11px; text-transform: uppercase; color: #6c757d; }
+
+.no-data { text-align: center; padding: 30px; color: #aaa; }
+.no-data i { font-size: 32px; margin-bottom: 10px; display: block; }
 </style>
+
+<!-- Ana İstatistik Kartları -->
+<div class="dashboard-stats">
+    <div class="stat-card blue">
+        <div class="stat-value">@Model.TotalDealers</div>
+        <div class="stat-label">Toplam Bayi</div>
+        <i class="fa fa-users icon"></i>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-value">@Model.ActiveDealers</div>
+        <div class="stat-label">Aktif Bayi</div>
+        <i class="fa fa-user-check icon"></i>
+    </div>
+    <div class="stat-card cyan">
+        <div class="stat-value">@Model.TotalProducts</div>
+        <div class="stat-label">Toplam Ürün</div>
+        <i class="fa fa-box icon"></i>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-value">@Model.TotalWarehouses</div>
+        <div class="stat-label">Depo Sayısı</div>
+        <i class="fa fa-warehouse icon"></i>
+    </div>
+    <div class="stat-card teal">
+        <div class="stat-value">@Model.TotalStockValue.ToString("N0") ₺</div>
+        <div class="stat-label">Toplam Stok Değeri</div>
+        <i class="fa fa-coins icon"></i>
+    </div>
+    <div class="stat-card orange">
+        <div class="stat-value">@Model.ActivePriceLists</div>
+        <div class="stat-label">Aktif Fiyat Listesi</div>
+        <i class="fa fa-tags icon"></i>
+    </div>
+</div>
+
+<div class="dashboard-grid three-cols">
+    <!-- Stok Hareket Özeti -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h4><i class="fa fa-exchange-alt me-2"></i>Stok Hareket Özeti</h4>
+        </div>
+        <div class="section-body">
+            <div style="margin-bottom: 15px;">
+                <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">BUGÜN</div>
+                <div class="movement-summary">
+                    <div class="movement-box entry">
+                        <div class="count">@Model.TodayEntries</div>
+                        <div class="label">Giriş</div>
+                    </div>
+                    <div class="movement-box exit">
+                        <div class="count">@Model.TodayExits</div>
+                        <div class="label">Çıkış</div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">SON 7 GÜN</div>
+                <div class="movement-summary">
+                    <div class="movement-box entry">
+                        <div class="count">@Model.WeekEntries</div>
+                        <div class="label">Giriş</div>
+                    </div>
+                    <div class="movement-box exit">
+                        <div class="count">@Model.WeekExits</div>
+                        <div class="label">Çıkış</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Depo Bazlı Stok -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h4><i class="fa fa-warehouse me-2"></i>Depo Bazlı Stok</h4>
+        </div>
+        <div class="section-body">
+            @if (Model.StockByWarehouse.Any())
+            {
+                var maxQty = Model.StockByWarehouse.Max(x => x.TotalQuantity);
+                var colors = new[] { "#667eea", "#11998e", "#4facfe", "#f093fb", "#f5576c" };
+                var i = 0;
+                @foreach (var item in Model.StockByWarehouse)
+                {
+                    var pct = maxQty > 0 ? (item.TotalQuantity / maxQty * 100) : 0;
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>@item.WarehouseName</span>
+                            <span>@item.TotalQuantity.ToString("N0") adet (@item.ProductCount ürün)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: @pct%; background: @colors[i % colors.Length];"></div>
+                        </div>
+                    </div>
+                    i++;
+                }
+            }
+            else
+            {
+                <div class="no-data"><i class="fa fa-inbox"></i>Veri yok</div>
+            }
+        </div>
+    </div>
+
+    <!-- Döviz Kurları -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h4><i class="fa fa-money-bill-wave me-2"></i>Güncel Döviz Kurları</h4>
+        </div>
+        <div class="section-body">
+            @if (Model.ExchangeRates.Any())
+            {
+                @foreach (var rate in Model.ExchangeRates)
+                {
+                    <div class="rate-item">
+                        <div class="rate-currency">@rate.CurrencyCode</div>
+                        <div class="rate-values">
+                            <div class="rate-value"><span>Alış:</span> @(rate.ForexBuying?.ToString("N4") ?? "-")</div>
+                            <div class="rate-value"><span>Satış:</span> @(rate.ForexSelling?.ToString("N4") ?? "-")</div>
+                        </div>
+                    </div>
+                }
+                <div style="font-size: 11px; color: #aaa; margin-top: 10px; text-align: right;">
+                    @(Model.ExchangeRates.FirstOrDefault()?.InsertDate?.ToString("dd.MM.yyyy"))
+                </div>
+            }
+            else
+            {
+                <div class="no-data"><i class="fa fa-inbox"></i>Kur verisi yok</div>
+            }
+        </div>
+    </div>
+
+    <!-- Düşük Stok Uyarısı -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h4><i class="fa fa-exclamation-triangle me-2 text-warning"></i>Düşük Stok Uyarısı</h4>
+        </div>
+        <div class="section-body">
+            @if (Model.LowStockAlerts.Any())
+            {
+                @foreach (var item in Model.LowStockAlerts.Take(5))
+                {
+                    <div class="alert-item">
+                        <i class="fa fa-box-open alert-icon"></i>
+                        <div class="alert-content">
+                            <div class="alert-title">@item.ProductName</div>
+                            <div class="alert-subtitle">@item.WarehouseName - <code>@item.ProductCode</code></div>
+                        </div>
+                        <div class="alert-value">@item.Quantity.ToString("N0")</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-data" style="color: #2e7d32;"><i class="fa fa-check-circle"></i>Düşük stok yok</div>
+            }
+        </div>
+    </div>
+
+    <!-- Kategori Bazlı Ürün -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h4><i class="fa fa-sitemap me-2"></i>Kategori Bazlı Ürünler</h4>
+        </div>
+        <div class="section-body">
+            @if (Model.ProductsByCategory.Any())
+            {
+                var maxCat = Model.ProductsByCategory.Max(x => x.ProductCount);
+                var colors = new[] { "#764ba2", "#38ef7d", "#00f2fe", "#f5576c", "#ffd700" };
+                var i = 0;
+                @foreach (var item in Model.ProductsByCategory.Take(5))
+                {
+                    var pct = maxCat > 0 ? ((decimal)item.ProductCount / maxCat * 100) : 0;
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>@item.CategoryName</span>
+                            <span>@item.ProductCount</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: @pct%; background: @colors[i % colors.Length];"></div>
+                        </div>
+                    </div>
+                    i++;
+                }
+            }
+            else
+            {
+                <div class="no-data"><i class="fa fa-inbox"></i>Veri yok</div>
+            }
+        </div>
+    </div>
+
+    <!-- Marka Bazlı Ürün -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h4><i class="fa fa-tags me-2"></i>Marka Bazlı Ürünler</h4>
+        </div>
+        <div class="section-body">
+            @if (Model.ProductsByBrand.Any())
+            {
+                var maxBrand = Model.ProductsByBrand.Max(x => x.ProductCount);
+                var colors = new[] { "#667eea", "#11998e", "#eb3349", "#4facfe", "#f093fb" };
+                var i = 0;
+                @foreach (var item in Model.ProductsByBrand.Take(5))
+                {
+                    var pct = maxBrand > 0 ? ((decimal)item.ProductCount / maxBrand * 100) : 0;
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>@item.BrandName</span>
+                            <span>@item.ProductCount</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: @pct%; background: @colors[i % colors.Length];"></div>
+                        </div>
+                    </div>
+                    i++;
+                }
+            }
+            else
+            {
+                <div class="no-data"><i class="fa fa-inbox"></i>Veri yok</div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- En Çok Hareket Gören Ürünler -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h4><i class="fa fa-fire me-2 text-danger"></i>En Çok Hareket Gören Ürünler (30 Gün)</h4>
+        </div>
+        <div class="section-body">
+            @if (Model.TopMovingProducts.Any())
+            {
+                <table class="mini-table">
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th style="text-align:right;">Hareket</th>
+                            <th style="text-align:right;">Miktar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TopMovingProducts)
+                        {
+                            <tr>
+                                <td>
+                                    <code>@item.ProductCode</code><br />
+                                    <small class="text-muted">@item.ProductName</small>
+                                </td>
+                                <td style="text-align:right;"><strong>@item.MovementCount</strong></td>
+                                <td style="text-align:right;">@item.TotalQuantity.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="no-data"><i class="fa fa-inbox"></i>Veri yok</div>
+            }
+        </div>
+    </div>
+
+    <!-- Süresi Dolacak Fiyat Listeleri -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h4><i class="fa fa-clock me-2 text-warning"></i>Süresi Dolacak Fiyat Listeleri</h4>
+        </div>
+        <div class="section-body">
+            @if (Model.ExpiringPriceListDetails.Any())
+            {
+                <table class="mini-table">
+                    <thead>
+                        <tr>
+                            <th>Kod</th>
+                            <th>Ad</th>
+                            <th style="text-align:right;">Bitiş</th>
+                            <th style="text-align:right;">Kalan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ExpiringPriceListDetails)
+                        {
+                            var badgeClass = item.DaysLeft <= 7 ? "bg-danger" : (item.DaysLeft <= 14 ? "bg-warning text-dark" : "bg-info");
+                            <tr>
+                                <td><code>@item.Code</code></td>
+                                <td>@item.Name</td>
+                                <td style="text-align:right;">@item.ValidTo?.ToString("dd.MM.yyyy")</td>
+                                <td style="text-align:right;">
+                                    <span class="badge @badgeClass">@item.DaysLeft gün</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="no-data" style="color: #2e7d32;"><i class="fa fa-check-circle"></i>Yakında sona erecek fiyat listesi yok</div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Son Stok Hareketleri -->
+    <div class="dashboard-section full-width">
+        <div class="section-header">
+            <h4><i class="fa fa-exchange-alt me-2"></i>Son Stok Hareketleri</h4>
+            <a href="/Warehouse/StockMovements" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
+        </div>
+        <div class="section-body" style="padding: 0;">
+            <table class="mini-table">
+                <thead>
+                    <tr>
+                        <th style="width:80px;">Tip</th>
+                        <th style="width:100px;">Fiş No</th>
+                        <th style="width:130px;">Tarih</th>
+                        <th>Depo</th>
+                        <th>Ürün</th>
+                        <th style="text-align:right;width:80px;">Miktar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.RecentMovements.Any())
+                    {
+                        @foreach (var item in Model.RecentMovements)
+                        {
+                            <tr>
+                                <td>
+                                    @if (item.MovementType == "Entry")
+                                    {
+                                        <span class="badge bg-success"><i class="fa fa-arrow-down"></i> Giriş</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="fa fa-arrow-up"></i> Çıkış</span>
+                                    }
+                                </td>
+                                <td><strong>@item.DocumentNo</strong></td>
+                                <td>@item.MovementDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>@item.WarehouseName</td>
+                                <td><code>@item.ProductCode</code> @item.ProductName</td>
+                                <td style="text-align:right;">
+                                    @if (item.Quantity > 0)
+                                    {
+                                        <span class="text-success fw-bold">+@item.Quantity.ToString("N0")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger fw-bold">@item.Quantity.ToString("N0")</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="6" class="no-data"><i class="fa fa-inbox"></i>Henüz stok hareketi yok</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Son İşlem Logları -->
+    <div class="dashboard-section full-width">
+        <div class="section-header">
+            <h4><i class="fa fa-history me-2"></i>Son İşlem Hareketleri</h4>
+            <a href="/Administration/AuditLog" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
+        </div>
+        <div class="section-body" style="padding: 0;">
+            <table class="mini-table">
+                <thead>
+                    <tr>
+                        <th style="width:100px;">İşlem</th>
+                        <th style="width:150px;">Tablo</th>
+                        <th>Kayıt</th>
+                        <th style="width:130px;">Tarih</th>
+                        <th style="width:120px;">Kullanıcı</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.RecentAuditLogs.Any())
+                    {
+                        @foreach (var item in Model.RecentAuditLogs)
+                        {
+                            <tr>
+                                <td>
+                                    @switch (item.ActionType)
+                                    {
+                                        case "Insert":
+                                            <span class="badge bg-success"><i class="fa fa-plus"></i> Ekleme</span>
+                                            break;
+                                        case "Update":
+                                            <span class="badge bg-warning text-dark"><i class="fa fa-edit"></i> Güncelleme</span>
+                                            break;
+                                        case "Delete":
+                                            <span class="badge bg-danger"><i class="fa fa-trash"></i> Silme</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@item.ActionType</span>
+                                            break;
+                                    }
+                                </td>
+                                <td><code>@item.EntityType</code></td>
+                                <td>@item.EntityName</td>
+                                <td>@item.ActionDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td><i class="fa fa-user me-1 text-muted"></i>@item.Username</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="no-data"><i class="fa fa-inbox"></i>Henüz işlem kaydı yok</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

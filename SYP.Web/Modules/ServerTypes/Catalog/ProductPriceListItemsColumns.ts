@@ -7,6 +7,10 @@ export interface ProductPriceListItemsColumns {
     PriceListName: Column<PriceListItemsRow>;
     UnitPrice: Column<PriceListItemsRow>;
     DiscountRate: Column<PriceListItemsRow>;
+    PriceListValidFrom: Column<PriceListItemsRow>;
+    PriceListValidTo: Column<PriceListItemsRow>;
+    PriceListIsActive: Column<PriceListItemsRow>;
+    PriceListIsDefault: Column<PriceListItemsRow>;
     Notes: Column<PriceListItemsRow>;
 }
 

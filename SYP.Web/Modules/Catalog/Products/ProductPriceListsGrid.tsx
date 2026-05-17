@@ -1,5 +1,6 @@
 import { Decorators, EntityGrid, ListRequest } from "@serenity-is/corelib";
 import { PriceListItemsRow } from "../../ServerTypes/Catalog";
+import { PriceListsDialog } from "../PriceLists/PriceListsDialog";
 
 @Decorators.registerClass("SYP.Catalog.ProductPriceListsGrid")
 export class ProductPriceListsGrid extends EntityGrid<PriceListItemsRow, any> {
@@ -21,7 +22,21 @@ export class ProductPriceListsGrid extends EntityGrid<PriceListItemsRow, any> {
     }
 
     protected getButtons() {
-        return []; // Butonları kaldır, sadece görüntüleme
+        return [{
+            title: "Fiyat Listesini Düzenle",
+            cssClass: "btn btn-sm btn-primary open-price-list-button",
+            onClick: () => {
+                const items = this.view.getItems();
+                if (items.length === 0) return;
+
+                // İlk satırın PriceListId'sini al
+                const priceListId = items[0].PriceListId;
+
+                if (priceListId) {
+                    new PriceListsDialog().loadByIdAndOpenDialog(priceListId);
+                }
+            }
+        }];
     }
 
     protected getInitialTitle() {

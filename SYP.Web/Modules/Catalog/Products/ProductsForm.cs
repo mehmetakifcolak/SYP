@@ -38,8 +38,8 @@ public class ProductsForm
     [HalfWidth]
     public int? VatRateId { get; set; }
 
-    [HalfWidth]
-    public decimal? UnitPrice { get; set; }
+    [HalfWidth, ReadOnly(true)]
+    public decimal? CurrentValidPrice { get; set; }
 
     [Tab("Görsel")]
     [FullWidth]

@@ -59,6 +59,22 @@ public sealed class PriceListItemsRow : Row<PriceListItemsRow.RowFields>, IIdRow
     public string PriceListName { get => fields.PriceListName[this]; set => fields.PriceListName[this] = value; }
     public partial class RowFields { public StringField PriceListName; }
 
+    [DisplayName("Geçerlilik Başlangıç"), Expression($"{jPriceList}.[ValidFrom]")]
+    public DateTime? PriceListValidFrom { get => fields.PriceListValidFrom[this]; set => fields.PriceListValidFrom[this] = value; }
+    public partial class RowFields { public DateTimeField PriceListValidFrom; }
+
+    [DisplayName("Geçerlilik Bitiş"), Expression($"{jPriceList}.[ValidTo]")]
+    public DateTime? PriceListValidTo { get => fields.PriceListValidTo[this]; set => fields.PriceListValidTo[this] = value; }
+    public partial class RowFields { public DateTimeField PriceListValidTo; }
+
+    [DisplayName("Aktif"), Expression($"{jPriceList}.[IsActive]")]
+    public bool? PriceListIsActive { get => fields.PriceListIsActive[this]; set => fields.PriceListIsActive[this] = value; }
+    public partial class RowFields { public BooleanField PriceListIsActive; }
+
+    [DisplayName("Varsayılan"), Expression($"{jPriceList}.[IsDefault]")]
+    public bool? PriceListIsDefault { get => fields.PriceListIsDefault[this]; set => fields.PriceListIsDefault[this] = value; }
+    public partial class RowFields { public BooleanField PriceListIsDefault; }
+
     #endregion
 
     public partial class RowFields : RowFieldsBase { }

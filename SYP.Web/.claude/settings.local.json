@@ -28,7 +28,10 @@
       "Bash(node:*)",
       "Bash(dotnet run:*)",
       "Bash(npm run build:*)",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet clean:*)",
+      "Bash(tsc)",
+      "Bash(tsc:*)",
+      "Bash(timeout:*)"
     ]
   }
 }

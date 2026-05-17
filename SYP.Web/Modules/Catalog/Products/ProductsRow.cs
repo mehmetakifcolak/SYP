@@ -53,13 +53,13 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     const string jBrand = nameof(jBrand);
     const string jCategory = nameof(jCategory);
 
-    [DisplayName("Kategori"), LookupInclude, ForeignKey(typeof(Products.ProductCategoryRow)), LeftJoin(jCategory)]
-    [LookupEditor("Products.ProductCategory", FilterField = "IsActive", FilterValue = true)]
+    [DisplayName("Kategori"), LookupInclude, ForeignKey(typeof(ProductCategoryRow)), LeftJoin(jCategory)]
+    [LookupEditor("Catalog.ProductCategory", FilterField = "IsActive", FilterValue = true)]
     public int? CategoryId { get => fields.CategoryId[this]; set => fields.CategoryId[this] = value; }
     public partial class RowFields { public Int32Field CategoryId; }
 
     [DisplayName("Marka"), LookupInclude, ForeignKey(typeof(BrandsRow)), LeftJoin(jBrand)]
-    [LookupEditor(typeof(BrandsRow), FilterField = "IsActive", FilterValue = true)]
+    [LookupEditor(typeof(BrandsRow), FilterField = "IsActive", FilterValue = 1)]
     public int? BrandId { get => fields.BrandId[this]; set => fields.BrandId[this] = value; }
     public partial class RowFields { public Int32Field BrandId; }
 
@@ -78,9 +78,13 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     public int? VatRateId { get => fields.VatRateId[this]; set => fields.VatRateId[this] = value; }
     public partial class RowFields { public Int32Field VatRateId; }
 
-    [DisplayName("Birim Fiyat"), LookupInclude, DecimalEditor(Decimals = 4, MinValue = "0")]
+    [DisplayName("Birim Fiyat (Baz)"), DecimalEditor(Decimals = 4, MinValue = "0")]
     public decimal? UnitPrice { get => fields.UnitPrice[this]; set => fields.UnitPrice[this] = value; }
     public partial class RowFields { public DecimalField UnitPrice; }
+
+    [DisplayName("Güncel Birim Fiyat"), NotMapped, DecimalEditor(Decimals = 4, MinValue = "0")]
+    public decimal? CurrentValidPrice { get => fields.CurrentValidPrice[this]; set => fields.CurrentValidPrice[this] = value; }
+    public partial class RowFields { public DecimalField CurrentValidPrice; }
 
     [DisplayName("Insert Date")]
     public DateTime? InsertDate { get => fields.InsertDate[this]; set => fields.InsertDate[this] = value; }

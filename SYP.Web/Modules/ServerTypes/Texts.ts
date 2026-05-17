@@ -128,7 +128,11 @@ namespace texts {
                 export const Notes: string;
                 export const PriceListCode: string;
                 export const PriceListId: string;
+                export const PriceListIsActive: string;
+                export const PriceListIsDefault: string;
                 export const PriceListName: string;
+                export const PriceListValidFrom: string;
+                export const PriceListValidTo: string;
                 export const ProductCode: string;
                 export const ProductId: string;
                 export const ProductName: string;
@@ -140,7 +144,6 @@ namespace texts {
                 export const Code: string;
                 export const CurrencyCode: string;
                 export const CurrencyId: string;
-                export const CurrencyName: string;
                 export const Description: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
@@ -156,6 +159,20 @@ namespace texts {
                 export const ValidFrom: string;
                 export const ValidTo: string;
             }
+            namespace ProductCategory {
+                export function asKey(): typeof ProductCategory;
+                export function asTry(): typeof ProductCategory;
+                export const CreatedAt: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const FullPath: string;
+                export const Id: string;
+                export const IsActive: string;
+                export const Name: string;
+                export const ParentId: string;
+                export const ParentName: string;
+                export const SortOrder: string;
+            }
             namespace Products {
                 export function asKey(): typeof Products;
                 export function asTry(): typeof Products;
@@ -168,6 +185,7 @@ namespace texts {
                 export const CodeName: string;
                 export const CurrencyCode: string;
                 export const CurrencyId: string;
+                export const CurrentValidPrice: string;
                 export const Description: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
@@ -336,39 +354,6 @@ namespace texts {
                 export const UpdateUserId: string;
                 export const UseSsl: string;
                 export const Username: string;
-            }
-        }
-        namespace Products {
-            export function asKey(): typeof Products;
-            export function asTry(): typeof Products;
-            namespace Brands {
-                export function asKey(): typeof Brands;
-                export function asTry(): typeof Brands;
-                export const Description: string;
-                export const EntityPlural: string;
-                export const EntitySingular: string;
-                export const Id: string;
-                export const InsertDate: string;
-                export const InsertUserId: string;
-                export const IsActive: string;
-                export const Logo: string;
-                export const Name: string;
-                export const UpdateDate: string;
-                export const UpdateUserId: string;
-            }
-            namespace ProductCategory {
-                export function asKey(): typeof ProductCategory;
-                export function asTry(): typeof ProductCategory;
-                export const CreatedAt: string;
-                export const EntityPlural: string;
-                export const EntitySingular: string;
-                export const FullPath: string;
-                export const Id: string;
-                export const IsActive: string;
-                export const Name: string;
-                export const ParentId: string;
-                export const ParentName: string;
-                export const SortOrder: string;
             }
         }
         namespace Setting {
@@ -752,6 +737,7 @@ const Texts: typeof texts = proxyTexts({}, '', {
             Brands: {},
             PriceListItems: {},
             PriceLists: {},
+            ProductCategory: {},
             Products: {}
         },
         Customer: {
@@ -763,10 +749,6 @@ const Texts: typeof texts = proxyTexts({}, '', {
             EmailQueue: {},
             EmailTemplates: {},
             SmtpSettings: {}
-        },
-        Products: {
-            Brands: {},
-            ProductCategory: {}
         },
         Setting: {
             BankAccountInformations: {},

@@ -5,7 +5,7 @@ export interface BrandsRow {
     Name?: string;
     Description?: string;
     Logo?: string;
-    IsActive?: boolean;
+    IsActive?: number;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;

@@ -2,14 +2,14 @@
 export const nsAdministration: "SYP.Administration." = "SYP.Administration.";
 export const CatalogNS: "SYP.Catalog" = "SYP.Catalog";
 export const nsCatalog: "SYP.Catalog." = "SYP.Catalog.";
+export const CatalogEditorNS: "SYP.Catalog.Editor" = "SYP.Catalog.Editor";
+export const nsCatalogEditor: "SYP.Catalog.Editor." = "SYP.Catalog.Editor.";
 export const CustomerNS: "SYP.Customer" = "SYP.Customer";
 export const nsCustomer: "SYP.Customer." = "SYP.Customer.";
 export const EmailNS: "SYP.Email" = "SYP.Email";
 export const nsEmail: "SYP.Email." = "SYP.Email.";
 export const MembershipNS: "SYP.Membership" = "SYP.Membership";
 export const nsMembership: "SYP.Membership." = "SYP.Membership.";
-export const ProductsNS: "SYP.Products" = "SYP.Products";
-export const nsProducts: "SYP.Products." = "SYP.Products.";
 export const SettingNS: "SYP.Setting" = "SYP.Setting";
 export const nsSetting: "SYP.Setting." = "SYP.Setting.";
 export const WarehouseNS: "SYP.Warehouse" = "SYP.Warehouse";

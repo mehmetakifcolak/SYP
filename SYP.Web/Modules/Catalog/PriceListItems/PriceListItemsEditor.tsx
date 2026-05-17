@@ -4,6 +4,7 @@ import { PriceListItemsColumns, PriceListItemsRow } from "../../ServerTypes/Cata
 import { ProductsRow } from "../../ServerTypes/Catalog";
 import { PriceListItemsEditDialog } from "./PriceListItemsEditDialog";
 import { BulkPriceDialog } from "./BulkPriceDialog";
+import { ExcelPriceListImportDialog } from "./ExcelPriceListImportDialog";
 
 @Decorators.registerEditor("SYP.Catalog.PriceListItemsEditor")
 export class PriceListItemsEditor extends GridEditorBase<PriceListItemsRow> {
@@ -35,15 +36,48 @@ export class PriceListItemsEditor extends GridEditorBase<PriceListItemsRow> {
             onClick: () => this.openBulkPriceDialog()
         });
 
+        buttons.push({
+            title: "Excel ile Yükle",
+            cssClass: "import-excel-button",
+            icon: "fa-file-excel",
+            onClick: () => this.openExcelImportDialog()
+        });
+
         return buttons;
     }
 
     private openBulkPriceDialog(): void {
-        const existingProductIds = this.getItems().map(x => x.ProductId).filter(x => x != null) as number[];
+        // Duplicate kontrolü kaldırıldı - kullanıcı aynı ürünü farklı fiyatlarla ekleyebilir
 
         const dlg = new BulkPriceDialog({
-            excludeProductIds: existingProductIds,
+            excludeProductIds: [],
             onSelect: (items) => {
+                for (const item of items) {
+                    const newRow: PriceListItemsRow = {
+                        ProductId: item.ProductId,
+                        ProductCode: item.ProductCode,
+                        ProductName: item.ProductName,
+                        UnitPrice: item.UnitPrice,
+                        DiscountRate: item.DiscountRate
+                    };
+
+                    const id = this.getNextId();
+                    newRow[this.getIdProperty()] = id;
+                    this.view.addItem(newRow);
+                }
+
+                this.view.refresh();
+            }
+        });
+        dlg.dialogOpen();
+    }
+
+    private openExcelImportDialog(): void {
+        // Duplicate kontrolü kaldırıldı - kullanıcı aynı ürünü farklı fiyatlarla ekleyebilir
+
+        const dlg = new ExcelPriceListImportDialog({
+            excludeProductIds: [],
+            onImport: (items) => {
                 for (const item of items) {
                     const newRow: PriceListItemsRow = {
                         ProductId: item.ProductId,
@@ -66,18 +100,6 @@ export class PriceListItemsEditor extends GridEditorBase<PriceListItemsRow> {
 
     protected validateEntity(row: PriceListItemsRow, id: number): boolean {
         if (!super.validateEntity(row, id)) {
-            return false;
-        }
-
-        // Aynı ürün var mı kontrol et
-        const items = this.getItems();
-        const existingItem = items.find(x =>
-            x.ProductId === row.ProductId &&
-            x[this.getIdProperty()] !== id
-        );
-
-        if (existingItem) {
-            alert("Bu ürün zaten listede mevcut!");
             return false;
         }
 

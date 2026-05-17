@@ -1,11 +1,11 @@
-using Serenity.Services;
-using MyRow = SYP.Catalog.PriceListsRow;
+﻿using MyRow = SYP.Catalog.PriceListsRow;
 
 namespace SYP.Catalog;
 
-public interface IPriceListsListHandler : IListHandler<MyRow> { }
+public interface IPriceListsListHandler : IListHandler<MyRow, ListRequest, ListResponse<MyRow>> { }
 
-public class PriceListsListHandler : ListRequestHandler<MyRow>, IPriceListsListHandler
+public class PriceListsListHandler(IRequestContext context) :
+    ListRequestHandler<MyRow, ListRequest, ListResponse<MyRow>>(context),
+    IPriceListsListHandler
 {
-    public PriceListsListHandler(IRequestContext context) : base(context) { }
 }

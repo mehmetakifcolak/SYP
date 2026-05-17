@@ -1,10 +1,11 @@
-using Serenity.Services;
+﻿using MyRow = SYP.Catalog.BrandsRow;
 
 namespace SYP.Catalog;
 
-public interface IBrandsDeleteHandler : IDeleteHandler<BrandsRow> { }
+public interface IBrandsDeleteHandler : IDeleteHandler<MyRow, DeleteRequest, DeleteResponse> { }
 
-public class BrandsDeleteHandler : DeleteRequestHandler<BrandsRow>, IBrandsDeleteHandler
+public class BrandsDeleteHandler(IRequestContext context) :
+    DeleteRequestHandler<MyRow, DeleteRequest, DeleteResponse>(context),
+    IBrandsDeleteHandler
 {
-    public BrandsDeleteHandler(IRequestContext context) : base(context) { }
 }

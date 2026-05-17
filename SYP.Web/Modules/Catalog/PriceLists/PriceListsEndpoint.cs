@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Serenity.Data;
-using Serenity.Reporting;
-using Serenity.Services;
-using Serenity.Web;
+﻿using Serenity.Reporting;
 using System.Data;
+using System.Globalization;
 using MyRow = SYP.Catalog.PriceListsRow;
 
 namespace SYP.Catalog.Endpoints;
@@ -25,7 +22,7 @@ public class PriceListsEndpoint : ServiceEndpoint
     {
         return handler.Update(uow, request);
     }
-
+ 
     [HttpPost, AuthorizeDelete(typeof(MyRow))]
     public DeleteResponse Delete(IUnitOfWork uow, DeleteRequest request,
         [FromServices] IPriceListsDeleteHandler handler)
@@ -33,7 +30,7 @@ public class PriceListsEndpoint : ServiceEndpoint
         return handler.Delete(uow, request);
     }
 
-    [HttpPost]
+    [HttpPost, AuthorizeRetrieve(typeof(MyRow))]
     public RetrieveResponse<MyRow> Retrieve(IDbConnection connection, RetrieveRequest request,
         [FromServices] IPriceListsRetrieveHandler handler)
     {
@@ -54,7 +51,7 @@ public class PriceListsEndpoint : ServiceEndpoint
     {
         var data = List(connection, request, handler).Entities;
         var bytes = exporter.Export(data, typeof(Columns.PriceListsColumns), request.ExportColumns);
-        return ExcelContentResult.Create(bytes, "FiyatListeleri_" +
-            System.DateTime.Now.ToString("yyyyMMdd_HHmmss", System.Globalization.CultureInfo.InvariantCulture) + ".xlsx");
+        return ExcelContentResult.Create(bytes, "PriceListsList_" +
+            DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".xlsx");
     }
 }

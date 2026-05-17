@@ -11,6 +11,10 @@ export interface PriceListItemsRow {
     ProductName?: string;
     PriceListCode?: string;
     PriceListName?: string;
+    PriceListValidFrom?: string;
+    PriceListValidTo?: string;
+    PriceListIsActive?: boolean;
+    PriceListIsDefault?: boolean;
 }
 
 export abstract class PriceListItemsRow {

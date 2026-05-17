@@ -1,4 +1,4 @@
-using Serenity.ComponentModel;
+﻿using Serenity.ComponentModel;
 
 namespace SYP.Catalog.Forms;
 
@@ -7,26 +7,31 @@ namespace SYP.Catalog.Forms;
 public class PriceListsForm
 {
     [Tab("Genel Bilgiler")]
-    [Category("Fiyat Listesi Bilgileri")]
+    [HalfWidth, Placeholder("Boş bırakılırsa otomatik oluşturulur")]
     public string Code { get; set; }
-    public string Name { get; set; }
+
+    [HalfWidth]
     public int CurrencyId { get; set; }
 
-    [HalfWidth]
+    [FullWidth]
+    public string Name { get; set; }
+
+    [FullWidth, TextAreaEditor(Rows = 3)]
+    public string Description { get; set; }
+
+    [HalfWidth, DateEditor]
     public DateTime ValidFrom { get; set; }
-    [HalfWidth]
+
+    [HalfWidth, DateEditor]
     public DateTime ValidTo { get; set; }
 
-    [HalfWidth]
-    public short IsActive { get; set; }
+    [HalfWidth, DefaultValue(true)]
+    public bool IsActive { get; set; }
+
     [HalfWidth]
     public bool IsDefault { get; set; }
 
-    [TextAreaEditor(Rows = 3)]
-    public string Description { get; set; }
-
-    [Tab("Ürün Fiyatları")]
-    [Category("Fiyat Listesi Kalemleri")]
-    [PriceListItemsEditor]
+    [Tab("Ürünler")]
+    [PriceListItemsEditor, IgnoreName]
     public List<PriceListItemsRow> ItemList { get; set; }
 }

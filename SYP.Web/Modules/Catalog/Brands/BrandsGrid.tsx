@@ -1,11 +1,16 @@
-import { Decorators, EntityGrid } from "@serenity-is/corelib";
-import { BrandsColumns, BrandsRow, BrandsService } from "../../ServerTypes/Catalog";
-import { BrandsDialog } from "./BrandsDialog";
+﻿import { GridBase } from '@/_Ext/Bases/GridBase';
+import { Decorators } from '@serenity-is/corelib';
+import { BrandsColumns, BrandsRow, BrandsService } from '../../ServerTypes/Catalog';
+import { BrandsDialog } from './BrandsDialog';
 
-@Decorators.registerClass("SYP.Catalog.BrandsGrid")
-export class BrandsGrid extends EntityGrid<BrandsRow> {
+@Decorators.registerClass('SYP.Catalog.BrandsGrid')
+export class BrandsGrid extends GridBase<BrandsRow, any> {
     protected getColumnsKey() { return BrandsColumns.columnsKey; }
     protected getDialogType() { return BrandsDialog; }
     protected getRowDefinition() { return BrandsRow; }
     protected getService() { return BrandsService.baseUrl; }
+
+    constructor(props: any) {
+        super(props);
+    }
 }

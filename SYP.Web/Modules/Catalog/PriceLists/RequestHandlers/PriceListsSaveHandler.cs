@@ -1,58 +1,107 @@
+﻿using Serenity;
 using Serenity.Data;
-using Serenity.Services;
-using System.Collections.Generic;
+using SYP.Setting;
 using MyRow = SYP.Catalog.PriceListsRow;
 
 namespace SYP.Catalog;
 
-public interface IPriceListsSaveHandler : ISaveHandler<MyRow> { }
+public interface IPriceListsSaveHandler : ISaveHandler<MyRow, SaveRequest<MyRow>, SaveResponse> { }
 
-public class PriceListsSaveHandler : SaveRequestHandler<MyRow>, IPriceListsSaveHandler
+public class PriceListsSaveHandler(IRequestContext context) :
+    SaveRequestHandler<MyRow, SaveRequest<MyRow>, SaveResponse>(context),
+    IPriceListsSaveHandler
 {
-    public PriceListsSaveHandler(IRequestContext context) : base(context) { }
-
-    private List<PriceListItemsRow> ItemList;
-
-    protected override void GetEditableFields(HashSet<Field> editable)
-    {
-        base.GetEditableFields(editable);
-        editable.Remove(MyRow.Fields.InsertDate);
-        editable.Remove(MyRow.Fields.InsertUserId);
-        editable.Remove(MyRow.Fields.UpdateDate);
-        editable.Remove(MyRow.Fields.UpdateUserId);
-    }
-
     protected override void BeforeSave()
     {
         base.BeforeSave();
 
-        Row.UpdateDate = System.DateTime.Now;
-        Row.UpdateUserId = Context.User.GetIdentifier()?.TryParseID32();
-
-        if (IsCreate)
+        // Yeni kayıt ve Code boşsa otomatik numara oluştur
+        if (IsCreate && Request.Entity.Code.IsNullOrEmpty())
         {
-            Row.InsertDate = System.DateTime.Now;
-            Row.InsertUserId = Context.User.GetIdentifier()?.TryParseID32();
+            // NumberTemplates'ten Fiyat Listesi tipi için template al
+            var template = Connection.TryFirst<NumberTemplatesRow>(q => q.SelectTableFields()
+                .Where(NumberTemplatesRow.Fields.Type == (int)global::_Ext.NumberTemplateType.FiyatListesi &
+                       NumberTemplatesRow.Fields.Active == 1));
+
+            if (template != null)
+            {
+                var prefix = template.Prefix ?? "";
+
+                // Eğer tarih formatı varsa prefix'e ekle
+                if (!template.DateFormat.IsEmptyOrNull())
+                {
+                    prefix = prefix + DateTime.Now.ToString(template.DateFormat);
+
+                    if (!template.Suffix.IsEmptyOrNull())
+                        prefix = prefix + template.Suffix;
+                }
+
+                var request = new GetNextNumberRequest
+                {
+                    Length = prefix.Length + (template.Length ?? 5),
+                    Prefix = prefix
+                };
+
+                Row.Code = GetNextNumberHelper.GetNextNumber(
+                    Connection,
+                    request,
+                    MyRow.Fields.Code,
+                    MyRow.Fields.Id
+                ).Serial;
+            }
+            else
+            {
+                throw new ValidationError("Numara şablonu bulunamadı! Lütfen önce 'Fiyat Listesi' tipinde bir numara şablonu tanımlayın.");
+            }
         }
 
-        // Varsayılan olarak işaretlendiyse diğerlerini kaldır
-        if (Row.IsDefault == true)
+        // Code alanının unique olduğunu kontrol et
+        if (!Row.Code.IsNullOrEmpty())
         {
-            new SqlUpdate(MyRow.Fields.TableName)
-                .Set(MyRow.Fields.IsDefault, false)
-                .Where(MyRow.Fields.Id != (Row.Id ?? 0))
-                .Execute(Connection);
+            var existingRecord = Connection.TryFirst<MyRow>(q => q
+                .Select(MyRow.Fields.Code)
+                .Select(MyRow.Fields.Id)
+                .Where(MyRow.Fields.Code == Row.Code));
+
+            if (IsCreate && existingRecord != null)
+            {
+                throw new ValidationError($"'{existingRecord.Code}' kodu ile kayıt zaten mevcut!");
+            }
+
+            if (IsUpdate && existingRecord != null && existingRecord.Id != Row.Id)
+            {
+                throw new ValidationError($"'{existingRecord.Code}' kodu ile başka bir kayıt mevcut!");
+            }
         }
     }
 
-    protected override void SetInternalFields()
+    protected override void ValidateRequest()
     {
-        base.SetInternalFields();
+        base.ValidateRequest();
 
-        // ItemList'i Request'ten al
-        if (Request.Entity != null)
+        var row = Row;
+
+        // ValidTo >= ValidFrom kontrolü
+        if (row.ValidFrom.HasValue && row.ValidTo.HasValue && row.ValidTo < row.ValidFrom)
         {
-            ItemList = Request.Entity.ItemList;
+            throw new ValidationError("ValidTo", "Geçerlilik bitiş tarihi, başlangıç tarihinden küçük olamaz!");
+        }
+
+        // IsDefault uniqueness kontrolü (aynı para biriminde)
+        if (row.IsDefault == true)
+        {
+            var fld = MyRow.Fields;
+            var allLists = Connection.List<MyRow>(q => q
+                .Select(fld.Id, fld.IsDefault)
+                .Where(fld.CurrencyId == row.CurrencyId.Value));
+
+            var hasDefault = allLists.Any(x => x.IsDefault == true && x.Id != (Row.Id ?? 0));
+
+            if (hasDefault)
+            {
+                throw new ValidationError("IsDefault",
+                    "Bu para birimi için zaten varsayılan bir fiyat listesi mevcut!");
+            }
         }
     }
 
@@ -60,42 +109,43 @@ public class PriceListsSaveHandler : SaveRequestHandler<MyRow>, IPriceListsSaveH
     {
         base.AfterSave();
 
-        if (ItemList == null)
-            return;
-
-        var itemFld = PriceListItemsRow.Fields;
-        var oldItems = new Dictionary<int, PriceListItemsRow>();
-
-        if (!IsCreate)
+        // Master-detail kaydetme - PriceListItems
+        if (Row.ItemList != null)
         {
-            foreach (var item in Connection.List<PriceListItemsRow>(
-                itemFld.PriceListId == Row.Id.Value))
-            {
-                oldItems[item.Id.Value] = item;
-            }
-        }
+            var fld = PriceListItemsRow.Fields;
 
-        foreach (var item in ItemList)
-        {
-            item.PriceListId = Row.Id.Value;
+            // Mevcut kalemleri getir
+            var oldList = new HashSet<int>(
+                Connection.List<PriceListItemsRow>(
+                    new Criteria(fld.PriceListId) == Row.Id.Value)
+                .Select(x => x.Id.Value)
+            );
 
-            if (item.Id == null)
+            foreach (var item in Row.ItemList)
             {
-                // Yeni kayıt
-                Connection.Insert(item);
-            }
-            else if (oldItems.TryGetValue(item.Id.Value, out var old))
-            {
-                // Güncelle
-                Connection.UpdateById(item);
-                oldItems.Remove(item.Id.Value);
-            }
-        }
+                item.PriceListId = Row.Id.Value;
 
-        // Silinen kayıtlar
-        foreach (var item in oldItems.Values)
-        {
-            Connection.DeleteById<PriceListItemsRow>(item.Id.Value);
+                if (item.Id == null || item.Id.Value <= 0)
+                {
+                    // Yeni kayıt ekle
+                    new PriceListItemsSaveHandler(Context).Create(UnitOfWork,
+                        new SaveRequest<PriceListItemsRow> { Entity = item });
+                }
+                else
+                {
+                    // Mevcut kaydı güncelle
+                    oldList.Remove(item.Id.Value);
+                    new PriceListItemsSaveHandler(Context).Update(UnitOfWork,
+                        new SaveRequest<PriceListItemsRow> { Entity = item });
+                }
+            }
+
+            // Silinmiş kalemleri kaldır
+            foreach (var id in oldList)
+            {
+                new PriceListItemsDeleteHandler(Context).Delete(UnitOfWork,
+                    new DeleteRequest { EntityId = id });
+            }
         }
     }
 }

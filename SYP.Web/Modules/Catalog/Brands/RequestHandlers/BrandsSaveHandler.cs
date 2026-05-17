@@ -1,10 +1,11 @@
-using Serenity.Services;
+﻿using MyRow = SYP.Catalog.BrandsRow;
 
 namespace SYP.Catalog;
 
-public interface IBrandsSaveHandler : ISaveHandler<BrandsRow> { }
+public interface IBrandsSaveHandler : ISaveHandler<MyRow, SaveRequest<MyRow>, SaveResponse> { }
 
-public class BrandsSaveHandler : SaveRequestHandler<BrandsRow>, IBrandsSaveHandler
+public class BrandsSaveHandler(IRequestContext context) :
+    SaveRequestHandler<MyRow, SaveRequest<MyRow>, SaveResponse>(context),
+    IBrandsSaveHandler
 {
-    public BrandsSaveHandler(IRequestContext context) : base(context) { }
 }

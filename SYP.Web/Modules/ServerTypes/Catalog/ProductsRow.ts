@@ -15,6 +15,7 @@ export interface ProductsRow {
     CurrencyId?: number;
     VatRateId?: number;
     UnitPrice?: number;
+    CurrentValidPrice?: number;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;

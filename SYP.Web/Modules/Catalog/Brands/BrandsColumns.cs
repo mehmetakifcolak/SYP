@@ -1,21 +1,18 @@
-namespace SYP.Catalog.Columns;
+﻿namespace SYP.Catalog.Columns;
 
 [ColumnsScript("Catalog.Brands")]
 [BasedOnRow(typeof(BrandsRow), CheckNames = true)]
 public class BrandsColumns
 {
-    [EditLink, Width(100)]
-    public string Code { get; set; }
-
-    [EditLink, Width(200)]
+    [EditLink, DisplayName("Db.Shared.RecordId"), AlignRight]
+    public int Id { get; set; }
+    [EditLink]
     public string Name { get; set; }
-
-    [Width(80)]
+    public string Description { get; set; }
     public string Logo { get; set; }
-
-    [Width(80)]
     public bool IsActive { get; set; }
-
-    [Width(80)]
-    public int SortOrder { get; set; }
+    public DateTime InsertDate { get; set; }
+    public int InsertUserId { get; set; }
+    public DateTime UpdateDate { get; set; }
+    public int UpdateUserId { get; set; }
 }

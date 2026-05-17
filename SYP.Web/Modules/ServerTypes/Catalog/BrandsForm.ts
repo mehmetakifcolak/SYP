@@ -1,10 +1,10 @@
-﻿import { BooleanEditor, ImageUploadEditor, initFormType, PrefixedContext, StringEditor } from "@serenity-is/corelib";
+﻿import { ImageUploadEditor, initFormType, IntegerEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
 
 export interface BrandsForm {
     Name: StringEditor;
-    Description: StringEditor;
+    Description: TextAreaEditor;
     Logo: ImageUploadEditor;
-    IsActive: BooleanEditor;
+    IsActive: IntegerEditor;
 }
 
 export class BrandsForm extends PrefixedContext {
@@ -18,14 +18,15 @@ export class BrandsForm extends PrefixedContext {
             BrandsForm.init = true;
 
             var w0 = StringEditor;
-            var w1 = ImageUploadEditor;
-            var w2 = BooleanEditor;
+            var w1 = TextAreaEditor;
+            var w2 = ImageUploadEditor;
+            var w3 = IntegerEditor;
 
             initFormType(BrandsForm, [
                 'Name', w0,
-                'Description', w0,
-                'Logo', w1,
-                'IsActive', w2
+                'Description', w1,
+                'Logo', w2,
+                'IsActive', w3
             ]);
         }
     }
