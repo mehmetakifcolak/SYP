@@ -20,7 +20,7 @@ public class ProductsSaveHandler(IRequestContext context) :
         {
             // NumberTemplates'ten Ürün tipi için template al
             var template = Connection.TryFirst<NumberTemplatesRow>(q => q.SelectTableFields()
-                .Where(NumberTemplatesRow.Fields.Type == (int)global::_Ext.NumberTemplateType.Urun &
+                .Where(NumberTemplatesRow.Fields.Type == (int)NumberTemplateType.Urun &
                        NumberTemplatesRow.Fields.Active == 1));
 
             if (template != null)

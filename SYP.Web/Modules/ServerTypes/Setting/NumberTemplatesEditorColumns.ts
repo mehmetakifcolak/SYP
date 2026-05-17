@@ -1,7 +1,7 @@
 ﻿import { ColumnsBase, fieldsProxy } from "@serenity-is/corelib";
 import { Column } from "@serenity-is/sleekgrid";
-import { NumberTemplateType } from "../_Ext/NumberTemplateType";
 import { NumberTemplatesRow } from "./NumberTemplatesRow";
+import { NumberTemplateType } from "./NumberTemplateType";
 
 export interface NumberTemplatesEditorColumns {
     Id: Column<NumberTemplatesRow>;

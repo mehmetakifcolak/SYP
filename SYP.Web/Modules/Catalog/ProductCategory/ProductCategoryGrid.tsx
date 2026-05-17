@@ -1,10 +1,9 @@
-import { Decorators, TreeGridMixin } from '@serenity-is/corelib';
-import { GridBase } from '@/_Ext/Bases/GridBase';
+import { Decorators, TreeGridMixin, EntityGrid} from '@serenity-is/corelib';
 import { ProductCategoryDialog } from './ProductCategoryDialog';
 import { ProductCategoryRow, ProductCategoryColumns, ProductCategoryService } from '../../ServerTypes/Catalog';
 
 @Decorators.registerClass('SYP.Catalog.ProductCategoryGrid')
-export class ProductCategoryGrid extends GridBase<ProductCategoryRow, any> {
+export class ProductCategoryGrid extends EntityGrid<ProductCategoryRow, any> {
     protected getColumnsKey() { return ProductCategoryColumns.columnsKey; }
     protected getDialogType() { return ProductCategoryDialog; }
     protected getRowDefinition() { return ProductCategoryRow; }

@@ -26,28 +26,38 @@ public class DailyExchangeJob : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await FetchDailyExchangeRates();
+                try
+                {
+                    await FetchDailyExchangeRates();
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error in DailyExchangeJob");
+                }
+
+                var now = DateTime.Now;
+                var nextRun = now.Date.AddHours(9);
+                if (now > nextRun)
+                    nextRun = nextRun.AddDays(1);
+
+                var delay = nextRun - now;
+                if (delay.TotalMinutes < 1)
+                    delay = TimeSpan.FromHours(1);
+
+                await Task.Delay(delay, stoppingToken);
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error in DailyExchangeJob");
-            }
-
-            // Her gun saat 09:00'da calistir, yoksa her 1 saatte bir kontrol et
-            var now = DateTime.Now;
-            var nextRun = now.Date.AddHours(9);
-            if (now > nextRun)
-                nextRun = nextRun.AddDays(1);
-
-            var delay = nextRun - now;
-            if (delay.TotalMinutes < 1)
-                delay = TimeSpan.FromHours(1);
-
-            await Task.Delay(delay, stoppingToken);
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal shutdown
         }
     }
 

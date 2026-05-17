@@ -1,5 +1,5 @@
 ﻿import { DateEditor, DecimalEditor, EnumEditor, initFormType, LookupEditor, PrefixedContext, ServiceLookupEditor, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
-import { OrderStatus } from "../_Ext/OrderStatus";
+import { OrderStatus } from "./OrderStatus";
 
 export interface OrderForm {
     OrderNumber: StringEditor;

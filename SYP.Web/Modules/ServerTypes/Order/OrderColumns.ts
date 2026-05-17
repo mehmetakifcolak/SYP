@@ -1,7 +1,7 @@
 ﻿import { ColumnsBase, fieldsProxy } from "@serenity-is/corelib";
 import { Column } from "@serenity-is/sleekgrid";
-import { OrderStatus } from "../_Ext/OrderStatus";
 import { OrderRow } from "./OrderRow";
+import { OrderStatus } from "./OrderStatus";
 
 export interface OrderColumns {
     OrderNumber: Column<OrderRow>;

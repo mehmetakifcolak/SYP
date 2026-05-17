@@ -11,7 +11,7 @@ public class NumberTemplatesColumns
     public int Id { get; set; }
 
     [DisplayName("Template Type"), Width(150)]
-    public global::_Ext.NumberTemplateType Type { get; set; }
+    public NumberTemplateType Type { get; set; }
 
     [EditLink, Width(100)]
     public string Prefix { get; set; }

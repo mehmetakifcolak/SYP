@@ -1,10 +1,9 @@
-import { Authorization, Lookup, serviceRequest, tryFirst } from "@serenity-is/corelib";
+import { Authorization, Lookup, serviceRequest, tryFirst, EntityGrid} from "@serenity-is/corelib";
 import { PermissionKeys, RoleRow, UserColumns, UserRow, UserService } from "../../ServerTypes/Administration";
 import { nsAdministration } from "../../ServerTypes/Namespaces";
 import { UserDialog } from "./UserDialog";
-import { GridBase } from "../../_Ext/Bases/GridBase";
 
-export class UserGrid extends GridBase<UserRow, any> {
+export class UserGrid extends EntityGrid<UserRow, any> {
     static override[Symbol.typeInfo] = this.registerClass(nsAdministration);
 
     protected override getColumnsKey() { return UserColumns.columnsKey; }

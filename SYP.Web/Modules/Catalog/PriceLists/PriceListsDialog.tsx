@@ -1,10 +1,9 @@
-﻿import { DialogBase } from '@/_Ext/Bases/DialogBase';
-import { Decorators, notifyError } from '@serenity-is/corelib';
+import { Decorators, notifyError, EntityDialog} from '@serenity-is/corelib';
 import { PriceListsForm, PriceListsRow, PriceListsService } from '../../ServerTypes/Catalog';
 
 @Decorators.registerClass('SYP.Catalog.PriceListsDialog')
 @Decorators.maximizable()
-export class PriceListsDialog extends DialogBase<PriceListsRow, any> {
+export class PriceListsDialog extends EntityDialog<PriceListsRow, any> {
     protected getFormKey() { return PriceListsForm.formKey; }
     protected getRowDefinition() { return PriceListsRow; }
     protected getService() { return PriceListsService.baseUrl; }

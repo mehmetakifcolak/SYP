@@ -1,4 +1,3 @@
-using _Ext;
 
 namespace SYP.Email.Services;
 

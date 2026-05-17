@@ -1,4 +1,4 @@
-﻿import { GridEditorBase } from '@/_Ext/Editors/GridEditorBase';
+﻿import { GridEditorBase } from '@/Common/Editors/GridEditorBase';
 import { Decorators } from '@serenity-is/corelib';
 import { OrderDetailEditorColumns, OrderDetailRow } from '../../ServerTypes/Order';
 import { OrderDetailEditorDialog } from './OrderDetailEditorDialog';

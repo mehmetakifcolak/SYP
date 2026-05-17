@@ -1,4 +1,4 @@
-﻿import { EditorDialogBase } from '@/_Ext/Editors/EditorDialogBase';
+﻿import { EditorDialogBase } from '@/Common/Editors/EditorDialogBase';
 import { Decorators } from '@serenity-is/corelib';
 import { DailyExchangesEditorForm, DailyExchangesRow } from '../../ServerTypes/Setting';
 

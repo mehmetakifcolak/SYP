@@ -1,10 +1,9 @@
-﻿import { GridBase } from '@/_Ext/Bases/GridBase';
-import { Decorators } from '@serenity-is/corelib';
+import { Decorators, EntityGrid} from '@serenity-is/corelib';
 import { PriceListsColumns, PriceListsRow, PriceListsService } from '../../ServerTypes/Catalog';
 import { PriceListsDialog } from './PriceListsDialog';
 
 @Decorators.registerClass('SYP.Catalog.PriceListsGrid')
-export class PriceListsGrid extends GridBase<PriceListsRow, any> {
+export class PriceListsGrid extends EntityGrid<PriceListsRow, any> {
     protected getColumnsKey() { return PriceListsColumns.columnsKey; }
     protected getDialogType() { return PriceListsDialog; }
     protected getRowDefinition() { return PriceListsRow; }

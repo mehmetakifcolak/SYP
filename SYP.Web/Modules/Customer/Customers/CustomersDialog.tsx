@@ -1,10 +1,9 @@
-import { DialogBase } from '@/_Ext/Bases/DialogBase';
-import { Decorators, EditorUtils, ToolButton, notifySuccess, serviceRequest } from '@serenity-is/corelib';
+import { Decorators, EditorUtils, ToolButton, notifySuccess, serviceRequest, EntityDialog} from '@serenity-is/corelib';
 import { CustomersForm, CustomersRow, CustomersService } from '../../ServerTypes/Customer';
 
 @Decorators.registerClass('SYP.Customer.CustomersDialog')
 @Decorators.maximizable()
-export class CustomersDialog extends DialogBase<CustomersRow, any> {
+export class CustomersDialog extends EntityDialog<CustomersRow, any> {
     protected getFormKey() { return CustomersForm.formKey; }
     protected getRowDefinition() { return CustomersRow; }
     protected getService() { return CustomersService.baseUrl; }

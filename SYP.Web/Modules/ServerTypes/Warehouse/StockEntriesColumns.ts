@@ -1,7 +1,7 @@
 ﻿import { ColumnsBase, fieldsProxy } from "@serenity-is/corelib";
 import { Column } from "@serenity-is/sleekgrid";
-import { StockEntryStatus } from "../_Ext/StockEntryStatus";
 import { StockEntriesRow } from "./StockEntriesRow";
+import { StockEntryStatus } from "./StockEntryStatus";
 
 export interface StockEntriesColumns {
     EntryNo: Column<StockEntriesRow>;

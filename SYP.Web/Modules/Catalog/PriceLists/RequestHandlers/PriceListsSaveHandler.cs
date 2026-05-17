@@ -20,7 +20,7 @@ public class PriceListsSaveHandler(IRequestContext context) :
         {
             // NumberTemplates'ten Fiyat Listesi tipi için template al
             var template = Connection.TryFirst<NumberTemplatesRow>(q => q.SelectTableFields()
-                .Where(NumberTemplatesRow.Fields.Type == (int)global::_Ext.NumberTemplateType.FiyatListesi &
+                .Where(NumberTemplatesRow.Fields.Type == (int)NumberTemplateType.FiyatListesi &
                        NumberTemplatesRow.Fields.Active == 1));
 
             if (template != null)

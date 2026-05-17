@@ -8,7 +8,7 @@ public class NumberTemplatesForm
 {
     [Category("Template Settings")]
     [DisplayName("Template Type"), EnumEditor]
-    public global::_Ext.NumberTemplateType Type { get; set; }
+    public NumberTemplateType Type { get; set; }
 
     [Placeholder("Prefix (e.g., MUS-, URN-)")]
     public string Prefix { get; set; }

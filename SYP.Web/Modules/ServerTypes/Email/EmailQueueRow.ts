@@ -1,6 +1,6 @@
 ﻿import { fieldsProxy } from "@serenity-is/corelib";
-import { EmailPriority } from "../_Ext/EmailPriority";
-import { EmailQueueStatus } from "../_Ext/EmailQueueStatus";
+import { EmailPriority } from "./EmailPriority";
+import { EmailQueueStatus } from "./EmailQueueStatus";
 
 export interface EmailQueueRow {
     Id?: number;

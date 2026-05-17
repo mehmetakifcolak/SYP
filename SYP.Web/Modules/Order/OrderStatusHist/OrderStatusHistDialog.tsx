@@ -1,9 +1,8 @@
-﻿import { DialogBase } from '@/_Ext/Bases/DialogBase';
-import { Decorators } from '@serenity-is/corelib';
+import { Decorators, EntityDialog} from '@serenity-is/corelib';
 import { OrderStatusHistForm, OrderStatusHistRow, OrderStatusHistService } from '../../ServerTypes/Order';
 
 @Decorators.registerClass('SYP.Order.OrderStatusHistDialog')
-export class OrderStatusHistDialog extends DialogBase<OrderStatusHistRow, any> {
+export class OrderStatusHistDialog extends EntityDialog<OrderStatusHistRow, any> {
     protected getFormKey() { return OrderStatusHistForm.formKey; }
     protected getRowDefinition() { return OrderStatusHistRow; }
     protected getService() { return OrderStatusHistService.baseUrl; }

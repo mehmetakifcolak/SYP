@@ -1,5 +1,5 @@
 ﻿import { BooleanEditor, EnumEditor, initFormType, IntegerEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
-import { NumberTemplateType } from "../_Ext/NumberTemplateType";
+import { NumberTemplateType } from "./NumberTemplateType";
 
 export interface NumberTemplatesForm {
     Type: EnumEditor;

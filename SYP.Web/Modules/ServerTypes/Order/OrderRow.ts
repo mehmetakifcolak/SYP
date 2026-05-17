@@ -1,6 +1,6 @@
 ﻿import { fieldsProxy } from "@serenity-is/corelib";
-import { OrderStatus } from "../_Ext/OrderStatus";
 import { OrderDetailRow } from "./OrderDetailRow";
+import { OrderStatus } from "./OrderStatus";
 
 export interface OrderRow {
     Id?: number;

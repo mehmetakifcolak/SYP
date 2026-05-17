@@ -1,6 +1,6 @@
 ﻿import { fieldsProxy } from "@serenity-is/corelib";
-import { StockEntryStatus } from "../_Ext/StockEntryStatus";
 import { StockEntryDetailsRow } from "./StockEntryDetailsRow";
+import { StockEntryStatus } from "./StockEntryStatus";
 
 export interface StockEntriesRow {
     Id?: number;

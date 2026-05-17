@@ -1,9 +1,8 @@
-import { Decorators, ToolButton } from "@serenity-is/corelib";
+import { Decorators, ToolButton, EntityGrid} from "@serenity-is/corelib";
 import { WarehouseStockColumns, WarehouseStockRow, WarehouseStockService } from "../../ServerTypes/Warehouse";
-import { GridBase } from "../../_Ext/Bases/GridBase";
 
 @Decorators.registerClass("SYP.Warehouse.WarehouseStockGrid")
-export class WarehouseStockGrid extends GridBase<WarehouseStockRow, any> {
+export class WarehouseStockGrid extends EntityGrid<WarehouseStockRow, any> {
     protected getColumnsKey() { return WarehouseStockColumns.columnsKey; }
     protected getRowDefinition() { return WarehouseStockRow; }
     protected getService() { return WarehouseStockService.baseUrl; }

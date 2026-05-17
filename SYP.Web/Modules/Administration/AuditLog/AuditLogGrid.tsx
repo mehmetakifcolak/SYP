@@ -1,10 +1,9 @@
-import { Decorators, ToolButton } from '@serenity-is/corelib';
+import { Decorators, ToolButton, EntityGrid} from '@serenity-is/corelib';
 import { AuditLogColumns, AuditLogRow, AuditLogService } from '../../ServerTypes/Administration';
 import { AuditLogDialog } from './AuditLogDialog';
-import { GridBase } from '../../_Ext/Bases/GridBase';
 
 @Decorators.registerClass('SYP.Administration.AuditLogGrid')
-export class AuditLogGrid extends GridBase<AuditLogRow, any> {
+export class AuditLogGrid extends EntityGrid<AuditLogRow, any> {
     protected getColumnsKey() { return AuditLogColumns.columnsKey; }
     protected getDialogType() { return AuditLogDialog; }
     protected getRowDefinition() { return AuditLogRow; }
@@ -32,26 +31,17 @@ export class AuditLogGrid extends GridBase<AuditLogRow, any> {
         let actionTypeCol = columns.find(x => x.field === 'ActionType');
         if (actionTypeCol) {
             actionTypeCol.format = ctx => {
-                let value = ctx.value as string;
-                let badgeClass = 'secondary';
-                let label = value;
-
-                switch (value) {
-                    case 'Insert':
-                        badgeClass = 'success';
-                        label = 'Ekleme';
-                        break;
-                    case 'Update':
-                        badgeClass = 'warning';
-                        label = 'Güncelleme';
-                        break;
-                    case 'Delete':
-                        badgeClass = 'danger';
-                        label = 'Silme';
-                        break;
-                }
-
-                return `<span class="badge bg-${badgeClass}">${label}</span>`;
+                const map: Record<string, [string, string]> = {
+                    'Insert': ['success', 'Ekleme'],
+                    'Update': ['warning', 'Güncelleme'],
+                    'Delete': ['danger', 'Silme'],
+                };
+                const value = ctx.value as string;
+                const cfg = map[value] ?? ['secondary', value];
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-' + cfg[0];
+                badge.textContent = cfg[1];
+                return badge;
             };
         }
 

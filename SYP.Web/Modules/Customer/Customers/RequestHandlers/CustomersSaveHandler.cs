@@ -33,7 +33,7 @@ public class CustomersSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>
         {
             // NumberTemplates'ten Müşteri tipi için template al
             var template = Connection.TryFirst<NumberTemplatesRow>(q => q.SelectTableFields()
-                .Where(NumberTemplatesRow.Fields.Type == (int)global::_Ext.NumberTemplateType.Musteri &
+                .Where(NumberTemplatesRow.Fields.Type == (int)NumberTemplateType.Musteri &
                        NumberTemplatesRow.Fields.Active == 1));
 
             if (template != null)
