@@ -47,13 +47,16 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
         CreateNumberTemplatesTable();
         CreateFileArchiveTable();
 
-        // 7. FOREIGN KEYS
+        // 7. UPDATE EXISTING TABLES (add missing columns)
+        UpdateExistingTables();
+
+        // 8. FOREIGN KEYS
         CreateAllForeignKeys();
 
-        // 8. INDEXES
+        // 9. INDEXES
         CreateAllIndexes();
 
-        // 9. Fix Users.IsActive to BIT
+        // 10. Fix Users.IsActive to BIT
         StandardizeUsersIsActive();
     }
 
@@ -672,7 +675,7 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
                 .WithColumn("Suffix").AsString(50).Nullable()
                 .WithColumn("Length").AsInt32().Nullable()
                 .WithColumn("DateFormat").AsString(50).Nullable()
-                .WithColumn("Active").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
                 .WithColumn("InsertDate").AsDateTime().Nullable()
                 .WithColumn("InsertUserId").AsInt32().Nullable()
                 .WithColumn("UpdateDate").AsDateTime().Nullable()
@@ -693,7 +696,7 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
                 .WithColumn("EntityType").AsString(100).Nullable()
                 .WithColumn("EntityId").AsString(50).Nullable()
                 .WithColumn("Description").AsString(1000).Nullable()
-                .WithColumn("Active").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
                 .WithColumn("InsertDate").AsDateTime().NotNullable()
                 .WithColumn("InsertUserId").AsInt32().Nullable();
         }
@@ -916,6 +919,146 @@ public class DefaultDB_20260520_1000_BusinessTables : Migration
         if (!Schema.Table("Products").Index("IX_Products_BrandId").Exists())
             Create.Index("IX_Products_BrandId").OnTable("Products")
                 .OnColumn("BrandId").Ascending();
+    }
+
+    #endregion
+
+    #region UPDATE EXISTING TABLES
+
+    private void UpdateExistingTables()
+    {
+        // Update EmailQueue table if it exists but is missing columns
+        if (Schema.Table("EmailQueue").Exists())
+        {
+            if (!Schema.Table("EmailQueue").Column("ScheduledDate").Exists())
+                Alter.Table("EmailQueue").AddColumn("ScheduledDate").AsDateTime().Nullable();
+
+            if (!Schema.Table("EmailQueue").Column("MaxRetries").Exists())
+                Alter.Table("EmailQueue").AddColumn("MaxRetries").AsInt32().NotNullable().WithDefaultValue(3);
+
+            if (!Schema.Table("EmailQueue").Column("IsHtml").Exists())
+                Alter.Table("EmailQueue").AddColumn("IsHtml").AsBoolean().NotNullable().WithDefaultValue(true);
+
+            if (!Schema.Table("EmailQueue").Column("Priority").Exists())
+                Alter.Table("EmailQueue").AddColumn("Priority").AsInt32().NotNullable().WithDefaultValue(3);
+        }
+
+        // Update Products table - standardize IsActive to BIT
+        if (Schema.Table("Products").Exists() && Schema.Table("Products").Column("IsActive").Exists())
+        {
+            Execute.Sql(@"
+                IF EXISTS (
+                    SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_NAME = 'Products'
+                    AND COLUMN_NAME = 'IsActive'
+                    AND DATA_TYPE = 'smallint'
+                )
+                BEGIN
+                    ALTER TABLE Products ADD IsActive_Temp BIT NULL;
+                    UPDATE Products SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
+                    ALTER TABLE Products DROP COLUMN IsActive;
+                    EXEC sp_rename 'Products.IsActive_Temp', 'IsActive', 'COLUMN';
+                    ALTER TABLE Products ALTER COLUMN IsActive BIT NOT NULL;
+                    ALTER TABLE Products ADD CONSTRAINT DF_Products_IsActive DEFAULT 1 FOR IsActive;
+                END
+            ");
+        }
+
+        // Update Brands table - standardize IsActive to BIT
+        if (Schema.Table("Brands").Exists() && Schema.Table("Brands").Column("IsActive").Exists())
+        {
+            Execute.Sql(@"
+                IF EXISTS (
+                    SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_NAME = 'Brands'
+                    AND COLUMN_NAME = 'IsActive'
+                    AND DATA_TYPE = 'smallint'
+                )
+                BEGIN
+                    ALTER TABLE Brands ADD IsActive_Temp BIT NULL;
+                    UPDATE Brands SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
+                    ALTER TABLE Brands DROP COLUMN IsActive;
+                    EXEC sp_rename 'Brands.IsActive_Temp', 'IsActive', 'COLUMN';
+                    ALTER TABLE Brands ALTER COLUMN IsActive BIT NULL;
+                    ALTER TABLE Brands ADD CONSTRAINT DF_Brands_IsActive DEFAULT 1 FOR IsActive;
+                END
+            ");
+        }
+
+        // Update PriceLists table - ensure IsActive is BIT
+        if (Schema.Table("PriceLists").Exists() && Schema.Table("PriceLists").Column("IsActive").Exists())
+        {
+            Execute.Sql(@"
+                IF EXISTS (
+                    SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_NAME = 'PriceLists'
+                    AND COLUMN_NAME = 'IsActive'
+                    AND DATA_TYPE = 'smallint'
+                )
+                BEGIN
+                    ALTER TABLE PriceLists ADD IsActive_Temp BIT NULL;
+                    UPDATE PriceLists SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
+                    ALTER TABLE PriceLists DROP COLUMN IsActive;
+                    EXEC sp_rename 'PriceLists.IsActive_Temp', 'IsActive', 'COLUMN';
+                    ALTER TABLE PriceLists ALTER COLUMN IsActive BIT NOT NULL;
+                    ALTER TABLE PriceLists ADD CONSTRAINT DF_PriceLists_IsActive DEFAULT 1 FOR IsActive;
+                END
+            ");
+        }
+
+        // Update FileArchive table - rename Active to IsActive and standardize to BIT
+        if (Schema.Table("FileArchive").Exists())
+        {
+            if (Schema.Table("FileArchive").Column("Active").Exists() && !Schema.Table("FileArchive").Column("IsActive").Exists())
+            {
+                Execute.Sql(@"
+                    EXEC sp_rename 'FileArchive.Active', 'IsActive', 'COLUMN';
+
+                    IF EXISTS (
+                        SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+                        WHERE TABLE_NAME = 'FileArchive'
+                        AND COLUMN_NAME = 'IsActive'
+                        AND DATA_TYPE = 'smallint'
+                    )
+                    BEGIN
+                        ALTER TABLE FileArchive ADD IsActive_Temp BIT NULL;
+                        UPDATE FileArchive SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
+                        ALTER TABLE FileArchive DROP COLUMN IsActive;
+                        EXEC sp_rename 'FileArchive.IsActive_Temp', 'IsActive', 'COLUMN';
+                        ALTER TABLE FileArchive ALTER COLUMN IsActive BIT NOT NULL;
+                        ALTER TABLE FileArchive ADD CONSTRAINT DF_FileArchive_IsActive DEFAULT 1 FOR IsActive;
+                    END
+                ");
+            }
+            else if (Schema.Table("FileArchive").Column("IsActive").Exists())
+            {
+                Execute.Sql(@"
+                    IF EXISTS (
+                        SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+                        WHERE TABLE_NAME = 'FileArchive'
+                        AND COLUMN_NAME = 'IsActive'
+                        AND DATA_TYPE = 'smallint'
+                    )
+                    BEGIN
+                        ALTER TABLE FileArchive ADD IsActive_Temp BIT NULL;
+                        UPDATE FileArchive SET IsActive_Temp = CASE WHEN IsActive = 1 THEN 1 ELSE 0 END;
+                        ALTER TABLE FileArchive DROP COLUMN IsActive;
+                        EXEC sp_rename 'FileArchive.IsActive_Temp', 'IsActive', 'COLUMN';
+                        ALTER TABLE FileArchive ALTER COLUMN IsActive BIT NOT NULL;
+                        ALTER TABLE FileArchive ADD CONSTRAINT DF_FileArchive_IsActive DEFAULT 1 FOR IsActive;
+                    END
+                ");
+            }
+        }
+
+        // Update NumberTemplates table - rename Active to IsActive if needed
+        if (Schema.Table("NumberTemplates").Exists())
+        {
+            if (Schema.Table("NumberTemplates").Column("Active").Exists() && !Schema.Table("NumberTemplates").Column("IsActive").Exists())
+            {
+                Execute.Sql("EXEC sp_rename 'NumberTemplates.Active', 'IsActive', 'COLUMN';");
+            }
+        }
     }
 
     #endregion

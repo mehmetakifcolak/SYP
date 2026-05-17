@@ -115,7 +115,7 @@ public class DefaultDB_20260520_1100_SeedData : Migration
         Execute.Sql(@"
             IF NOT EXISTS (SELECT * FROM NumberTemplates WHERE Type = 11)
             BEGIN
-                INSERT INTO NumberTemplates (Type, Prefix, Length, DateFormat, Active, InsertDate)
+                INSERT INTO NumberTemplates (Type, Prefix, Length, DateFormat, IsActive, InsertDate)
                 VALUES (
                     11,
                     'FL-',
