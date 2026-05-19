@@ -281,8 +281,7 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
             .SelectTableFields()
             .Where(new Criteria(detailFields.OrderId) == Row.Id.Value));
 
-        // Varsayılan depo (ilk aktif depo)
-        var warehouseId = GetDefaultWarehouseId();
+        var warehouseId = Row.WarehouseId ?? GetDefaultWarehouseId();
 
         foreach (var detail in details)
         {

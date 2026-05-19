@@ -57,6 +57,11 @@ public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Ad
     public int? CurrencyId { get => fields.CurrencyId[this]; set => fields.CurrencyId[this] = value; }
     public partial class RowFields { public Int32Field CurrencyId; }
 
+    [DisplayName("Depo"), ForeignKey("[dbo].[Warehouses]", "Id"), LeftJoin("jWarehouse")]
+    [LookupEditor("Warehouse.Warehouses", FilterField = "IsActive", FilterValue = true)]
+    public int? WarehouseId { get => fields.WarehouseId[this]; set => fields.WarehouseId[this] = value; }
+    public partial class RowFields { public Int32Field WarehouseId; }
+
     [DisplayName("Notlar"), Size(int.MaxValue)]
     public string Notes { get => fields.Notes[this]; set => fields.Notes[this] = value; }
     public partial class RowFields { public StringField Notes; }
@@ -98,6 +103,10 @@ public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Ad
     [DisplayName("Para Birimi Kodu"), Expression("jCurrency.[Code]")]
     public string CurrencyCode { get => fields.CurrencyCode[this]; set => fields.CurrencyCode[this] = value; }
     public partial class RowFields { public StringField CurrencyCode; }
+
+    [DisplayName("Depo Adı"), Expression("jWarehouse.[Name]")]
+    public string WarehouseName { get => fields.WarehouseName[this]; set => fields.WarehouseName[this] = value; }
+    public partial class RowFields { public StringField WarehouseName; }
 
     #endregion Foreign Fields
 

@@ -14,6 +14,7 @@ export interface OrderRow {
     DiscountAmount?: number;
     NetAmount?: number;
     CurrencyId?: number;
+    WarehouseId?: number;
     Notes?: string;
     RejectReason?: string;
     InsertDate?: string;
@@ -24,6 +25,7 @@ export interface OrderRow {
     CustomerCode?: string;
     ManagerName?: string;
     CurrencyCode?: string;
+    WarehouseName?: string;
     DetailList?: OrderDetailRow[];
 }
 

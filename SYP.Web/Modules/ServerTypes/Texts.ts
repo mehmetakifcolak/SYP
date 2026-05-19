@@ -413,6 +413,8 @@ namespace texts {
                 export const TotalAmount: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
+                export const WarehouseId: string;
+                export const WarehouseName: string;
             }
             namespace OrderDetail {
                 export function asKey(): typeof OrderDetail;

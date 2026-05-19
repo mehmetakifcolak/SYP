@@ -5,6 +5,7 @@ import {
 import { ProductsRow } from '../../ServerTypes/Catalog';
 import { CustomersRow } from '../../ServerTypes/Customer';
 import { OrderDetailRow, OrderRow, OrderService, OrderStatus } from '../../ServerTypes/Order';
+import { WarehousesRow } from '../../ServerTypes/Warehouse';
 
 export interface OrderEditDialogOptions {
     entityId: number;
@@ -32,11 +33,13 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     private rows: OrderDetailRow[] = [];
     private productLookup!: Lookup<ProductsRow>;
     private customerLookup!: Lookup<CustomersRow>;
+    private warehouseLookup!: Lookup<WarehousesRow>;
 
     private headerEl!: HTMLElement;
     private tableBodyEl!: HTMLElement;
     private totalEl!: HTMLElement;
     private addProductSelectEl!: HTMLSelectElement;
+    private warehouseSelectEl!: HTMLSelectElement;
 
     constructor(props?: OrderEditDialogOptions) {
         super(props);
@@ -48,6 +51,14 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         return `
 <div class="oed-root">
     <div id="~_Header" class="oed-header"></div>
+    <div class="oed-warehouse-bar">
+        <label class="oed-warehouse-label">
+            <i class="fa fa-building-o"></i>&nbsp;Stok Çıkış Deposu
+        </label>
+        <select id="~_WarehouseSelect" class="form-control form-control-sm oed-warehouse-select">
+            <option value="">— Depo Seçin —</option>
+        </select>
+    </div>
     <div class="oed-table-wrap">
         <table class="oed-table">
             <thead>
@@ -100,6 +111,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         this.tableBodyEl        = n('TableBody');
         this.totalEl            = n('Total');
         this.addProductSelectEl = n('AddProductSelect') as HTMLSelectElement;
+        this.warehouseSelectEl  = n('WarehouseSelect') as HTMLSelectElement;
 
         n('AddBtn').addEventListener('click', () => this.addProduct());
         n('SaveBtn').addEventListener('click', () => this.saveOrder());
@@ -107,12 +119,14 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 
     private async loadData(): Promise<void> {
         try {
-            [this.productLookup, this.customerLookup] = await Promise.all([
+            [this.productLookup, this.customerLookup, this.warehouseLookup] = await Promise.all([
                 getLookupAsync<ProductsRow>(ProductsRow.lookupKey),
-                getLookupAsync<CustomersRow>(CustomersRow.lookupKey)
+                getLookupAsync<CustomersRow>(CustomersRow.lookupKey),
+                getLookupAsync<WarehousesRow>(WarehousesRow.lookupKey)
             ]);
 
             this.populateProductSelect();
+            this.populateWarehouseSelect();
 
             const resp = await OrderService.Retrieve({ EntityId: this.entityId });
             this.order = resp.Entity;
@@ -122,11 +136,27 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             }
 
             this.rows = this.order.DetailList ? [...this.order.DetailList] : [];
+            if (this.order.WarehouseId)
+                this.warehouseSelectEl.value = String(this.order.WarehouseId);
             this.renderHeader();
             this.renderTable();
         } catch (err: any) {
             notifyError('Sipariş yüklenemedi: ' + (err?.message || ''));
         }
+    }
+
+    private populateWarehouseSelect(): void {
+        const sel = this.warehouseSelectEl;
+        if (!sel) return;
+        this.warehouseLookup.items
+            .filter(w => w.IsActive !== false)
+            .sort((a, b) => (a.Name || '').localeCompare(b.Name || '', 'tr'))
+            .forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = String(w.Id);
+                opt.textContent = w.Name || '';
+                sel.appendChild(opt);
+            });
     }
 
     private populateProductSelect(): void {
@@ -317,8 +347,13 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         }
 
         const totalAmount = this.rows.reduce((s, r) => s + (r.LineTotal ?? 0), 0);
+        const warehouseId = this.warehouseSelectEl?.value
+            ? parseInt(this.warehouseSelectEl.value)
+            : undefined;
+
         const updatedOrder: OrderRow = {
             ...this.order,
+            WarehouseId: warehouseId,
             TotalAmount: totalAmount,
             NetAmount:   totalAmount,
             DetailList:  this.rows

@@ -452,10 +452,11 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         if (!customer?.VendorTypeId) return 0;
         const vt = this.vendorTypeLookup?.itemById[customer.VendorTypeId];
         if (!vt?.DiscountValue) return 0;
-        if (vt.DiscountType === 'Percentage' || vt.DiscountType === '%') {
+        const type = (vt.DiscountType ?? '').trim().toLowerCase();
+        if (type === 'percentage' || type === '%' || type === 'yüzde') {
             return (price * quantity * vt.DiscountValue) / 100;
         }
-        return vt.DiscountValue;
+        return 0;
     }
 
     private updateCartUI(): void {
