@@ -6,6 +6,8 @@ export interface StockEntryDetailsColumns {
     ProductCode: Column<StockEntryDetailsRow>;
     ProductName: Column<StockEntryDetailsRow>;
     Quantity: Column<StockEntryDetailsRow>;
+    Currency: Column<StockEntryDetailsRow>;
+    UnitPrice: Column<StockEntryDetailsRow>;
     Notes: Column<StockEntryDetailsRow>;
 }
 

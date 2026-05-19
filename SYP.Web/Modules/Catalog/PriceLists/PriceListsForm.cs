@@ -16,6 +16,9 @@ public class PriceListsForm
     [FullWidth]
     public string Name { get; set; }
 
+    [HalfWidth]
+    public PriceListType Type { get; set; }
+
     [FullWidth, TextAreaEditor(Rows = 3)]
     public string Description { get; set; }
 

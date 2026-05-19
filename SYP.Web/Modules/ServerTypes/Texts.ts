@@ -131,6 +131,7 @@ namespace texts {
                 export const PriceListIsActive: string;
                 export const PriceListIsDefault: string;
                 export const PriceListName: string;
+                export const PriceListType: string;
                 export const PriceListValidFrom: string;
                 export const PriceListValidTo: string;
                 export const ProductCode: string;
@@ -154,6 +155,7 @@ namespace texts {
                 export const IsDefault: string;
                 export const ItemList: string;
                 export const Name: string;
+                export const Type: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
                 export const ValidFrom: string;
@@ -217,6 +219,8 @@ namespace texts {
                 export const Code: string;
                 export const CountryId: string;
                 export const CountryName: string;
+                export const CurrencyCode: string;
+                export const CurrencyId: string;
                 export const District: string;
                 export const Email: string;
                 export const EntityPlural: string;

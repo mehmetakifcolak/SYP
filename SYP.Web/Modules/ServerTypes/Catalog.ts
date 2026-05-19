@@ -16,6 +16,7 @@ export * from "./Catalog/PriceListsEditorForm";
 export * from "./Catalog/PriceListsForm";
 export * from "./Catalog/PriceListsRow";
 export * from "./Catalog/PriceListsService";
+export * from "./Catalog/PriceListType";
 export * from "./Catalog/ProductCategoryColumns";
 export * from "./Catalog/ProductCategoryForm";
 export * from "./Catalog/ProductCategoryRow";

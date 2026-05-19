@@ -1,8 +1,9 @@
-import { Decorators, getLookupAsync, Lookup } from "@serenity-is/corelib";
+import { Decorators, getLookupAsync, Lookup, notifySuccess, confirmDialog } from "@serenity-is/corelib";
 import { GridEditorBase } from "@serenity-is/extensions";
 import { StockExitDetailsColumns, StockExitDetailsRow } from "../../ServerTypes/Warehouse";
 import { StockExitDetailsEditDialog } from "./StockExitDetailsEditDialog";
 import { ProductsRow } from "../../ServerTypes/Catalog";
+import { CurrencyListRow } from "../../ServerTypes/Setting";
 import { BulkProductSelectionDialog, BulkProductItem } from "../Common/BulkProductSelectionDialog";
 import { ExcelProductImportDialog } from "../Common/ExcelProductImportDialog";
 
@@ -11,6 +12,78 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
     protected getColumnsKey() { return StockExitDetailsColumns.columnsKey; }
     protected getDialogType() { return StockExitDetailsEditDialog; }
     protected getLocalTextPrefix() { return StockExitDetailsRow.localTextPrefix; }
+
+    protected createSlickGrid(): Slick.Grid {
+        const grid = super.createSlickGrid();
+
+        // Currency kolonunu düzenlenebilir yap
+        const columns = grid.getColumns();
+        const currencyCol = columns.find((c: any) => c.field === 'Currency');
+        if (currencyCol) {
+            (currencyCol as any).editor = 'LookupEditor';
+            (currencyCol as any).editorOptions = {
+                lookupKey: CurrencyListRow.lookupKey,
+                idField: 'Code',
+                textField: 'Code'
+            };
+        }
+
+        // Actions kolonu ekle
+        columns.push({
+            field: 'Actions',
+            name: '',
+            title: 'İşlemler',
+            width: 100,
+            minWidth: 100,
+            maxWidth: 100,
+            formatter: (ctx: any) => {
+                const container = document.createElement('div');
+                container.style.display = 'flex';
+                container.style.gap = '8px';
+                container.style.justifyContent = 'center';
+
+                // Düzenle butonu
+                const editBtn = document.createElement('a');
+                editBtn.className = 'inline-action edit';
+                editBtn.title = 'Düzenle';
+                editBtn.style.cursor = 'pointer';
+                editBtn.innerHTML = '<i class="fa fa-pencil text-blue"></i>';
+                container.appendChild(editBtn);
+
+                // Sil butonu
+                const deleteBtn = document.createElement('a');
+                deleteBtn.className = 'inline-action delete';
+                deleteBtn.title = 'Sil';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.innerHTML = '<i class="fa fa-trash text-red"></i>';
+                container.appendChild(deleteBtn);
+
+                return container;
+            }
+        } as any);
+
+        grid.setColumns(columns);
+        return grid;
+    }
+
+    protected onClick(e: Event, row: number, cell: number): void {
+        super.onClick(e, row, cell);
+
+        const target = e.target as HTMLElement;
+        if (target.closest('.inline-action.edit')) {
+            e.preventDefault();
+            const item = this.view.getItem(row);
+            this.editItem(item);
+        }
+        else if (target.closest('.inline-action.delete')) {
+            e.preventDefault();
+            const item = this.view.getItem(row);
+            confirmDialog('Bu satırı silmek istediğinizden emin misiniz?', () => {
+                this.deleteEntity(item[this.getIdProperty()]);
+                notifySuccess('Satır silindi.');
+            });
+        }
+    }
 
     private productLookup: Lookup<ProductsRow>;
 
@@ -61,7 +134,7 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
                         ProductName: item.ProductName,
                         Quantity: item.Quantity,
                         Unit: item.Unit,
-                        Currency: item.Currency,
+                        Currency: item.Currency || '',
                         VatRate: item.VatRate,
                         UnitPrice: item.UnitPrice
                     };
@@ -97,8 +170,8 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
                         if (product) {
                             productCode = product.Code || productCode;
                             productName = product.Name || productName;
-                            unit = product.Unit;
-                            currency = product.Currency;
+                            unit = product.UnitName;
+                            currency = product.CurrencyCode;
                             vatRate = product.VatRate;
                             unitPrice = product.UnitPrice;
                         }
@@ -137,8 +210,8 @@ export class StockExitDetailsEditor extends GridEditorBase<StockExitDetailsRow> 
             if (product) {
                 row.ProductCode = product.Code;
                 row.ProductName = product.Name;
-                row.Unit = product.Unit;
-                row.Currency = product.Currency;
+                row.Unit = product.UnitName;
+                row.Currency = product.CurrencyCode;
                 row.VatRate = product.VatRate;
                 row.UnitPrice = product.UnitPrice;
             }

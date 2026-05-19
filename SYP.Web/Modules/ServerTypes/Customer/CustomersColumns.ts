@@ -18,6 +18,7 @@ export interface CustomersColumns {
     TaxOffice: Column<CustomersRow>;
     TaxNumber: Column<CustomersRow>;
     VendorTypeTitle: Column<CustomersRow>;
+    CurrencyCode: Column<CustomersRow>;
     IsActive: Column<CustomersRow>;
     UserIsActive: Column<CustomersRow>;
 }

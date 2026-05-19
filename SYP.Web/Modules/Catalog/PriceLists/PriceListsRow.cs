@@ -23,7 +23,11 @@ public sealed class PriceListsRow : Row<PriceListsRow.RowFields>, IIdRow, INameR
     [DisplayName("Name"), Size(200), NotNull]
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
-    
+
+    [DisplayName("Type"), NotNull, DefaultValue(PriceListType.Sales)]
+    public PriceListType? Type { get => (PriceListType?)fields.Type[this]; set => fields.Type[this] = (int?)value; }
+    public partial class RowFields { public Int32Field Type; }
+
     [DisplayName("Description"), Size(500)]
     public string Description { get => fields.Description[this]; set => fields.Description[this] = value; }
     public partial class RowFields { public StringField Description; }

@@ -1,11 +1,13 @@
 ﻿import { ColumnsBase, fieldsProxy } from "@serenity-is/corelib";
 import { Column } from "@serenity-is/sleekgrid";
 import { PriceListsRow } from "./PriceListsRow";
+import { PriceListType } from "./PriceListType";
 
 export interface PriceListsColumns {
     Id: Column<PriceListsRow>;
     Code: Column<PriceListsRow>;
     Name: Column<PriceListsRow>;
+    Type: Column<PriceListsRow>;
     Description: Column<PriceListsRow>;
     CurrencyCode: Column<PriceListsRow>;
     ValidFrom: Column<PriceListsRow>;
@@ -18,3 +20,5 @@ export class PriceListsColumns extends ColumnsBase<PriceListsRow> {
     static readonly columnsKey = 'Catalog.PriceLists';
     static readonly Fields = fieldsProxy<PriceListsColumns>();
 }
+
+[PriceListType]; // referenced types

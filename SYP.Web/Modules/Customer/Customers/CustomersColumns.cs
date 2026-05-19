@@ -40,6 +40,9 @@ public class CustomersColumns
     [DisplayName("Satıcı Tipi"), Width(150)]
     public string VendorTypeTitle { get; set; }
 
+    [DisplayName("Para Birimi"), Width(100), AlignCenter]
+    public string CurrencyCode { get; set; }
+
     public bool IsActive { get; set; } 
 
     [DisplayName("K. Durumu"), Width(120)]

@@ -17,6 +17,7 @@ export interface CustomersRow {
     TaxNumber?: string;
     IsActive?: boolean;
     VendorTypeId?: number;
+    CurrencyId?: number;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;
@@ -29,6 +30,7 @@ export interface CustomersRow {
     UserIsActive?: number;
     CountryName?: string;
     ManagerName?: string;
+    CurrencyCode?: string;
 }
 
 export abstract class CustomersRow {
