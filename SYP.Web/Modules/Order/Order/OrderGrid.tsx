@@ -1,4 +1,4 @@
-import { Decorators, EntityGrid, ToolButton, notifyWarning } from '@serenity-is/corelib';
+import { Decorators, EntityGrid } from '@serenity-is/corelib';
 import { OrderColumns, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { OrderDialog } from './OrderDialog';
 import { OrderEditDialog } from './OrderEditDialog';
@@ -13,25 +13,36 @@ export class OrderGrid extends EntityGrid<OrderRow, any> {
         super(props);
     }
 
-    protected getButtons(): ToolButton[] {
-        const buttons = super.getButtons();
-        buttons.push({
-            title: 'Siparişi Düzenle',
-            cssClass: 'edit-order-btn',
-            icon: 'fa-edit',
-            separator: true,
-            onClick: () => {
-                const selectedRows = (this as any).slickGrid?.getSelectedRows?.() as number[];
-                if (!selectedRows?.length) {
-                    notifyWarning('Lütfen düzenlemek istediğiniz siparişi seçin.');
-                    return;
-                }
-                const item = (this as any).view?.getItem(selectedRows[0]) as OrderRow;
-                if (!item?.Id) return;
-                new OrderEditDialog({ entityId: item.Id, onSave: () => this.refresh() }).dialogOpen();
+    protected override createColumns(): any[] {
+        const cols = super.createColumns();
+        cols.push({
+            field: '_editAction',
+            name: '',
+            width: 110,
+            minWidth: 110,
+            maxWidth: 110,
+            sortable: false,
+            format: (_ctx: any) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-xs btn-primary row-edit-order-btn';
+                const icon = document.createElement('i');
+                icon.className = 'fa fa-edit';
+                btn.appendChild(icon);
+                btn.appendChild(document.createTextNode(' Düzenle'));
+                return btn;
             }
         });
-        return buttons;
+        return cols;
+    }
+
+    protected onClick(e: Event, row: number, _cell: number): void {
+        super.onClick(e, row, _cell);
+        if ((e.target as HTMLElement).closest?.('.row-edit-order-btn')) {
+            const item = (this as any).view?.getItem(row) as OrderRow;
+            if (item?.Id)
+                new OrderEditDialog({ entityId: item.Id, onSave: () => this.refresh() }).dialogOpen();
+        }
     }
 
     protected editItem(entityOrId: any): void {

@@ -13,32 +13,32 @@ public class OrderForm
     public string OrderNumber { get; set; }
 
     [HalfWidth]
-    public int CustomerId { get; set; }
+    public int? CustomerId { get; set; }
 
     [HalfWidth, ReadOnly(true)]
-    public int ManagerUserId { get; set; }
+    public int? ManagerUserId { get; set; }
 
     [HalfWidth, DateTimeEditor]
-    public DateTime OrderDate { get; set; }
+    public DateTime? OrderDate { get; set; }
 
     [HalfWidth]
-    public OrderStatus Status { get; set; }
+    public OrderStatus? Status { get; set; }
 
     [HalfWidth]
-    public int CurrencyId { get; set; }
+    public int? CurrencyId { get; set; }
 
     [Category("Tutar Bilgileri")]
     [HalfWidth, ReadOnly(true), DisplayFormat("#,##0.00")]
-    public decimal TotalAmount { get; set; }
+    public decimal? TotalAmount { get; set; }
 
     [HalfWidth, ReadOnly(true), DisplayFormat("#,##0.00")]
-    public decimal DiscountPercentage { get; set; }
+    public decimal? DiscountPercentage { get; set; }
 
     [HalfWidth, ReadOnly(true), DisplayFormat("#,##0.00")]
-    public decimal DiscountAmount { get; set; }
+    public decimal? DiscountAmount { get; set; }
 
     [HalfWidth, ReadOnly(true), DisplayFormat("#,##0.00")]
-    public decimal NetAmount { get; set; }
+    public decimal? NetAmount { get; set; }
 
 
     [Category("Sipariş Kalemleri")]

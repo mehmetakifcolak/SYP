@@ -7,7 +7,7 @@ namespace SYP.Order.Columns;
 [BasedOnRow(typeof(OrderRow), CheckNames = true)]
 public class OrderColumns
 {
-    [EditLink, Width(150)]
+    [Width(150)]
     public string OrderNumber { get; set; }
 
     [Width(200)]

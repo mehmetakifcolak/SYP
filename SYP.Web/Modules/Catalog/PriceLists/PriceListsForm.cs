@@ -11,7 +11,7 @@ public class PriceListsForm
     public string Code { get; set; }
 
     [HalfWidth]
-    public int CurrencyId { get; set; }
+    public int? CurrencyId { get; set; }
 
     [FullWidth]
     public string Name { get; set; }

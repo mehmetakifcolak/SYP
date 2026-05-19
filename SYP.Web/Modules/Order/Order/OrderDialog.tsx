@@ -2,7 +2,7 @@ import {
     Decorators, DialogButton, Lookup, TemplatedDialog,
     getLookupAsync, htmlEncode, notifyError, notifySuccess, notifyWarning
 } from '@serenity-is/corelib';
-import { ProductsRow } from '../../ServerTypes/Catalog';
+import { ProductCategoryRow, ProductsRow } from '../../ServerTypes/Catalog';
 import { CustomersRow } from '../../ServerTypes/Customer';
 import { OrderDetailRow, OrderDetailService, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { VendorTypeRow } from '../../ServerTypes/Setting';
@@ -35,6 +35,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private productLookup!: Lookup<ProductsRow>;
     private customerLookup!: Lookup<CustomersRow>;
     private vendorTypeLookup!: Lookup<VendorTypeRow>;
+    private categoryLookup!: Lookup<ProductCategoryRow>;
     private selectedCategoryId: number | null = null;
     private searchTerm = '';
     private customerId: number | null = null;
@@ -47,7 +48,6 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private cartItemsEl!: HTMLElement;
     private cartTotalEl!: HTMLElement;
     private cartBadgeEl!: HTMLElement;
-    private customerSelectEl!: HTMLSelectElement;
 
     constructor(props?: OrderDialogOptions) {
         super(props);
@@ -59,12 +59,6 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         return `
 <div class="opd-root">
     <div class="opd-topbar">
-        <div class="opd-customer-wrap">
-            <label class="opd-label">Müşteri</label>
-            <select id="~_CustomerSelect" class="form-control form-control-sm opd-customer-select">
-                <option value="">— Müşteri Seçin —</option>
-            </select>
-        </div>
         <div class="opd-search-wrap">
             <i class="fa fa-search opd-search-icon"></i>
             <input id="~_SearchInput" type="text" class="form-control form-control-sm"
@@ -122,14 +116,13 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private bindElements(): void {
         const n = (id: string) => this.byId(id)?.getNode() as HTMLElement;
 
-        this.catListEl       = n('CategoryList');
-        this.productGridEl   = n('ProductGrid');
-        this.searchEl        = n('SearchInput') as HTMLInputElement;
-        this.cartPanelEl     = n('CartPanel');
-        this.cartItemsEl     = n('CartItems');
-        this.cartTotalEl     = n('CartTotal');
-        this.cartBadgeEl     = n('CartBadge');
-        this.customerSelectEl = n('CustomerSelect') as HTMLSelectElement;
+        this.catListEl     = n('CategoryList');
+        this.productGridEl = n('ProductGrid');
+        this.searchEl      = n('SearchInput') as HTMLInputElement;
+        this.cartPanelEl   = n('CartPanel');
+        this.cartItemsEl   = n('CartItems');
+        this.cartTotalEl   = n('CartTotal');
+        this.cartBadgeEl   = n('CartBadge');
 
         n('CartToggle').addEventListener('click', () => this.toggleCart());
         n('CloseCart').addEventListener('click', () => this.toggleCart(false));
@@ -139,24 +132,19 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             this.searchTerm = this.searchEl.value.toLowerCase().trim();
             this.renderProducts();
         });
-
-        this.customerSelectEl.addEventListener('change', () => {
-            const v = this.customerSelectEl.value;
-            this.customerId = v ? parseInt(v) : null;
-        });
     }
 
     private async loadData(): Promise<void> {
-        [this.productLookup, this.customerLookup, this.vendorTypeLookup] = await Promise.all([
+        [this.productLookup, this.customerLookup, this.vendorTypeLookup, this.categoryLookup] = await Promise.all([
             getLookupAsync<ProductsRow>(ProductsRow.lookupKey),
             getLookupAsync<CustomersRow>(CustomersRow.lookupKey),
-            getLookupAsync<VendorTypeRow>(VendorTypeRow.lookupKey)
+            getLookupAsync<VendorTypeRow>(VendorTypeRow.lookupKey),
+            getLookupAsync<ProductCategoryRow>('Catalog.ProductCategory')
         ]);
 
         this.allProducts = this.productLookup.items.filter(p => p.IsActive !== 0);
         this.renderCategories();
         this.renderProducts();
-        this.populateCustomers();
         this.tryAutoSelectCustomer();
 
         if (this.entityId) {
@@ -164,27 +152,11 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         }
     }
 
-    private populateCustomers(): void {
-        if (!this.customerSelectEl) return;
-        this.customerLookup.items.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.Id!.toString();
-            opt.textContent = `${c.Code || ''} - ${c.Name || ''}`;
-            this.customerSelectEl.appendChild(opt);
-        });
-    }
-
     private tryAutoSelectCustomer(): void {
-        // Mevcut sipariş açıkken otomatik müşteri seçimi yapma
         if (this.entityId || this.customerId) return;
 
         OrderService.GetCurrentBayiiCustomerId({}).then(
-            resp => {
-                if (resp?.CustomerId && !this.customerId && this.customerSelectEl) {
-                    this.customerId = resp.CustomerId;
-                    this.customerSelectEl.value = resp.CustomerId.toString();
-                }
-            },
+            resp => { if (resp?.CustomerId) this.customerId = resp.CustomerId; },
             () => {}
         );
     }
@@ -196,12 +168,8 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             const order = orderResp.Entity;
             if (!order) return;
 
-            if (order.CustomerId) {
+            if (order.CustomerId)
                 this.customerId = order.CustomerId;
-                if (this.customerSelectEl) {
-                    this.customerSelectEl.value = order.CustomerId.toString();
-                }
-            }
 
             // Birincil kaynak: Retrieve yanıtındaki DetailList (MasterDetailRelation)
             let rows = order.DetailList ?? [];
@@ -244,24 +212,52 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private renderCategories(): void {
         if (!this.catListEl) return;
 
-        const cats = new Map<number, string>();
-        this.allProducts.forEach(p => {
-            if (p.CategoryId && p.CategoryName) cats.set(p.CategoryId, p.CategoryName);
+        // Ürünlerde kullanılan kategori ID'leri
+        const usedIds = new Set(this.allProducts.map(p => p.CategoryId).filter(Boolean) as number[]);
+
+        // Kullanılan kategoriler + tüm üst kategorileri topla
+        const visibleCats = new Map<number, ProductCategoryRow>();
+        const addWithAncestors = (cat: ProductCategoryRow) => {
+            if (!cat.Id || visibleCats.has(cat.Id)) return;
+            visibleCats.set(cat.Id, cat);
+            if (cat.ParentId) {
+                const parent = this.categoryLookup.itemById[cat.ParentId];
+                if (parent) addWithAncestors(parent);
+            }
+        };
+        this.categoryLookup.items
+            .filter(c => c.IsActive !== false && usedIds.has(c.Id!))
+            .forEach(c => addWithAncestors(c));
+
+        // FullPath'e göre sırala → hiyerarşik görünüm
+        const sorted = Array.from(visibleCats.values())
+            .sort((a, b) => (a.FullPath ?? a.Name ?? '').localeCompare(b.FullPath ?? b.Name ?? '', 'tr'));
+
+        this.catListEl.replaceChildren();
+
+        // "Tüm Ürünler" satırı
+        const allItem = document.createElement('div');
+        allItem.className = 'opd-cat-item' + (this.selectedCategoryId === null ? ' active' : '');
+        allItem.dataset.id = '';
+        const allIcon = document.createElement('i');
+        allIcon.className = 'fa fa-th-large';
+        allItem.append(allIcon, ' Tüm Ürünler');
+        this.catListEl.appendChild(allItem);
+
+        sorted.forEach(cat => {
+            const depth = (cat.FullPath?.split(' > ').length ?? 1) - 1;
+            const hasChildren = sorted.some(c => c.ParentId === cat.Id);
+
+            const el = document.createElement('div');
+            el.className = 'opd-cat-item' + (this.selectedCategoryId === cat.Id ? ' active' : '');
+            el.dataset.id = String(cat.Id);
+            el.style.paddingLeft = (12 + depth * 14) + 'px';
+
+            const icon = document.createElement('i');
+            icon.className = hasChildren ? 'fa fa-folder-o' : 'fa fa-tag';
+            el.append(icon, ' ' + (cat.Name ?? ''));
+            this.catListEl.appendChild(el);
         });
-
-        const sorted = Array.from(cats.entries()).sort((a, b) => a[1].localeCompare(b[1], 'tr'));
-
-        let html = `<div class="opd-cat-item${this.selectedCategoryId === null ? ' active' : ''}" data-id="">
-            <i class="fa fa-th-large"></i>&nbsp;Tüm Ürünler
-        </div>`;
-
-        sorted.forEach(([id, name]) => {
-            html += `<div class="opd-cat-item${this.selectedCategoryId === id ? ' active' : ''}" data-id="${id}">
-                <i class="fa fa-folder-o"></i>&nbsp;${htmlEncode(name)}
-            </div>`;
-        });
-
-        this.catListEl.innerHTML = html;
 
         this.catListEl.querySelectorAll<HTMLElement>('.opd-cat-item').forEach(el => {
             el.addEventListener('click', () => {
@@ -280,7 +276,18 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         let products = this.allProducts;
 
         if (this.selectedCategoryId !== null) {
-            products = products.filter(p => p.CategoryId === this.selectedCategoryId);
+            const selCat = this.categoryLookup?.itemById[this.selectedCategoryId];
+            if (selCat?.FullPath) {
+                const prefix = selCat.FullPath;
+                const subtreeIds = new Set(
+                    this.categoryLookup.items
+                        .filter(c => c.FullPath === prefix || c.FullPath?.startsWith(prefix + ' > '))
+                        .map(c => c.Id!)
+                );
+                products = products.filter(p => p.CategoryId != null && subtreeIds.has(p.CategoryId));
+            } else {
+                products = products.filter(p => p.CategoryId === this.selectedCategoryId);
+            }
         }
 
         if (this.searchTerm) {
@@ -297,9 +304,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
         let html = '';
         products.forEach(product => {
-            const cartItem = this.cart.get(product.Id!);
-            const inCart   = cartItem != null;
-            const qty      = cartItem?.quantity ?? 1;
+            const inCart   = this.cart.has(product.Id!);
             const price    = product.CurrentValidPrice ?? product.UnitPrice ?? 0;
             const currency = htmlEncode(product.CurrencyCode || '₺');
 
@@ -316,14 +321,11 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         <div class="opd-qty-wrap">
             <button class="opd-qty-btn opd-qty-minus" data-id="${product.Id}">−</button>
             <input type="number" class="opd-qty-input" data-id="${product.Id}"
-                   value="${qty}" min="0.001" step="1" />
+                   value="1" min="0.001" step="1" />
             <button class="opd-qty-btn opd-qty-plus" data-id="${product.Id}">+</button>
         </div>
-        <button class="btn opd-add-btn${inCart ? ' opd-add-btn--in-cart' : ''}" data-id="${product.Id}">
-            ${inCart
-                ? '<i class="fa fa-check"></i>&nbsp;Sepette'
-                : '<i class="fa fa-plus"></i>&nbsp;Ekle'
-            }
+        <button class="btn opd-add-btn" data-id="${product.Id}">
+            <i class="fa fa-plus"></i>&nbsp;Sepete Ekle
         </button>
     </div>
 </div>`;
@@ -363,11 +365,13 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         });
     }
 
-    private addToCart(productId: number, quantity: number): void {
+    private addToCart(productId: number, addQty: number): void {
         const p = this.productLookup.itemById[productId];
         if (!p) return;
 
         const price    = p.CurrentValidPrice ?? p.UnitPrice ?? 0;
+        const existing = this.cart.get(productId);
+        const quantity = (existing?.quantity ?? 0) + addQty;
         const discount = this.calcDiscount(price, quantity);
 
         this.cart.set(productId, {
@@ -430,7 +434,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         <div class="opd-ci-meta">${htmlEncode(item.productCode)}${item.unitName ? ' · ' + htmlEncode(item.unitName) : ''}</div>
     </div>
     <input type="number" class="opd-cart-qty" data-id="${item.productId}"
-           value="${item.quantity}" min="0.001" step="1" title="Miktar" />
+           value="${Math.round(item.quantity)}" min="1" step="1" title="Miktar" />
     <div class="opd-ci-price">
         <div>${this.fmt(item.lineTotal)}&nbsp;₺</div>
         <small>${this.fmt(item.unitPrice)}&nbsp;×&nbsp;${item.quantity}</small>
@@ -447,7 +451,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             this.cartItemsEl.querySelectorAll<HTMLInputElement>('.opd-cart-qty').forEach(inp => {
                 inp.addEventListener('change', () => {
                     const id   = parseInt(inp.dataset.id!);
-                    const qty  = parseFloat(inp.value) || 1;
+                    const qty  = Math.max(1, parseInt(inp.value, 10) || 1);
                     const item = this.cart.get(id);
                     if (item) {
                         item.quantity  = qty;
