@@ -1,9 +1,10 @@
-﻿import { EditorDialogBase } from '@/Common/Editors/EditorDialogBase';
-import { Decorators } from '@serenity-is/corelib';
+import { Decorators, getLookupAsync } from '@serenity-is/corelib';
 import { OrderDetailEditorForm, OrderDetailRow } from '../../../ServerTypes/Order';
+import { GridEditorDialog } from '@serenity-is/extensions';
+import { ProductsRow } from '../../../ServerTypes/Catalog';
 
 @Decorators.registerClass('SYP.Order.OrderDetailEditorDialog')
-export class OrderDetailEditorDialog extends EditorDialogBase<OrderDetailRow> {
+export class OrderDetailEditorDialog extends GridEditorDialog<OrderDetailRow> {
     protected getFormKey() { return OrderDetailEditorForm.formKey; }
     protected getRowDefinition() { return OrderDetailRow; }
 

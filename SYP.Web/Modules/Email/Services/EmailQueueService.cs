@@ -196,7 +196,7 @@ public class EmailQueueService : BackgroundService
         }
     }
 
-    private async Task SendEmailAsync(SmtpSettingsRow? smtpSettings, EmailQueueRow email, List<EmailAttachmentsRow> attachments)
+    private async Task SendEmailAsync(SmtpSettingsRow smtpSettings, EmailQueueRow email, List<EmailAttachmentsRow> attachments)
     {
         if (smtpSettings == null)
             throw new InvalidOperationException("SMTP ayarları bulunamadı!");
@@ -257,7 +257,7 @@ public class EmailQueueService : BackgroundService
         // Attachments
         foreach (var att in attachments)
         {
-            Attachment? attachment = null;
+            Attachment attachment = null;
 
             if (att.FileContent != null)
             {
@@ -286,7 +286,7 @@ public class EmailQueueService : BackgroundService
         await client.SendMailAsync(message);
     }
 
-    private SmtpSettingsRow? GetSmtpSettings(IDbConnection connection, int? smtpSettingsId)
+    private SmtpSettingsRow GetSmtpSettings(IDbConnection connection, int? smtpSettingsId)
     {
         if (smtpSettingsId.HasValue)
         {

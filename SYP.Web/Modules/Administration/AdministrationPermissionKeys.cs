@@ -1,4 +1,4 @@
-﻿namespace SYP.Administration;
+namespace SYP.Administration;
 
 [NestedPermissionKeys]
 [DisplayName("Administration")]
@@ -9,4 +9,7 @@ public class PermissionKeys
 
     [Description("Languages and Translations")]
     public const string Translation = "Administration:Translation";
+
+    [Description("Bayii")]
+    public const string Bayii = "Administration:Bayii";
 }

@@ -10,7 +10,6 @@ SYP.Web/*.pubxml
 SYP.Web/*.suo
 SYP.Web/*.user
 SYP.Web/appsettings*.machine.json
-SYP.Web/appsettings.json
 SYP.Web/.vs/
 SYP.Web/App_Data/
 SYP.Web/bin/

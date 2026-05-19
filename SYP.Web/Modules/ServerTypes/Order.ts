@@ -1,4 +1,5 @@
 ﻿export * from "./Order/DocumentType";
+export * from "./Order/GetBayiiCustomerResponse";
 export * from "./Order/OrderColumns";
 export * from "./Order/OrderDetailColumns";
 export * from "./Order/OrderDetailEditorColumns";

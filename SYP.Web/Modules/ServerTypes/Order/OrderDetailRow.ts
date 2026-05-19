@@ -22,10 +22,10 @@ export abstract class OrderDetailRow {
     static readonly idProperty = 'Id';
     static readonly nameProperty = 'Notes';
     static readonly localTextPrefix = 'Order.OrderDetail';
-    static readonly deletePermission = 'Order:OrderDetail:Delete';
-    static readonly insertPermission = 'Order:OrderDetail:Insert';
-    static readonly readPermission = 'Order:OrderDetail:Read';
-    static readonly updatePermission = 'Order:OrderDetail:Update';
+    static readonly deletePermission = 'Order:Order:Delete';
+    static readonly insertPermission = 'Order:Order:Insert';
+    static readonly readPermission = 'Order:Order:Read';
+    static readonly updatePermission = 'Order:Order:Update';
 
     static readonly Fields = fieldsProxy<OrderDetailRow>();
 }

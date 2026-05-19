@@ -182,7 +182,7 @@ public class EmailQueueSender : IEmailQueueSender
         return Task.FromResult(true);
     }
 
-    private string ProcessTemplate(string? template, Dictionary<string, object?>? data)
+    private string ProcessTemplate(string template, Dictionary<string, object> data)
     {
         if (string.IsNullOrEmpty(template) || data == null)
             return template ?? "";

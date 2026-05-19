@@ -240,7 +240,6 @@ namespace texts {
                 export const UpdateUserId: string;
                 export const UserId: string;
                 export const UserIsActive: string;
-                export const Username: string;
                 export const VendorTypeId: string;
                 export const VendorTypeTitle: string;
             }

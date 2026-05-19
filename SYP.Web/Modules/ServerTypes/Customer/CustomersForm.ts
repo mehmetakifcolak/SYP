@@ -1,4 +1,4 @@
-﻿import { BooleanEditor, EmailAddressEditor, initFormType, IntegerEditor, LookupEditor, PasswordEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
+﻿import { BooleanEditor, EmailAddressEditor, initFormType, LookupEditor, PasswordEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
 
 export interface CustomersForm {
     Code: StringEditor;
@@ -17,8 +17,7 @@ export interface CustomersForm {
     District: StringEditor;
     TaxOffice: StringEditor;
     TaxNumber: StringEditor;
-    UserId: IntegerEditor;
-    Username: StringEditor;
+    UserId: LookupEditor;
     Password: PasswordEditor;
     PasswordConfirm: PasswordEditor;
 }
@@ -38,8 +37,7 @@ export class CustomersForm extends PrefixedContext {
             var w2 = BooleanEditor;
             var w3 = EmailAddressEditor;
             var w4 = TextAreaEditor;
-            var w5 = IntegerEditor;
-            var w6 = PasswordEditor;
+            var w5 = PasswordEditor;
 
             initFormType(CustomersForm, [
                 'Code', w0,
@@ -58,10 +56,9 @@ export class CustomersForm extends PrefixedContext {
                 'District', w0,
                 'TaxOffice', w0,
                 'TaxNumber', w0,
-                'UserId', w5,
-                'Username', w0,
-                'Password', w6,
-                'PasswordConfirm', w6
+                'UserId', w1,
+                'Password', w5,
+                'PasswordConfirm', w5
             ]);
         }
     }

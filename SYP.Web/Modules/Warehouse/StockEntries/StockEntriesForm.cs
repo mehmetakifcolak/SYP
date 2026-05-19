@@ -22,7 +22,7 @@ public class StockEntriesForm
     public string Description { get; set; }
 
     [Tab("Products")]
-    [StockEntryDetailsEditor, IgnoreName]
+    [StockEntryDetailsEditor, SkipNameCheck]
     public List<StockEntryDetailsRow> DetailList { get; set; }
 
     [Tab("Files")]

@@ -40,10 +40,7 @@ public class CustomersColumns
     [DisplayName("Satıcı Tipi"), Width(150)]
     public string VendorTypeTitle { get; set; }
 
-    public bool IsActive { get; set; }
-
-    [DisplayName("Kullanıcı"), Width(150)]
-    public string Username { get; set; }
+    public bool IsActive { get; set; } 
 
     [DisplayName("K. Durumu"), Width(120)]
     [FormatterType("SYP.Customer.UserStatusFormatter")]

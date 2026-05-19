@@ -25,7 +25,6 @@ export interface CustomersRow {
     ManagerUserId?: number;
     Password?: string;
     PasswordConfirm?: string;
-    Username?: string;
     VendorTypeTitle?: string;
     UserIsActive?: number;
     CountryName?: string;

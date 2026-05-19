@@ -1,7 +1,7 @@
-﻿import { GridEditorBase } from '@/Common/Editors/GridEditorBase';
+import { GridEditorBase } from '@/Common/Editors/GridEditorBase';
 import { Decorators } from '@serenity-is/corelib';
-import { OrderDocumentEditorColumns, OrderDocumentRow } from '../../ServerTypes/Order';
 import { OrderDocumentEditorDialog } from './OrderDocumentEditorDialog';
+import { OrderDocumentEditorColumns, OrderDocumentRow } from '../../../ServerTypes/Order';
 
 @Decorators.registerEditor('SYP.Order.OrderDocumentGridEditor')
 export class OrderDocumentGridEditor extends GridEditorBase<OrderDocumentRow> {

@@ -19,7 +19,6 @@ export interface CustomersColumns {
     TaxNumber: Column<CustomersRow>;
     VendorTypeTitle: Column<CustomersRow>;
     IsActive: Column<CustomersRow>;
-    Username: Column<CustomersRow>;
     UserIsActive: Column<CustomersRow>;
 }
 

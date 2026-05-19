@@ -1,4 +1,4 @@
-﻿using Serenity.ComponentModel;
+using Serenity.ComponentModel;
 
 namespace SYP.Catalog.Forms;
 
@@ -32,6 +32,6 @@ public class PriceListsForm
     public bool IsDefault { get; set; }
 
     [Tab("Products")]
-    [PriceListItemsEditor, IgnoreName]
+    [PriceListItemsEditor, SkipNameCheck]
     public List<PriceListItemsRow> ItemList { get; set; }
 }

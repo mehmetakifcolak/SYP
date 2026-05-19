@@ -1,4 +1,5 @@
 using Serenity.ComponentModel;
+using SYP.Administration;
 
 namespace SYP.Customer.Forms;
 
@@ -61,11 +62,9 @@ public class CustomersForm
     public string TaxNumber { get; set; }
 
     [Category("Kullanıcı Hesabı")]
-    [HalfWidth, DisplayName("Kullanıcı ID"), ReadOnly(true), HideOnInsert]
+    [HalfWidth, DisplayName("Kullanıcı"), ReadOnly(true), HideOnInsert]
+    [AsyncLookupEditor(typeof(UserRow))]
     public int? UserId { get; set; }
-
-    [HalfWidth, DisplayName("Kullanıcı Adı"), ReadOnly(true), HideOnInsert]
-    public string Username { get; set; }
 
     [HalfWidth, PasswordEditor, Placeholder("Min 6 karakter"), DisplayName("Şifre")]
     public string Password { get; set; }

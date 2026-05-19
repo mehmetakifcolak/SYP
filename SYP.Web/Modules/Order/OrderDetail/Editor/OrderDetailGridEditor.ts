@@ -1,4 +1,3 @@
-﻿import { GridEditorBase } from '@/Common/Editors/GridEditorBase';
 import { Decorators, getLookupAsync, Lookup } from '@serenity-is/corelib';
 import { OrderDetailEditorColumns, OrderDetailRow } from '../../../ServerTypes/Order';
 import { OrderDetailEditorDialog } from './OrderDetailEditorDialog';
@@ -7,7 +6,7 @@ import { CustomersRow } from '../../../ServerTypes/Customer';
 import { VendorTypeRow } from '../../../ServerTypes/Setting';
 import { BulkProductSelectionDialog, BulkProductItem } from '../../../Warehouse/Common/BulkProductSelectionDialog';
 import { ExcelProductImportDialog } from '../../../Warehouse/Common/ExcelProductImportDialog';
-declare var $: any;
+import { GridEditorBase } from '@serenity-is/extensions';
 
 @Decorators.registerEditor('SYP.Order.OrderDetailGridEditor')
 export class OrderDetailGridEditor extends GridEditorBase<OrderDetailRow> {
@@ -163,32 +162,28 @@ export class OrderDetailGridEditor extends GridEditorBase<OrderDetailRow> {
         }
 
         // İskonto hesapla
-        await this.calculateDiscount(row);
+        this.calculateDiscount(row);
 
         // Line Total hesapla
         this.calculateLineTotal(row);
     }
 
-    protected async validateEntity(row: OrderDetailRow, id: number): Promise<boolean> {
-        if (!await super.validateEntity(row, id)) {
+    protected validateEntity(row: OrderDetailRow, id: number): boolean {
+        if (!super.validateEntity(row, id)) {
             return false;
         }
 
-        // Ürün bilgilerini lookup'tan al
         if (row.ProductId && this.productLookup) {
             const product = this.productLookup.itemById[row.ProductId];
             if (product) {
-                // Birim fiyatı güncel fiyattan al (eğer henüz set edilmemişse)
                 if (!row.UnitPrice || row.UnitPrice === 0) {
                     row.UnitPrice = product.CurrentValidPrice || product.UnitPrice || 0;
                 }
 
-                // Unit ID'yi al (eğer henüz set edilmemişse)
                 if (!row.UnitId && product.UnitId) {
                     row.UnitId = product.UnitId;
                 }
 
-                // VAT bilgilerini al (eğer henüz set edilmemişse)
                 if (!row.VatRateId && product.VatRateId) {
                     row.VatRateId = product.VatRateId;
                 }
@@ -196,12 +191,10 @@ export class OrderDetailGridEditor extends GridEditorBase<OrderDetailRow> {
                     row.VatRate = product.VatRate;
                 }
 
-                // İskonto hesapla (eğer henüz set edilmemişse)
                 if (!row.Discount || row.Discount === 0) {
-                    await this.calculateDiscount(row);
+                    this.calculateDiscount(row);
                 }
 
-                // Line Total hesapla
                 this.calculateLineTotal(row);
             }
         }
@@ -209,26 +202,23 @@ export class OrderDetailGridEditor extends GridEditorBase<OrderDetailRow> {
         return true;
     }
 
-    private async calculateDiscount(row: OrderDetailRow): Promise<void> {
+    private calculateDiscount(row: OrderDetailRow): void {
         try {
             if (!this.customerLookup || !this.vendorTypeLookup) {
                 return;
             }
 
-            // Parent entity'den customer ID'yi al
             let customerId: number | null = null;
 
-            // Form elementini bul (jQuery ile)
-            const element = (this as any).element;
+            const element = (this as any).domNode ?? (this as any).element;
             if (element) {
-                const $form = $(element).closest('.s-Form, form');
-                if ($form.length > 0) {
-                    const $customerInput = $form.find('[name="CustomerId"]');
-                    if ($customerInput.length > 0) {
-                        const val = $customerInput.val();
-                        if (val) {
-                            customerId = parseInt(val);
-                        }
+                const domEl: HTMLElement = element instanceof HTMLElement ? element : element[0];
+                const form = domEl?.closest('.s-Form, form');
+                if (form) {
+                    const customerInput = form.querySelector<HTMLInputElement>('[name="CustomerId"]');
+                    const val = customerInput?.value;
+                    if (val) {
+                        customerId = parseInt(val);
                     }
                 }
             }
@@ -242,21 +232,17 @@ export class OrderDetailGridEditor extends GridEditorBase<OrderDetailRow> {
                 const vendorType = this.vendorTypeLookup.itemById[customer.VendorTypeId];
 
                 if (vendorType?.DiscountValue) {
-                    // İskonto değerini hesapla
                     if (vendorType.DiscountType === 'Percentage' || vendorType.DiscountType === '%') {
-                        // Yüzde ise, birim fiyat * miktar * iskonto oranı
                         const quantity = row.Quantity || 0;
                         const unitPrice = row.UnitPrice || 0;
                         row.Discount = (quantity * unitPrice * vendorType.DiscountValue) / 100;
                     } else {
-                        // Sabit tutar ise
                         row.Discount = vendorType.DiscountValue;
                     }
                 }
             }
         } catch (error) {
             console.error('Error calculating discount:', error);
-            // Hata olursa iskonto 0 kalır
         }
     }
 

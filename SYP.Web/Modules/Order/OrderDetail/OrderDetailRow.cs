@@ -1,12 +1,12 @@
-﻿namespace SYP.Order;
+namespace SYP.Order;
 
 [ConnectionKey("Default"), Module("Order"), TableName("OrderDetails")]
 [DisplayName("Order Detail"), InstanceName("Order Detail")]
-[NavigationPermission("Order:OrderDetail:Navigation")]
-[ReadPermission("Order:OrderDetail:Read")]
-[InsertPermission("Order:OrderDetail:Insert")]
-[UpdatePermission("Order:OrderDetail:Update")]
-[DeletePermission("Order:OrderDetail:Delete")]
+[NavigationPermission("Order:Order:Navigation")]
+[ReadPermission("Order:Order:Read")]
+[InsertPermission("Order:Order:Insert")]
+[UpdatePermission("Order:Order:Update")]
+[DeletePermission("Order:Order:Delete")]
 [ServiceLookupPermission("Order:OrderDetail:Lookup")]
 public sealed class OrderDetailRow : Row<OrderDetailRow.RowFields>, IIdRow, INameRow
 {
@@ -18,9 +18,6 @@ public sealed class OrderDetailRow : Row<OrderDetailRow.RowFields>, IIdRow, INam
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
-
-    [NotMapped, Ignore]
-    public int? __id { get; set; }
     
     [DisplayName("Order"), NotNull, ForeignKey(typeof(OrderRow)), LeftJoin(jOrder), TextualField(nameof(OrderNumber))]
     [ServiceLookupEditor(typeof(OrderRow))]

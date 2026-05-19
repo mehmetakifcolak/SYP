@@ -11,8 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serenity.Extensions.DependencyInjection;
 using Serenity.Localization;
+using SYP.Common;
 using SYP.Common.Jobs;
 using SYP.Email.Services;
+using Hangfire;
+using Hangfire.SqlServer;
 using System.IO;
 
 namespace SYP;
@@ -103,11 +106,8 @@ public partial class Startup
             services.AddHostedService<EmailQueueService>();
         }
 
-        // Daily Exchange Rate Job (TCMB)
-        if (Configuration.GetValue("DailyExchange:Enabled", true))
-        {
-            services.AddHostedService<DailyExchangeJob>();
-        }
+        // Daily Exchange Rate Job (TCMB) - Hangfire ile yönetilir
+        services.AddTransient<DailyExchangeJob>();
 
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IHttpContextItemsAccessor, HttpContextItemsAccessor>();
@@ -120,12 +120,34 @@ public partial class Startup
         services.AddSingleton<IUserPasswordValidator, AppServices.UserPasswordValidator>();
         services.AddUserProvider<AppServices.UserAccessor, AppServices.UserRetrieveService>();
         services.AddScoped<Order.IOrderStatusService, Order.OrderStatusService>();
+        services.AddScoped<Customer.Services.IGetBayiiCustomerService, Customer.Services.GetBayiiCustomerService>();
         services.AddServiceHandlers();
         services.AddDynamicScripts();
         services.AddCssBundling();
         services.AddScriptBundling();
         services.AddUploadStorage();
         services.AddReporting();
+
+        // Hangfire Configuration
+        var hangfireConnection = Configuration["Data:Default:ConnectionString"];
+
+        if (!string.IsNullOrEmpty(hangfireConnection))
+        {
+            services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(hangfireConnection, new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    QueuePollInterval = TimeSpan.Zero,
+                    UseRecommendedIsolationLevel = true,
+                    DisableGlobalLocks = true
+                }));
+
+            services.AddHangfireServer();
+        }
     }
 
     public static void InitializeLocalTexts(IServiceProvider services)
@@ -181,6 +203,24 @@ public partial class Startup
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
+
+        if (!string.IsNullOrEmpty(Configuration["Data:Default:ConnectionString"]))
+        {
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireAuthorizationFilter() },
+                DashboardTitle = "SYP Background Jobs"
+            });
+
+            RecurringJob.AddOrUpdate<DailyExchangeJob>(
+                "daily-exchange-rates",
+                job => job.FetchDailyExchangeRates(),
+                "0 12 * * *",
+                new RecurringJobOptions
+                {
+                    TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time")
+                });
+        }
 
         ConfigureTestPipeline?.Invoke(app);
 

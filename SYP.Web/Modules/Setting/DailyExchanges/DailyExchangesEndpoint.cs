@@ -1,4 +1,4 @@
-﻿using Serenity.Reporting;
+using Serenity.Reporting;
 using System;
 using System.Data;
 using System.Globalization;
@@ -196,7 +196,7 @@ public class DailyExchangesEndpoint : ServiceEndpoint
         return new ServiceResponse();
     }
 
-    private static decimal? ParseDecimal(string? value)
+    private static decimal? ParseDecimal(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return null;

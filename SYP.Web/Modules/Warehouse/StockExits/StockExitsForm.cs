@@ -22,7 +22,7 @@ public class StockExitsForm
     public string Description { get; set; }
 
     [Tab("Products")]
-    [StockExitDetailsEditor, IgnoreName]
+    [StockExitDetailsEditor, SkipNameCheck]
     public List<StockExitDetailsRow> DetailList { get; set; }
 
     [Tab("Files")]

@@ -3,6 +3,8 @@ using Serenity.Data;
 using Serenity.Services;
 using SYP.Email.Services;
 using SYP.Setting;
+using SYP.Customer.Services;
+using SYP.Administration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,18 +18,33 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
 {
     private readonly IOrderStatusService _statusService;
     private readonly IEmailQueueSender _emailSender;
+    private readonly IGetBayiiCustomerService _bayiiCustomerService;
 
-    public OrderSaveHandler(IRequestContext context, IOrderStatusService statusService, IEmailQueueSender emailSender)
+    public OrderSaveHandler(IRequestContext context, IOrderStatusService statusService, IEmailQueueSender emailSender, IGetBayiiCustomerService bayiiCustomerService)
         : base(context)
     {
         _statusService = statusService;
         _emailSender = emailSender;
+        _bayiiCustomerService = bayiiCustomerService;
     }
 
     protected override void BeforeSave()
     {
         base.BeforeSave();
 
+        // 0. IsCreate ve CustomerId boş ise permission kontrolü yap
+        if (IsCreate && !Row.CustomerId.HasValue)
+        {
+            // Bayi permission'a sahipse CustomerId'yi otomatik doldur
+            if (Permissions.HasPermission(Administration.PermissionKeys.Bayii))
+            {
+                var bayiiCustomerId = _bayiiCustomerService.GetCurrentBayiiCustomerId();
+                if (bayiiCustomerId.HasValue)
+                {
+                    Row.CustomerId = bayiiCustomerId;
+                }
+            }
+        }
         // 1. Auto-numbering
         if (IsCreate && Row.OrderNumber.IsNullOrEmpty())
         {
@@ -331,7 +348,7 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         {
             TemplateKey = templateKey,
             To = recipients,
-            TemplateData = new Dictionary<string, object?>
+            TemplateData = new Dictionary<string, object>
             {
                 { "siparis_no", Row.OrderNumber },
                 { "bayi_adi", customer?.Name },

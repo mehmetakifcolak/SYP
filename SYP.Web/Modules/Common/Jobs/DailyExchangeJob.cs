@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serenity.Data;
 using SYP.Setting;
@@ -7,13 +6,12 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace SYP.Common.Jobs;
 
-public class DailyExchangeJob : BackgroundService
+public class DailyExchangeJob
 {
     private readonly IServiceProvider serviceProvider;
     private readonly ILogger<DailyExchangeJob> logger;
@@ -22,43 +20,6 @@ public class DailyExchangeJob : BackgroundService
     {
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        try
-        {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                try
-                {
-                    await FetchDailyExchangeRates();
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Error in DailyExchangeJob");
-                }
-
-                var now = DateTime.Now;
-                var nextRun = now.Date.AddHours(9);
-                if (now > nextRun)
-                    nextRun = nextRun.AddDays(1);
-
-                var delay = nextRun - now;
-                if (delay.TotalMinutes < 1)
-                    delay = TimeSpan.FromHours(1);
-
-                await Task.Delay(delay, stoppingToken);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Normal shutdown
-        }
     }
 
     public async Task FetchDailyExchangeRates()
@@ -139,7 +100,7 @@ public class DailyExchangeJob : BackgroundService
         }
     }
 
-    private static decimal? ParseDecimal(string? value)
+    private static decimal? ParseDecimal(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return null;

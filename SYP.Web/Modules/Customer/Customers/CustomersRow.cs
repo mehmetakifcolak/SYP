@@ -113,10 +113,6 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
 
     #region Foreign Fields
 
-    [DisplayName("Username"), Expression("jUser.[Username]")]
-    public string Username { get => fields.Username[this]; set => fields.Username[this] = value; }
-    public partial class RowFields { public StringField Username; }
-
     [DisplayName("Vendor Type Title"), Expression("jVendorType.[Title]")]
     public string VendorTypeTitle { get => fields.VendorTypeTitle[this]; set => fields.VendorTypeTitle[this] = value; }
     public partial class RowFields { public StringField VendorTypeTitle; }

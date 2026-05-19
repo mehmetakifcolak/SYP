@@ -1,6 +1,7 @@
 ﻿using Serenity.Reporting;
 using System.Data;
 using System.Globalization;
+using SYP.Customer.Services;
 using MyRow = SYP.Order.OrderRow;
 
 namespace SYP.Order.Endpoints;
@@ -53,5 +54,17 @@ public class OrderEndpoint : ServiceEndpoint
         var bytes = exporter.Export(data, typeof(Columns.OrderColumns), request.ExportColumns);
         return ExcelContentResult.Create(bytes, "OrderList_" +
             DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".xlsx");
+    }
+
+    /// <summary>
+    /// Mevcut Bayi kullanıcının CustomerId'sini döner.
+    /// Dialog açılırken bu endpoint çağrılarak CustomerId alanı önceden doldurulabilir.
+    /// </summary>
+    [HttpPost]
+    public GetBayiiCustomerResponse GetCurrentBayiiCustomerId(
+        [FromServices] IGetBayiiCustomerService bayiiCustomerService)
+    {
+        var customerId = bayiiCustomerService.GetCurrentBayiiCustomerId();
+        return new GetBayiiCustomerResponse { CustomerId = customerId };
     }
 }

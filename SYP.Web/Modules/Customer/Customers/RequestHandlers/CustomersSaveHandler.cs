@@ -14,7 +14,7 @@ public class CustomersSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>
 {
     private readonly IEmailQueueSender _emailQueueSender;
     private readonly IConfiguration _configuration;
-    private string? _plainPassword; // Şifreyi hash'lemeden önce sakla
+    private string _plainPassword; // Şifreyi hash'lemeden önce sakla
     private bool _shouldCreateUser; // Kullanıcı oluşturulmalı mı flag'i
 
     public CustomersSaveHandler(IRequestContext context, IEmailQueueSender emailQueueSender, IConfiguration configuration)
@@ -138,7 +138,7 @@ public class CustomersSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>
             {
                 TemplateKey = "NEW_CUSTOMER_WELCOME",
                 To = new List<string> { Row.Email },
-                TemplateData = new Dictionary<string, object?>
+                TemplateData = new Dictionary<string, object>
                 {
                     { "CustomerName", Row.Name },
                     { "Username", Row.Email },
