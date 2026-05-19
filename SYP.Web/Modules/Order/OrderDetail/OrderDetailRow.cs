@@ -38,7 +38,7 @@ public sealed class OrderDetailRow : Row<OrderDetailRow.RowFields>, IIdRow, INam
     public int? UnitId { get => fields.UnitId[this]; set => fields.UnitId[this] = value; }
     public partial class RowFields { public Int32Field UnitId; }
     
-    [DisplayName("Unit Price"), Size(18), Scale(4), NotNull]
+    [DisplayName("Unit Price"), Size(18), Scale(4)]
     public decimal? UnitPrice { get => fields.UnitPrice[this]; set => fields.UnitPrice[this] = value; }
     public partial class RowFields { public DecimalField UnitPrice; }
     
@@ -47,15 +47,15 @@ public sealed class OrderDetailRow : Row<OrderDetailRow.RowFields>, IIdRow, INam
     public int? VatRateId { get => fields.VatRateId[this]; set => fields.VatRateId[this] = value; }
     public partial class RowFields { public Int32Field VatRateId; }
     
-    [DisplayName("Vat Rate"), Size(5), Scale(2), NotNull]
+    [DisplayName("Vat Rate"), Size(5), Scale(2)]
     public decimal? VatRate { get => fields.VatRate[this]; set => fields.VatRate[this] = value; }
     public partial class RowFields { public DecimalField VatRate; }
     
-    [DisplayName("Discount"), Size(18), Scale(4), NotNull]
+    [DisplayName("Discount"), Size(18), Scale(4)]
     public decimal? Discount { get => fields.Discount[this]; set => fields.Discount[this] = value; }
     public partial class RowFields { public DecimalField Discount; }
     
-    [DisplayName("Line Total"), Size(18), Scale(4), NotNull]
+    [DisplayName("Line Total"), Size(18), Scale(4)]
     public decimal? LineTotal { get => fields.LineTotal[this]; set => fields.LineTotal[this] = value; }
     public partial class RowFields { public DecimalField LineTotal; }
     
