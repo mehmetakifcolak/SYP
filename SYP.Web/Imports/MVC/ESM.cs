@@ -22,6 +22,7 @@ public static partial class ESM
     public const string OrderStatusHistPage = "~/esm/Modules/Order/OrderStatusHist/OrderStatusHistPage.js";
     public const string PriceListsPage = "~/esm/Modules/Catalog/PriceLists/PriceListsPage.js";
     public const string ProductCategoryPage = "~/esm/Modules/Catalog/ProductCategory/ProductCategoryPage.js";
+    public const string ProductPackingPage = "~/esm/Modules/Catalog/ProductPacking/ProductPackingPage.js";
     public const string ProductsPage = "~/esm/Modules/Catalog/Products/ProductsPage.js";
     public const string RolePage = "~/esm/Modules/Administration/Role/RolePage.js";
     public const string ScriptInit = "~/esm/Modules/Common/ScriptInit.js";
@@ -83,6 +84,11 @@ public static partial class ESM
             public static partial class ProductCategory
             {
                 public const string ProductCategoryPage = "~/esm/Modules/Catalog/ProductCategory/ProductCategoryPage.js";
+            }
+
+            public static partial class ProductPacking
+            {
+                public const string ProductPackingPage = "~/esm/Modules/Catalog/ProductPacking/ProductPackingPage.js";
             }
 
             public static partial class Products

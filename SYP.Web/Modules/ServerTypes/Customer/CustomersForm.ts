@@ -4,6 +4,7 @@ export interface CustomersForm {
     Code: StringEditor;
     VendorTypeId: LookupEditor;
     CurrencyId: LookupEditor;
+    PriceListId: LookupEditor;
     ManagerUserId: LookupEditor;
     Name: StringEditor;
     IsActive: BooleanEditor;
@@ -44,6 +45,7 @@ export class CustomersForm extends PrefixedContext {
                 'Code', w0,
                 'VendorTypeId', w1,
                 'CurrencyId', w1,
+                'PriceListId', w1,
                 'ManagerUserId', w1,
                 'Name', w0,
                 'IsActive', w2,

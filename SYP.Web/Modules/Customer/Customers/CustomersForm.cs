@@ -18,6 +18,9 @@ public class CustomersForm
     [HalfWidth, DisplayName("Para Birimi")]
     public int? CurrencyId { get; set; }
 
+    [HalfWidth, DisplayName("Fiyat Listesi")]
+    public int? PriceListId { get; set; }
+
     [HalfWidth, DisplayName("Sorumlu Yönetici")]
     public int? ManagerUserId { get; set; }
 
@@ -65,7 +68,7 @@ public class CustomersForm
     public string TaxNumber { get; set; }
 
     [Category("Kullanıcı Hesabı")]
-    [HalfWidth, DisplayName("Kullanıcı"), ReadOnly(true), HideOnInsert]
+    [HalfWidth, DisplayName("Kullanıcı")]
     [AsyncLookupEditor(typeof(UserRow))]
     public int? UserId { get; set; }
 

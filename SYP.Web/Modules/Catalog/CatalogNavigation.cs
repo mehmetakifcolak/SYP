@@ -6,3 +6,4 @@ using MyPages = SYP.Catalog.Pages;
 [assembly: NavigationLink(3200, "Catalog/Brands", typeof(MyPages.BrandsPage), icon: "fa-tags")]
 [assembly: NavigationLink(3300, "Catalog/Categories", typeof(MyPages.ProductCategoryPage), icon: "fa-sitemap")]
 [assembly: NavigationLink(3400, "Catalog/Price Lists", typeof(MyPages.PriceListsPage), icon: "fa-list-alt")]
+[assembly: NavigationLink(3500, "Catalog/Product Packing", typeof(MyPages.ProductPackingPage), icon: "fa-archive")]

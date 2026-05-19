@@ -33,6 +33,9 @@ public class ProductsForm
     public int? UnitId { get; set; }
 
     [HalfWidth]
+    public int? PackingId { get; set; }
+
+    [HalfWidth]
     public int? CurrencyId { get; set; }
 
     [HalfWidth]

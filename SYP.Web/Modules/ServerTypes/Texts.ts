@@ -175,6 +175,22 @@ namespace texts {
                 export const ParentName: string;
                 export const SortOrder: string;
             }
+            namespace ProductPacking {
+                export function asKey(): typeof ProductPacking;
+                export function asTry(): typeof ProductPacking;
+                export const Code: string;
+                export const Description: string;
+                export const EntityPlural: string;
+                export const EntitySingular: string;
+                export const Id: string;
+                export const InsertDate: string;
+                export const InsertUserId: string;
+                export const IsActive: string;
+                export const Name: string;
+                export const Quantity: string;
+                export const UpdateDate: string;
+                export const UpdateUserId: string;
+            }
             namespace Products {
                 export function asKey(): typeof Products;
                 export function asTry(): typeof Products;
@@ -197,6 +213,9 @@ namespace texts {
                 export const IsActive: string;
                 export const Name: string;
                 export const Name2: string;
+                export const PackingId: string;
+                export const PackingName: string;
+                export const PackingQuantity: string;
                 export const ProductImage: string;
                 export const UnitId: string;
                 export const UnitName: string;
@@ -238,6 +257,8 @@ namespace texts {
                 export const PasswordConfirm: string;
                 export const Phone: string;
                 export const Phone2: string;
+                export const PriceListId: string;
+                export const PriceListName: string;
                 export const TaxNumber: string;
                 export const TaxOffice: string;
                 export const UpdateDate: string;
@@ -847,6 +868,7 @@ const Texts: typeof texts = proxyTexts({}, '', {
             PriceListItems: {},
             PriceLists: {},
             ProductCategory: {},
+            ProductPacking: {},
             Products: {}
         },
         Customer: {

@@ -2,7 +2,7 @@ import {
     Decorators, DialogButton, Lookup, TemplatedDialog,
     getLookupAsync, htmlEncode, notifyError, notifySuccess, notifyWarning
 } from '@serenity-is/corelib';
-import { ProductCategoryRow, ProductsRow } from '../../ServerTypes/Catalog';
+import { PriceListItemsRow, PriceListItemsService, ProductCategoryRow, ProductsRow } from '../../ServerTypes/Catalog';
 import { CustomersRow } from '../../ServerTypes/Customer';
 import { OrderDetailRow, OrderDetailService, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { VendorTypeRow } from '../../ServerTypes/Setting';
@@ -16,14 +16,15 @@ interface CartItem {
     productId: number;
     productCode: string;
     productName: string;
-    quantity: number;
+    quantity: number;    // koli sayısı
+    packingQty: number;  // koli içi adet
     unitId?: number;
     unitName?: string;
     unitPrice: number;
     vatRateId?: number;
     vatRate?: number;
     discount: number;
-    lineTotal: number;
+    lineTotal: number;   // koli × packingQty × unitPrice - discount
 }
 
 @Decorators.panel(true)
@@ -39,6 +40,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private selectedCategoryId: number | null = null;
     private searchTerm = '';
     private customerId: number | null = null;
+    private priceListItems = new Map<number, PriceListItemsRow>();
     private cartVisible = false;
 
     private catListEl!: HTMLElement;
@@ -156,9 +158,41 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         if (this.entityId || this.customerId) return;
 
         OrderService.GetCurrentBayiiCustomerId({}).then(
-            resp => { if (resp?.CustomerId) this.customerId = resp.CustomerId; },
+            resp => {
+                if (resp?.CustomerId) {
+                    this.customerId = resp.CustomerId;
+                    this.loadPriceListItems(resp.CustomerId);
+                }
+            },
             () => {}
         );
+    }
+
+    private async loadPriceListItems(customerId: number): Promise<void> {
+        const customer = this.customerLookup?.itemById[customerId];
+        const priceListId = (customer as any)?.PriceListId as number | undefined;
+        if (!priceListId) return;
+
+        try {
+            const resp = await PriceListItemsService.List({
+                EqualityFilter: { PriceListId: String(priceListId) }
+            });
+            this.priceListItems.clear();
+            for (const item of resp?.Entities ?? []) {
+                if (item.ProductId != null) this.priceListItems.set(item.ProductId, item);
+            }
+            this.renderProducts();
+        } catch { /* fiyat listesi yoksa varsayılan fiyat kullanılır */ }
+    }
+
+    private getProductPrice(product: ProductsRow): number {
+        const item = this.priceListItems.get(product.Id!);
+        if (item?.UnitPrice != null) return item.UnitPrice;
+        return product.CurrentValidPrice ?? product.UnitPrice ?? 0;
+    }
+
+    private getPackingQty(product: ProductsRow): number {
+        return (product as any).PackingQuantity as number ?? 1;
     }
 
     private async loadExistingOrder(id: number): Promise<void> {
@@ -168,8 +202,10 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             const order = orderResp.Entity;
             if (!order) return;
 
-            if (order.CustomerId)
+            if (order.CustomerId) {
                 this.customerId = order.CustomerId;
+                await this.loadPriceListItems(order.CustomerId);
+            }
 
             // Birincil kaynak: Retrieve yanıtındaki DetailList (MasterDetailRelation)
             let rows = order.DetailList ?? [];
@@ -184,12 +220,16 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
             for (const d of rows) {
                 if (!d.ProductId) continue;
-                const p = this.productLookup?.itemById[d.ProductId];
+                const p          = this.productLookup?.itemById[d.ProductId];
+                const packingQty = (p as any)?.PackingQuantity as number ?? 1;
+                const actualQty  = d.Quantity ?? 1;
+                const koliCount  = Math.max(1, Math.round(actualQty / packingQty));
                 this.cart.set(d.ProductId, {
                     productId:   d.ProductId,
                     productCode: p?.Code     ?? '',
                     productName: p?.Name     ?? (d.ProductCodeName ?? ''),
-                    quantity:    d.Quantity  ?? 1,
+                    quantity:    koliCount,
+                    packingQty,
                     unitId:      d.UnitId    ?? p?.UnitId,
                     unitName:    p?.UnitName ?? (d.UnitCode ?? ''),
                     unitPrice:   d.UnitPrice ?? 0,
@@ -305,7 +345,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         let html = '';
         products.forEach(product => {
             const inCart   = this.cart.has(product.Id!);
-            const price    = product.CurrentValidPrice ?? product.UnitPrice ?? 0;
+            const price    = this.getProductPrice(product);
             const currency = htmlEncode(product.CurrencyCode || '₺');
 
             html += `
@@ -315,7 +355,10 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         <div class="opd-card-name" title="${htmlEncode(product.Name || '')}">${htmlEncode(product.Name || '')}</div>
         <div class="opd-card-cat">${htmlEncode(product.CategoryName || '')}</div>
         <div class="opd-card-price">${this.fmt(price)}&nbsp;${currency}</div>
-        ${product.UnitName ? `<div class="opd-card-unit">${htmlEncode(product.UnitName)}</div>` : ''}
+        ${product.PackingQuantity && product.PackingQuantity > 1
+            ? `<div class="opd-card-unit">${htmlEncode(product.PackingName || 'Koli')}: ${product.PackingQuantity} ${htmlEncode(product.UnitName || 'adet')}</div>`
+            : product.UnitName ? `<div class="opd-card-unit">${htmlEncode(product.UnitName)}</div>` : ''
+        }
     </div>
     <div class="opd-card-footer">
         <div class="opd-qty-wrap">
@@ -369,23 +412,26 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         const p = this.productLookup.itemById[productId];
         if (!p) return;
 
-        const price    = p.CurrentValidPrice ?? p.UnitPrice ?? 0;
-        const existing = this.cart.get(productId);
-        const quantity = (existing?.quantity ?? 0) + addQty;
-        const discount = this.calcDiscount(price, quantity);
+        const price      = this.getProductPrice(p);
+        const packingQty = this.getPackingQty(p);
+        const existing   = this.cart.get(productId);
+        const koliCount  = (existing?.quantity ?? 0) + addQty;
+        const actualQty  = koliCount * packingQty;
+        const discount   = this.calcDiscount(price, actualQty);
 
         this.cart.set(productId, {
             productId,
             productCode: p.Code    || '',
             productName: p.Name    || '',
-            quantity,
-            unitId:   p.UnitId,
-            unitName: p.UnitName,
-            unitPrice: price,
-            vatRateId: p.VatRateId,
-            vatRate:   p.VatRate,
+            quantity:    koliCount,
+            packingQty,
+            unitId:      p.UnitId,
+            unitName:    p.UnitName,
+            unitPrice:   price,
+            vatRateId:   p.VatRateId,
+            vatRate:     p.VatRate,
             discount,
-            lineTotal: price * quantity - discount
+            lineTotal:   price * actualQty - discount
         });
 
         this.updateCartUI();
@@ -427,6 +473,9 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
         this.cart.forEach(item => {
             total += item.lineTotal;
+            const koliLabel = item.packingQty > 1
+                ? `${item.quantity} koli × ${item.packingQty} adet`
+                : `${item.quantity} adet`;
             html  += `
 <div class="opd-ci">
     <div class="opd-ci-info">
@@ -434,10 +483,10 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         <div class="opd-ci-meta">${htmlEncode(item.productCode)}${item.unitName ? ' · ' + htmlEncode(item.unitName) : ''}</div>
     </div>
     <input type="number" class="opd-cart-qty" data-id="${item.productId}"
-           value="${Math.round(item.quantity)}" min="1" step="1" title="Miktar" />
+           value="${item.quantity}" min="1" step="1" title="Koli sayısı" />
     <div class="opd-ci-price">
         <div>${this.fmt(item.lineTotal)}&nbsp;₺</div>
-        <small>${this.fmt(item.unitPrice)}&nbsp;×&nbsp;${item.quantity}</small>
+        <small>${koliLabel}</small>
     </div>
     <button class="opd-ci-del" data-id="${item.productId}" title="Kaldır">
         <i class="fa fa-trash-o"></i>
@@ -451,12 +500,13 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             this.cartItemsEl.querySelectorAll<HTMLInputElement>('.opd-cart-qty').forEach(inp => {
                 inp.addEventListener('change', () => {
                     const id   = parseInt(inp.dataset.id!);
-                    const qty  = Math.max(1, parseInt(inp.value, 10) || 1);
+                    const koli = Math.max(1, parseInt(inp.value, 10) || 1);
                     const item = this.cart.get(id);
                     if (item) {
-                        item.quantity  = qty;
-                        item.discount  = this.calcDiscount(item.unitPrice, qty);
-                        item.lineTotal = item.unitPrice * qty - item.discount;
+                        const actualQty  = koli * item.packingQty;
+                        item.quantity    = koli;
+                        item.discount    = this.calcDiscount(item.unitPrice, actualQty);
+                        item.lineTotal   = item.unitPrice * actualQty - item.discount;
                         this.updateCartUI();
                         this.renderProducts();
                     }
@@ -489,7 +539,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
         const detailList: OrderDetailRow[] = Array.from(this.cart.values()).map(item => ({
             ProductId: item.productId,
-            Quantity:  item.quantity,
+            Quantity:  item.quantity * item.packingQty,
             UnitId:    item.unitId,
             UnitPrice: item.unitPrice,
             VatRateId: item.vatRateId,

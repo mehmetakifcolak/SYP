@@ -52,6 +52,7 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     const string jVatRate = nameof(jVatRate);
     const string jBrand = nameof(jBrand);
     const string jCategory = nameof(jCategory);
+    const string jPacking = nameof(jPacking);
 
     [DisplayName("Category"), LookupInclude, ForeignKey(typeof(ProductCategoryRow)), LeftJoin(jCategory)]
     [LookupEditor("Catalog.ProductCategory", FilterField = "IsActive", FilterValue = true)]
@@ -77,6 +78,11 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     [LookupEditor(typeof(Setting.VatRatesRow), FilterField = "IsActive", FilterValue = true)]
     public int? VatRateId { get => fields.VatRateId[this]; set => fields.VatRateId[this] = value; }
     public partial class RowFields { public Int32Field VatRateId; }
+
+    [DisplayName("Ambalaj"), ForeignKey(typeof(ProductPackingRow)), LeftJoin(jPacking), LookupInclude]
+    [LookupEditor(typeof(ProductPackingRow), FilterField = "IsActive", FilterValue = true)]
+    public int? PackingId { get => fields.PackingId[this]; set => fields.PackingId[this] = value; }
+    public partial class RowFields { public Int32Field PackingId; }
 
     [DisplayName("Unit Price (Base)"), DecimalEditor(Decimals = 4, MinValue = "0"), LookupInclude]
     public decimal? UnitPrice { get => fields.UnitPrice[this]; set => fields.UnitPrice[this] = value; }
@@ -131,6 +137,14 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     [DisplayName("Brand Name"), Expression($"{jBrand}.[Name]"), LookupInclude]
     public string BrandName { get => fields.BrandName[this]; set => fields.BrandName[this] = value; }
     public partial class RowFields { public StringField BrandName; }
+
+    [DisplayName("Ambalaj Adı"), Expression($"{jPacking}.[Name]"), LookupInclude]
+    public string PackingName { get => fields.PackingName[this]; set => fields.PackingName[this] = value; }
+    public partial class RowFields { public StringField PackingName; }
+
+    [DisplayName("Ambalaj Adedi"), Expression($"{jPacking}.[Quantity]"), LookupInclude]
+    public int? PackingQuantity { get => fields.PackingQuantity[this]; set => fields.PackingQuantity[this] = value; }
+    public partial class RowFields { public Int32Field PackingQuantity; }
 
     #endregion Foreign Fields
 

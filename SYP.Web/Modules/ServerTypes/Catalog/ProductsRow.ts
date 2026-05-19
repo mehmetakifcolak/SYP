@@ -14,6 +14,7 @@ export interface ProductsRow {
     UnitId?: number;
     CurrencyId?: number;
     VatRateId?: number;
+    PackingId?: number;
     UnitPrice?: number;
     CurrentValidPrice?: number;
     InsertDate?: string;
@@ -27,6 +28,8 @@ export interface ProductsRow {
     VatRateName?: string;
     VatRate?: number;
     BrandName?: string;
+    PackingName?: string;
+    PackingQuantity?: number;
 }
 
 export abstract class ProductsRow {

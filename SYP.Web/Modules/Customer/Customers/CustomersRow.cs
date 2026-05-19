@@ -83,6 +83,11 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public int? CurrencyId { get => fields.CurrencyId[this]; set => fields.CurrencyId[this] = value; }
     public partial class RowFields { public Int32Field CurrencyId; }
 
+    [DisplayName("Fiyat Listesi"), ForeignKey("[dbo].[PriceLists]", "Id"), LeftJoin("jPriceList"), LookupInclude]
+    [LookupEditor("Catalog.PriceLists", FilterField = "IsActive", FilterValue = true)]
+    public int? PriceListId { get => fields.PriceListId[this]; set => fields.PriceListId[this] = value; }
+    public partial class RowFields { public Int32Field PriceListId; }
+
     [DisplayName("Insert Date")]
     public DateTime? InsertDate { get => fields.InsertDate[this]; set => fields.InsertDate[this] = value; }
     public partial class RowFields { public DateTimeField InsertDate; }
@@ -137,6 +142,10 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     [DisplayName("Para Birimi Kodu"), Expression("jCurrency.[Code]")]
     public string CurrencyCode { get => fields.CurrencyCode[this]; set => fields.CurrencyCode[this] = value; }
     public partial class RowFields { public StringField CurrencyCode; }
+
+    [DisplayName("Fiyat Listesi Adı"), Expression("jPriceList.[Name]")]
+    public string PriceListName { get => fields.PriceListName[this]; set => fields.PriceListName[this] = value; }
+    public partial class RowFields { public StringField PriceListName; }
 
     #endregion Foreign Fields
 

@@ -8,19 +8,20 @@
 [UpdatePermission("Catalog:PriceLists:Update")]
 [DeletePermission("Catalog:PriceLists:Delete")]
 [ServiceLookupPermission("Catalog:PriceLists:Lookup")]
+[LookupScript("Catalog.PriceLists", Permission = "Catalog:PriceLists:Read")]
 public sealed class PriceListsRow : Row<PriceListsRow.RowFields>, IIdRow, INameRow
 {
     const string jCurrency = nameof(jCurrency);
 
-    [DisplayName("Id"), Identity, IdProperty]
+    [DisplayName("Id"), Identity, IdProperty, LookupInclude]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
-    
-    [DisplayName("Code"), Size(50), QuickSearch, NameProperty]
+
+    [DisplayName("Code"), Size(50), QuickSearch, NameProperty, LookupInclude]
     public string Code { get => fields.Code[this]; set => fields.Code[this] = value; }
     public partial class RowFields { public StringField Code; }
-    
-    [DisplayName("Name"), Size(200), NotNull]
+
+    [DisplayName("Name"), Size(200), NotNull, LookupInclude]
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
 
@@ -45,7 +46,7 @@ public sealed class PriceListsRow : Row<PriceListsRow.RowFields>, IIdRow, INameR
     public DateTime? ValidTo { get => fields.ValidTo[this]; set => fields.ValidTo[this] = value; }
     public partial class RowFields { public DateTimeField ValidTo; }
     
-    [DisplayName("Is Active"), NotNull]
+    [DisplayName("Is Active"), NotNull, LookupInclude]
     public bool? IsActive { get => fields.IsActive[this]; set => fields.IsActive[this] = value; }
     public partial class RowFields { public BooleanField IsActive; }
     
