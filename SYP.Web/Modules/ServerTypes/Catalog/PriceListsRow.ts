@@ -1,10 +1,12 @@
 ﻿import { fieldsProxy } from "@serenity-is/corelib";
 import { PriceListItemsRow } from "./PriceListItemsRow";
+import { PriceListType } from "./PriceListType";
 
 export interface PriceListsRow {
     Id?: number;
     Code?: string;
     Name?: string;
+    Type?: PriceListType;
     Description?: string;
     CurrencyId?: number;
     ValidFrom?: string;

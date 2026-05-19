@@ -75,6 +75,10 @@ public sealed class PriceListItemsRow : Row<PriceListItemsRow.RowFields>, IIdRow
     public bool? PriceListIsDefault { get => fields.PriceListIsDefault[this]; set => fields.PriceListIsDefault[this] = value; }
     public partial class RowFields { public BooleanField PriceListIsDefault; }
 
+    [DisplayName("Fiyat Listesi Tipi"), Expression($"{jPriceList}.[Type]")]
+    public PriceListType? PriceListType { get => (PriceListType?)fields.PriceListType[this]; set => fields.PriceListType[this] = (int?)value; }
+    public partial class RowFields { public Int32Field PriceListType; }
+
     #endregion
 
     public partial class RowFields : RowFieldsBase { }

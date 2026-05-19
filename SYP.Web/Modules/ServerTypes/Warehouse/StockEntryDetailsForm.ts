@@ -3,6 +3,8 @@
 export interface StockEntryDetailsForm {
     ProductId: LookupEditor;
     Quantity: DecimalEditor;
+    Currency: StringEditor;
+    UnitPrice: DecimalEditor;
     Notes: StringEditor;
 }
 
@@ -23,6 +25,8 @@ export class StockEntryDetailsForm extends PrefixedContext {
             initFormType(StockEntryDetailsForm, [
                 'ProductId', w0,
                 'Quantity', w1,
+                'Currency', w2,
+                'UnitPrice', w1,
                 'Notes', w2
             ]);
         }

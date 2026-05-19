@@ -34,7 +34,7 @@ public sealed class StockExitDetailsRow : Row<StockExitDetailsRow.RowFields>, II
     public string Unit { get => fields.Unit[this]; set => fields.Unit[this] = value; }
     public partial class RowFields { public StringField Unit; }
 
-    [DisplayName("Para Birimi"), Size(10)]
+    [DisplayName("Para Birimi"), Size(10), QuickSearch]
     public string Currency { get => fields.Currency[this]; set => fields.Currency[this] = value; }
     public partial class RowFields { public StringField Currency; }
 
@@ -42,7 +42,7 @@ public sealed class StockExitDetailsRow : Row<StockExitDetailsRow.RowFields>, II
     public decimal? VatRate { get => fields.VatRate[this]; set => fields.VatRate[this] = value; }
     public partial class RowFields { public DecimalField VatRate; }
 
-    [DisplayName("Birim Fiyat")]
+    [DisplayName("Birim Fiyat"), DecimalEditor(Decimals = 2, MinValue = "0")]
     public decimal? UnitPrice { get => fields.UnitPrice[this]; set => fields.UnitPrice[this] = value; }
     public partial class RowFields { public DecimalField UnitPrice; }
 

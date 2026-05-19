@@ -1,8 +1,10 @@
-import { DecimalEditor, initFormType, LookupEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
+﻿import { DecimalEditor, initFormType, LookupEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
 
 export interface StockExitDetailsForm {
     ProductId: LookupEditor;
     Quantity: DecimalEditor;
+    Currency: StringEditor;
+    UnitPrice: DecimalEditor;
     Notes: StringEditor;
 }
 
@@ -23,6 +25,8 @@ export class StockExitDetailsForm extends PrefixedContext {
             initFormType(StockExitDetailsForm, [
                 'ProductId', w0,
                 'Quantity', w1,
+                'Currency', w2,
+                'UnitPrice', w1,
                 'Notes', w2
             ]);
         }

@@ -13,6 +13,9 @@ public class PriceListsColumns
     [Width(200)]
     public string Name { get; set; }
 
+    [Width(150)]
+    public PriceListType Type { get; set; }
+
     [Width(250)]
     public string Description { get; set; }
 

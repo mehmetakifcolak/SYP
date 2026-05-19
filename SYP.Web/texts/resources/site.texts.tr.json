@@ -73,6 +73,7 @@
   "Db.Catalog.PriceLists.Id": "ID",
   "Db.Catalog.PriceLists.Code": "Kod",
   "Db.Catalog.PriceLists.Name": "Fiyat Listesi Adı",
+  "Db.Catalog.PriceLists.Type": "Liste Tipi",
   "Db.Catalog.PriceLists.Description": "Açıklama",
   "Db.Catalog.PriceLists.CurrencyId": "Para Birimi",
   "Db.Catalog.PriceLists.ValidFrom": "Geçerlilik Başlangıcı",
@@ -577,5 +578,7 @@
   "Validation.InvalidResetToken": "Parolanızı sıfırlamak için kullandığınız belirteciniz geçersiz veya süresi dolmuş!",
   "Validation.MinRequiredPasswordLength": "Girilen parolada yeterli uzunlukta değil (en az {0})!",
   "Validation.PasswordConfirmMismatch": "Girilen parolalar eşleşmiyor!",
-  "Validation.SavePrimaryKeyError": "Kayıt yapılamıyor. Aynı {1} değerine sahip başka bir kayıt var!"
+  "Validation.SavePrimaryKeyError": "Kayıt yapılamıyor. Aynı {1} değerine sahip başka bir kayıt var!",
+  "Enums.Catalog.PriceListType.Sales": "Satış Fiyat Listesi",
+  "Enums.Catalog.PriceListType.Purchase": "Alış Fiyat Listesi"
 }

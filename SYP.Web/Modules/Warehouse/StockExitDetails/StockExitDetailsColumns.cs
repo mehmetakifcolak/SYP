@@ -10,8 +10,14 @@ public class StockExitDetailsColumns
     [Width(250)]
     public string ProductName { get; set; }
 
-    [Width(120), AlignRight]
+    [Width(100), AlignRight]
     public decimal Quantity { get; set; }
+
+    [Width(80), AlignCenter]
+    public string Currency { get; set; }
+
+    [Width(120), AlignRight, DisplayFormat("#,##0.00")]
+    public decimal UnitPrice { get; set; }
 
     [Width(200)]
     public string Notes { get; set; }
