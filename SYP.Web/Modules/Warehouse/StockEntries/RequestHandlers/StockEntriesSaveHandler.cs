@@ -88,6 +88,9 @@ public class StockEntriesSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyR
     {
         base.AfterSave();
 
+        // Detail'leri join ile tekrar yükle
+        ReloadDetailsWithJoins();
+
         // Sadece durumu yeni "Onaylandı" yapıldığında stok güncelle
         // (İlk kez onaylandığında veya yeni kayıt onaylı oluşturulduğunda)
         bool shouldUpdateStock = false;
@@ -107,6 +110,20 @@ public class StockEntriesSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyR
         {
             UpdateWarehouseStock();
         }
+    }
+
+    private void ReloadDetailsWithJoins()
+    {
+        // Detail'leri join ile tekrar yükle
+        var detailFields = StockEntryDetailsRow.Fields;
+        var details = Connection.List<StockEntryDetailsRow>(q => q
+            .SelectTableFields()
+            .Select(detailFields.ProductCode)
+            .Select(detailFields.ProductName)
+            .Where(new Criteria(detailFields.StockEntryId) == Row.Id.Value));
+
+        // Response'a ekle
+        Row.DetailList = details;
     }
 
     private void UpdateWarehouseStock()

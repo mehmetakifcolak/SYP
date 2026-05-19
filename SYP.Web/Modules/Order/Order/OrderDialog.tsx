@@ -1,4 +1,4 @@
-import { Decorators, EntityDialog} from '@serenity-is/corelib';
+import { Decorators, EntityDialog, getLookupAsync } from '@serenity-is/corelib';
 import { OrderForm, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { CustomersRow } from '../../ServerTypes/Customer';
 import { VendorTypeRow } from '../../ServerTypes/Setting';
@@ -16,7 +16,7 @@ export class OrderDialog extends EntityDialog<OrderRow, any> {
     constructor(props?: any) {
         super(props);
 
-        // Bayi seçildiðinde iskonto bilgilerini güncelle
+        // Bayi seï¿½ildiï¿½inde iskonto bilgilerini gï¿½ncelle
         this.form.CustomerId.changeSelect2(async e => {
             await this.updateDiscountPercentage();
         });
@@ -30,12 +30,12 @@ export class OrderDialog extends EntityDialog<OrderRow, any> {
         }
 
         try {
-            // Customer lookup'ýný al
+            // Customer lookup'ï¿½nï¿½ al
             const customerLookup = await getLookupAsync<CustomersRow>(CustomersRow.lookupKey);
             const customer = customerLookup.itemById[customerId];
 
             if (customer?.VendorTypeId) {
-                // VendorType lookup'ýný al
+                // VendorType lookup'ï¿½nï¿½ al
                 const vendorTypeLookup = await getLookupAsync<VendorTypeRow>(VendorTypeRow.lookupKey);
                 const vendorType = vendorTypeLookup.itemById[customer.VendorTypeId];
 
@@ -53,7 +53,13 @@ export class OrderDialog extends EntityDialog<OrderRow, any> {
     protected afterLoadEntity(): void {
         super.afterLoadEntity();
 
-        // Entity yüklendikten sonra iskonto bilgilerini güncelle
+        // Yeni kayÄ±t iÃ§in varsayÄ±lan deÄŸerleri set et
+        if (this.isNew()) {
+            // BugÃ¼nÃ¼n tarihi ve saati
+            this.entity.OrderDate = new Date().toISOString();
+        }
+
+        // Entity yï¿½klendikten sonra iskonto bilgilerini gï¿½ncelle
         if (this.entity.CustomerId) {
             this.updateDiscountPercentage();
         }

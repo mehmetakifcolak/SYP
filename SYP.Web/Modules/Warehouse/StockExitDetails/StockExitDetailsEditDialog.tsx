@@ -1,4 +1,4 @@
-import { Decorators, getLookupAsync } from "@serenity-is/corelib";
+import { Decorators, getLookupAsync, Lookup } from "@serenity-is/corelib";
 import { GridEditorDialog } from "@serenity-is/extensions";
 import { StockExitDetailsForm, StockExitDetailsRow } from "../../ServerTypes/Warehouse";
 import { ProductsRow } from "../../ServerTypes/Catalog";
@@ -9,9 +9,15 @@ export class StockExitDetailsEditDialog extends GridEditorDialog<StockExitDetail
     protected getLocalTextPrefix() { return StockExitDetailsRow.localTextPrefix; }
 
     protected form = new StockExitDetailsForm(this.idPrefix);
+    private productLookup: Lookup<ProductsRow>;
 
     constructor(props?: any) {
         super(props);
+
+        // Lookup'ı önceden yükle
+        getLookupAsync<ProductsRow>(ProductsRow.lookupKey).then(lookup => {
+            this.productLookup = lookup;
+        });
 
         // Ürün seçildiğinde kod ve adı doldur
         this.form.ProductId.changeSelect2(async e => {
@@ -44,5 +50,23 @@ export class StockExitDetailsEditDialog extends GridEditorDialog<StockExitDetail
                 (this.entity as any).ProductName = product.Name;
             }
         }
+    }
+
+    protected beforeSave(): boolean {
+        if (!super.beforeSave()) {
+            return false;
+        }
+
+        // Ürün bilgilerini ekle
+        const productId = this.form.ProductId.value;
+        if (productId && this.productLookup) {
+            const product = this.productLookup.itemById[productId];
+            if (product) {
+                this.entity.ProductCode = product.Code;
+                this.entity.ProductName = product.Name;
+            }
+        }
+
+        return true;
     }
 }

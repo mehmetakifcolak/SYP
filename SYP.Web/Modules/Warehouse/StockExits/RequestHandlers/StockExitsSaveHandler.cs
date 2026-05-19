@@ -150,6 +150,9 @@ public class StockExitsSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow
     {
         base.AfterSave();
 
+        // Detail'leri join ile tekrar yükle
+        ReloadDetailsWithJoins();
+
         // Sadece durumu yeni "Onaylandı" yapıldığında stok güncelle
         bool shouldUpdateStock = false;
 
@@ -166,6 +169,20 @@ public class StockExitsSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow
         {
             UpdateWarehouseStock();
         }
+    }
+
+    private void ReloadDetailsWithJoins()
+    {
+        // Detail'leri join ile tekrar yükle
+        var detailFields = StockExitDetailsRow.Fields;
+        var details = Connection.List<StockExitDetailsRow>(q => q
+            .SelectTableFields()
+            .Select(detailFields.ProductCode)
+            .Select(detailFields.ProductName)
+            .Where(new Criteria(detailFields.StockExitId) == Row.Id.Value));
+
+        // Response'a ekle
+        Row.DetailList = details;
     }
 
     private void UpdateWarehouseStock()

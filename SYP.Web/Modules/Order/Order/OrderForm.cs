@@ -18,7 +18,7 @@ public class OrderForm
     [HalfWidth, ReadOnly(true)]
     public int ManagerUserId { get; set; }
 
-    [HalfWidth]
+    [HalfWidth, DateTimeEditor]
     public DateTime OrderDate { get; set; }
 
     [HalfWidth]

@@ -52,11 +52,11 @@ public sealed class StockEntryDetailsRow : Row<StockEntryDetailsRow.RowFields>, 
 
     #region Foreign Fields
 
-    [DisplayName("Ürün Kodu"), Expression($"{jProduct}.[Code]")]
+    [DisplayName("Ürün Kodu"), Expression($"{jProduct}.[Code]"), MinSelectLevel(SelectLevel.List)]
     public string ProductCode { get => fields.ProductCode[this]; set => fields.ProductCode[this] = value; }
     public partial class RowFields { public StringField ProductCode; }
 
-    [DisplayName("Ürün Adı"), Expression($"{jProduct}.[Name]")]
+    [DisplayName("Ürün Adı"), Expression($"{jProduct}.[Name]"), MinSelectLevel(SelectLevel.List)]
     public string ProductName { get => fields.ProductName[this]; set => fields.ProductName[this] = value; }
     public partial class RowFields { public StringField ProductName; }
 

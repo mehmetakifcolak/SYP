@@ -1,4 +1,4 @@
-﻿import { DateEditor, DecimalEditor, EnumEditor, initFormType, LookupEditor, PrefixedContext, ServiceLookupEditor, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
+﻿import { DateTimeEditor, DecimalEditor, EnumEditor, initFormType, LookupEditor, PrefixedContext, ServiceLookupEditor, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
 import { OrderDetailGridEditor } from "../../Order/OrderDetail/Editor/OrderDetailGridEditor";
 import { OrderStatus } from "./OrderStatus";
 
@@ -6,7 +6,7 @@ export interface OrderForm {
     OrderNumber: StringEditor;
     CustomerId: ServiceLookupEditor;
     ManagerUserId: LookupEditor;
-    OrderDate: DateEditor;
+    OrderDate: DateTimeEditor;
     Status: EnumEditor;
     CurrencyId: LookupEditor;
     TotalAmount: DecimalEditor;
@@ -31,7 +31,7 @@ export class OrderForm extends PrefixedContext {
             var w0 = StringEditor;
             var w1 = ServiceLookupEditor;
             var w2 = LookupEditor;
-            var w3 = DateEditor;
+            var w3 = DateTimeEditor;
             var w4 = EnumEditor;
             var w5 = DecimalEditor;
             var w6 = OrderDetailGridEditor;
