@@ -11,7 +11,6 @@ export interface ProductsColumns {
     CategoryName: Column<ProductsRow>;
     BrandName: Column<ProductsRow>;
     UnitName: Column<ProductsRow>;
-    CurrentValidPrice: Column<ProductsRow>;
     CurrencyCode: Column<ProductsRow>;
     VatRateName: Column<ProductsRow>;
     Barcode: Column<ProductsRow>;

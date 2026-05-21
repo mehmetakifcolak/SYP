@@ -41,10 +41,7 @@ public class ProductsForm
     [HalfWidth]
     public int? VatRateId { get; set; }
 
-    [HalfWidth, ReadOnly(true)]
-    public decimal? CurrentValidPrice { get; set; }
-
-    [Tab("Image")]
+[Tab("Image")]
     [FullWidth]
     public string ProductImage { get; set; }
 

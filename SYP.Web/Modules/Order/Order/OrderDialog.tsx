@@ -2,7 +2,7 @@ import {
     Decorators, DialogButton, Lookup, TemplatedDialog,
     getLookupAsync, htmlEncode, notifyError, notifySuccess, notifyWarning
 } from '@serenity-is/corelib';
-import { PriceListItemsRow, PriceListItemsService, ProductCategoryRow, ProductsRow } from '../../ServerTypes/Catalog';
+import { BrandsRow, PriceListItemsRow, PriceListItemsService, ProductCategoryRow, ProductsRow } from '../../ServerTypes/Catalog';
 import { CustomersRow } from '../../ServerTypes/Customer';
 import { OrderDetailRow, OrderDetailService, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { VendorTypeRow } from '../../ServerTypes/Setting';
@@ -10,6 +10,10 @@ import { VendorTypeRow } from '../../ServerTypes/Setting';
 export interface OrderDialogOptions {
     entityId?: number | null;
     onSave?: () => void;
+    /** Picker modu: kaydetmek yerine seçilen ürünleri geri döndürür */
+    onProductsSelected?: (items: OrderDetailRow[]) => void;
+    /** Picker modunda müşteri fiyat listesi için müşteri ID'si */
+    preSelectedCustomerId?: number;
 }
 
 interface CartItem {
@@ -37,13 +41,18 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private customerLookup!: Lookup<CustomersRow>;
     private vendorTypeLookup!: Lookup<VendorTypeRow>;
     private categoryLookup!: Lookup<ProductCategoryRow>;
+    private brandLookup!: Lookup<BrandsRow>;
     private selectedCategoryId: number | null = null;
+    private expandedCategories = new Set<number>();
+    private selectedBrandIds = new Set<number>();
     private searchTerm = '';
     private customerId: number | null = null;
     private priceListItems = new Map<number, PriceListItemsRow>();
     private cartVisible = false;
 
     private catListEl!: HTMLElement;
+    private brandSectionEl!: HTMLElement;
+    private brandListEl!: HTMLElement;
     private productGridEl!: HTMLElement;
     private searchEl!: HTMLInputElement;
     private cartPanelEl!: HTMLElement;
@@ -76,6 +85,10 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         <aside class="opd-sidebar">
             <div class="opd-sidebar-head">Kategoriler</div>
             <div id="~_CategoryList" class="opd-cat-list"></div>
+            <div id="~_BrandSection" class="opd-brand-section" style="display:none">
+                <div class="opd-sidebar-head opd-brand-head">Markalar</div>
+                <div id="~_BrandList" class="opd-brand-list"></div>
+            </div>
         </aside>
         <main class="opd-main">
             <div id="~_ProductGrid" class="opd-product-grid">
@@ -112,19 +125,26 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     protected onDialogOpen(): void {
         super.onDialogOpen();
         this.bindElements();
+        if (this.options?.onProductsSelected) {
+            this.dialogTitle = 'Ürün Seç';
+            const btn = this.byId('CompleteOrder')?.getNode() as HTMLButtonElement;
+            if (btn) btn.innerHTML = '<i class="fa fa-check"></i>&nbsp;Seçimi Onayla';
+        }
         this.loadData();
     }
 
     private bindElements(): void {
         const n = (id: string) => this.byId(id)?.getNode() as HTMLElement;
 
-        this.catListEl     = n('CategoryList');
-        this.productGridEl = n('ProductGrid');
-        this.searchEl      = n('SearchInput') as HTMLInputElement;
-        this.cartPanelEl   = n('CartPanel');
-        this.cartItemsEl   = n('CartItems');
-        this.cartTotalEl   = n('CartTotal');
-        this.cartBadgeEl   = n('CartBadge');
+        this.catListEl      = n('CategoryList');
+        this.brandSectionEl = n('BrandSection');
+        this.brandListEl    = n('BrandList');
+        this.productGridEl  = n('ProductGrid');
+        this.searchEl       = n('SearchInput') as HTMLInputElement;
+        this.cartPanelEl    = n('CartPanel');
+        this.cartItemsEl    = n('CartItems');
+        this.cartTotalEl    = n('CartTotal');
+        this.cartBadgeEl    = n('CartBadge');
 
         n('CartToggle').addEventListener('click', () => this.toggleCart());
         n('CloseCart').addEventListener('click', () => this.toggleCart(false));
@@ -137,17 +157,25 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     }
 
     private async loadData(): Promise<void> {
-        [this.productLookup, this.customerLookup, this.vendorTypeLookup, this.categoryLookup] = await Promise.all([
+        [this.productLookup, this.customerLookup, this.vendorTypeLookup, this.categoryLookup, this.brandLookup] = await Promise.all([
             getLookupAsync<ProductsRow>(ProductsRow.lookupKey),
             getLookupAsync<CustomersRow>(CustomersRow.lookupKey),
             getLookupAsync<VendorTypeRow>(VendorTypeRow.lookupKey),
-            getLookupAsync<ProductCategoryRow>('Catalog.ProductCategory')
+            getLookupAsync<ProductCategoryRow>('Catalog.ProductCategory'),
+            getLookupAsync<BrandsRow>('Catalog.Brands')
         ]);
 
         this.allProducts = this.productLookup.items.filter(p => p.IsActive !== 0);
         this.renderCategories();
+        this.renderBrands();
         this.renderProducts();
-        this.tryAutoSelectCustomer();
+
+        if (this.options?.preSelectedCustomerId) {
+            this.customerId = this.options.preSelectedCustomerId;
+            await this.loadPriceListItems(this.customerId);
+        } else {
+            this.tryAutoSelectCustomer();
+        }
 
         if (this.entityId) {
             await this.loadExistingOrder(this.entityId);
@@ -197,7 +225,6 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
     private async loadExistingOrder(id: number): Promise<void> {
         try {
-            // Sipariş başlığını yükle; MasterDetailRelationBehavior DetailList'i de doldurur
             const orderResp = await OrderService.Retrieve({ EntityId: id });
             const order = orderResp.Entity;
             if (!order) return;
@@ -207,10 +234,8 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
                 await this.loadPriceListItems(order.CustomerId);
             }
 
-            // Birincil kaynak: Retrieve yanıtındaki DetailList (MasterDetailRelation)
             let rows = order.DetailList ?? [];
 
-            // Yedek: DetailList boşsa OrderDetail servisini doğrudan sorgula
             if (rows.length === 0) {
                 const detailResp = await OrderDetailService.List({
                     EqualityFilter: { OrderId: String(id) }
@@ -249,72 +274,18 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         }
     }
 
-    private renderCategories(): void {
-        if (!this.catListEl) return;
-
-        // Ürünlerde kullanılan kategori ID'leri
-        const usedIds = new Set(this.allProducts.map(p => p.CategoryId).filter(Boolean) as number[]);
-
-        // Kullanılan kategoriler + tüm üst kategorileri topla
-        const visibleCats = new Map<number, ProductCategoryRow>();
-        const addWithAncestors = (cat: ProductCategoryRow) => {
-            if (!cat.Id || visibleCats.has(cat.Id)) return;
-            visibleCats.set(cat.Id, cat);
-            if (cat.ParentId) {
-                const parent = this.categoryLookup.itemById[cat.ParentId];
-                if (parent) addWithAncestors(parent);
-            }
-        };
-        this.categoryLookup.items
-            .filter(c => c.IsActive !== false && usedIds.has(c.Id!))
-            .forEach(c => addWithAncestors(c));
-
-        // FullPath'e göre sırala → hiyerarşik görünüm
-        const sorted = Array.from(visibleCats.values())
-            .sort((a, b) => (a.FullPath ?? a.Name ?? '').localeCompare(b.FullPath ?? b.Name ?? '', 'tr'));
-
-        this.catListEl.replaceChildren();
-
-        // "Tüm Ürünler" satırı
-        const allItem = document.createElement('div');
-        allItem.className = 'opd-cat-item' + (this.selectedCategoryId === null ? ' active' : '');
-        allItem.dataset.id = '';
-        const allIcon = document.createElement('i');
-        allIcon.className = 'fa fa-th-large';
-        allItem.append(allIcon, ' Tüm Ürünler');
-        this.catListEl.appendChild(allItem);
-
-        sorted.forEach(cat => {
-            const depth = (cat.FullPath?.split(' > ').length ?? 1) - 1;
-            const hasChildren = sorted.some(c => c.ParentId === cat.Id);
-
-            const el = document.createElement('div');
-            el.className = 'opd-cat-item' + (this.selectedCategoryId === cat.Id ? ' active' : '');
-            el.dataset.id = String(cat.Id);
-            el.style.paddingLeft = (12 + depth * 14) + 'px';
-
-            const icon = document.createElement('i');
-            icon.className = hasChildren ? 'fa fa-folder-o' : 'fa fa-tag';
-            el.append(icon, ' ' + (cat.Name ?? ''));
-            this.catListEl.appendChild(el);
-        });
-
-        this.catListEl.querySelectorAll<HTMLElement>('.opd-cat-item').forEach(el => {
-            el.addEventListener('click', () => {
-                const idStr = el.dataset.id;
-                this.selectedCategoryId = idStr ? parseInt(idStr) : null;
-                this.catListEl.querySelectorAll('.opd-cat-item').forEach(x => x.classList.remove('active'));
-                el.classList.add('active');
-                this.renderProducts();
-            });
+    // Sadece brand filtresi uygulanmış ürünler (kategori filtresi yok)
+    private getBrandFilteredProducts(): ProductsRow[] {
+        if (this.selectedBrandIds.size === 0) return this.allProducts;
+        return this.allProducts.filter(p => {
+            const bid = (p as any).BrandId as number | undefined;
+            return bid != null && this.selectedBrandIds.has(bid);
         });
     }
 
-    private renderProducts(): void {
-        if (!this.productGridEl) return;
-
+    // Sadece kategori filtresi uygulanmış ürünler (brand filtresi yok)
+    private getCategoryFilteredProducts(): ProductsRow[] {
         let products = this.allProducts;
-
         if (this.selectedCategoryId !== null) {
             const selCat = this.categoryLookup?.itemById[this.selectedCategoryId];
             if (selCat?.FullPath) {
@@ -328,6 +299,177 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             } else {
                 products = products.filter(p => p.CategoryId === this.selectedCategoryId);
             }
+        }
+        return products;
+    }
+
+    private renderCategories(): void {
+        if (!this.catListEl) return;
+
+        // Kategori listesi brand filtresine göre de daralır
+        const baseProducts = this.getBrandFilteredProducts();
+        const usedIds = new Set(baseProducts.map(p => p.CategoryId).filter(Boolean) as number[]);
+
+        const visibleCats = new Map<number, ProductCategoryRow>();
+        const addWithAncestors = (cat: ProductCategoryRow) => {
+            if (!cat.Id || visibleCats.has(cat.Id)) return;
+            visibleCats.set(cat.Id, cat);
+            if (cat.ParentId) {
+                const parent = this.categoryLookup.itemById[cat.ParentId];
+                if (parent) addWithAncestors(parent);
+            }
+        };
+        this.categoryLookup.items
+            .filter(c => c.IsActive !== false && usedIds.has(c.Id!))
+            .forEach(c => addWithAncestors(c));
+
+        // Seçili kategori artık görünür değilse sıfırla
+        if (this.selectedCategoryId !== null && !visibleCats.has(this.selectedCategoryId)) {
+            this.selectedCategoryId = null;
+        }
+
+        // parent → children map
+        const childrenOf = new Map<number | null, ProductCategoryRow[]>();
+        for (const [, cat] of visibleCats) {
+            const key = (cat.ParentId && visibleCats.has(cat.ParentId)) ? cat.ParentId : null;
+            if (!childrenOf.has(key)) childrenOf.set(key, []);
+            childrenOf.get(key)!.push(cat);
+        }
+        childrenOf.forEach(arr =>
+            arr.sort((a, b) => (a.FullPath ?? a.Name ?? '').localeCompare(b.FullPath ?? b.Name ?? '', 'tr'))
+        );
+
+        this.catListEl.replaceChildren();
+
+        // "Tüm Ürünler" satırı
+        const allItem = document.createElement('div');
+        allItem.className = 'opd-cat-item' + (this.selectedCategoryId === null ? ' active' : '');
+        allItem.dataset.id = '';
+        const allIcon = document.createElement('i');
+        allIcon.className = 'fa fa-th-large';
+        allItem.append(allIcon, ' Tüm Ürünler');
+        allItem.addEventListener('click', () => {
+            this.selectedCategoryId = null;
+            this.catListEl.querySelectorAll('.opd-cat-item').forEach(x => x.classList.remove('active'));
+            allItem.classList.add('active');
+            this.renderBrands();
+            this.renderProducts();
+        });
+        this.catListEl.appendChild(allItem);
+
+        const renderNode = (cat: ProductCategoryRow, depth: number) => {
+            const children = childrenOf.get(cat.Id!) ?? [];
+            const hasChildren = children.length > 0;
+            const isExpanded = this.expandedCategories.has(cat.Id!);
+
+            const el = document.createElement('div');
+            el.className = 'opd-cat-item' + (this.selectedCategoryId === cat.Id ? ' active' : '');
+            el.dataset.id = String(cat.Id);
+            el.style.paddingLeft = (12 + depth * 14) + 'px';
+
+            const icon = document.createElement('i');
+            icon.className = hasChildren
+                ? 'fa ' + (isExpanded ? 'fa-caret-down' : 'fa-caret-right') + ' opd-cat-toggle'
+                : 'fa fa-tag';
+            el.appendChild(icon);
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = ' ' + (cat.Name ?? '');
+            el.appendChild(nameSpan);
+
+            el.addEventListener('click', () => {
+                this.selectedCategoryId = cat.Id!;
+                if (hasChildren) {
+                    if (this.expandedCategories.has(cat.Id!)) {
+                        this.expandedCategories.delete(cat.Id!);
+                    } else {
+                        this.expandedCategories.add(cat.Id!);
+                    }
+                    this.renderCategories();
+                } else {
+                    this.catListEl.querySelectorAll('.opd-cat-item').forEach(x => x.classList.remove('active'));
+                    el.classList.add('active');
+                }
+                this.renderBrands();
+                this.renderProducts();
+            });
+
+            this.catListEl.appendChild(el);
+
+            if (hasChildren && isExpanded) {
+                for (const child of children) {
+                    renderNode(child, depth + 1);
+                }
+            }
+        };
+
+        for (const root of (childrenOf.get(null) ?? [])) {
+            renderNode(root, 0);
+        }
+    }
+
+    private renderBrands(): void {
+        if (!this.brandListEl || !this.brandSectionEl) return;
+
+        const categoryProducts = this.getCategoryFilteredProducts();
+        const brandIds = new Set(
+            categoryProducts.map(p => (p as any).BrandId as number | undefined).filter(Boolean) as number[]
+        );
+
+        // Yeni kategoride olmayan seçili markaları temizle
+        for (const id of this.selectedBrandIds) {
+            if (!brandIds.has(id)) this.selectedBrandIds.delete(id);
+        }
+
+        if (brandIds.size === 0) {
+            this.brandSectionEl.style.display = 'none';
+            this.brandListEl.replaceChildren();
+            return;
+        }
+
+        const brands = Array.from(brandIds)
+            .map(id => this.brandLookup?.itemById[id])
+            .filter(Boolean)
+            .sort((a, b) => (a!.Name ?? '').localeCompare(b!.Name ?? '', 'tr')) as BrandsRow[];
+
+        this.brandSectionEl.style.display = '';
+        this.brandListEl.replaceChildren();
+
+        brands.forEach(brand => {
+            const label = document.createElement('label');
+            label.className = 'opd-brand-item';
+
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.checked = this.selectedBrandIds.has(brand.Id!);
+            cb.addEventListener('change', () => {
+                if (cb.checked) {
+                    this.selectedBrandIds.add(brand.Id!);
+                } else {
+                    this.selectedBrandIds.delete(brand.Id!);
+                }
+                this.renderCategories();
+                this.renderProducts();
+            });
+
+            const name = document.createElement('span');
+            name.textContent = brand.Name ?? '';
+
+            label.append(cb, name);
+            this.brandListEl.appendChild(label);
+        });
+    }
+
+    private renderProducts(): void {
+        if (!this.productGridEl) return;
+
+        let products = this.getCategoryFilteredProducts();
+
+        if (this.selectedBrandIds.size > 0) {
+            products = products.filter(p => {
+                const bid = (p as any).BrandId as number | undefined;
+                return bid != null && this.selectedBrandIds.has(bid);
+            });
         }
 
         if (this.searchTerm) {
@@ -548,6 +690,23 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             Discount:  item.discount,
             LineTotal: item.lineTotal
         }));
+
+        // Picker modu: karton miktarıyla geri döndür (adet değil)
+        if (this.options?.onProductsSelected) {
+            const pickerList: OrderDetailRow[] = Array.from(this.cart.values()).map(item => ({
+                ProductId: item.productId,
+                Quantity:  item.quantity,
+                UnitId:    item.unitId,
+                UnitPrice: item.unitPrice,
+                VatRateId: item.vatRateId,
+                VatRate:   item.vatRate,
+                Discount:  item.discount,
+                LineTotal: item.lineTotal
+            }));
+            this.options.onProductsSelected(pickerList);
+            this.dialogClose();
+            return;
+        }
 
         const totalAmount = detailList.reduce((s, d) => s + (d.LineTotal || 0), 0);
 

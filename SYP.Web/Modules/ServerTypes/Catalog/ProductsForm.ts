@@ -1,4 +1,4 @@
-﻿import { BooleanEditor, DecimalEditor, ImageUploadEditor, initFormType, LookupEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
+﻿import { BooleanEditor, ImageUploadEditor, initFormType, LookupEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
 
 export interface ProductsForm {
     Code: StringEditor;
@@ -12,7 +12,6 @@ export interface ProductsForm {
     PackingId: LookupEditor;
     CurrencyId: LookupEditor;
     VatRateId: LookupEditor;
-    CurrentValidPrice: DecimalEditor;
     ProductImage: ImageUploadEditor;
     IsActive: BooleanEditor;
 }
@@ -30,9 +29,8 @@ export class ProductsForm extends PrefixedContext {
             var w0 = StringEditor;
             var w1 = LookupEditor;
             var w2 = TextAreaEditor;
-            var w3 = DecimalEditor;
-            var w4 = ImageUploadEditor;
-            var w5 = BooleanEditor;
+            var w3 = ImageUploadEditor;
+            var w4 = BooleanEditor;
 
             initFormType(ProductsForm, [
                 'Code', w0,
@@ -46,9 +44,8 @@ export class ProductsForm extends PrefixedContext {
                 'PackingId', w1,
                 'CurrencyId', w1,
                 'VatRateId', w1,
-                'CurrentValidPrice', w3,
-                'ProductImage', w4,
-                'IsActive', w5
+                'ProductImage', w3,
+                'IsActive', w4
             ]);
         }
     }

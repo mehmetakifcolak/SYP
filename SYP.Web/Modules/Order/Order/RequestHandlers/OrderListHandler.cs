@@ -64,24 +64,18 @@ public class OrderListHandler : ListRequestHandler<MyRow, ListRequest, ListRespo
 
     private string GetUserRole(int userId)
     {
-        // Süper Admin kontrolü (Admin rolüne sahip)
-        if (Context.User.IsInRole("Admin"))
-            return "SüperAdmin";
-
-        // Yönetici kontrolü (CustomersRow'da ManagerUserId olarak kayıtlı)
-        var isManager = Connection.Exists<Customer.CustomersRow>(
-            new Criteria(Customer.CustomersRow.Fields.ManagerUserId) == userId);
-
-        if (isManager)
-            return "Yönetici";
-
-        // Bayi kontrolü (CustomersRow'da UserId olarak kayıtlı)
-        var isDealer = Connection.Exists<Customer.CustomersRow>(
-            new Criteria(Customer.CustomersRow.Fields.UserId) == userId);
-
-        if (isDealer)
+        if (Permissions.HasPermission(Administration.PermissionKeys.Bayii)
+            && !Permissions.HasPermission("Administration:Security"))
             return "Bayi";
 
-        return "Unknown";
+        if (Connection.Exists<Customer.CustomersRow>(
+                new Criteria(Customer.CustomersRow.Fields.ManagerUserId) == userId))
+            return "Yönetici";
+
+        if (Connection.Exists<Customer.CustomersRow>(
+                new Criteria(Customer.CustomersRow.Fields.UserId) == userId))
+            return "Bayi";
+
+        return "Yönetici";
     }
 }

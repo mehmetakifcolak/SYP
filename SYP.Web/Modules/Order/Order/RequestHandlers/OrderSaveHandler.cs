@@ -17,13 +17,17 @@ public interface IOrderSaveHandler : ISaveHandler<MyRow, SaveRequest<MyRow>, Sav
 public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, SaveResponse>, IOrderSaveHandler
 {
     private readonly IOrderStatusService _statusService;
+    private readonly IOrderWorkflowService _workflow;
     private readonly IEmailQueueSender _emailSender;
     private readonly IGetBayiiCustomerService _bayiiCustomerService;
 
-    public OrderSaveHandler(IRequestContext context, IOrderStatusService statusService, IEmailQueueSender emailSender, IGetBayiiCustomerService bayiiCustomerService)
+    public OrderSaveHandler(IRequestContext context, IOrderStatusService statusService,
+        IOrderWorkflowService workflow, IEmailQueueSender emailSender,
+        IGetBayiiCustomerService bayiiCustomerService)
         : base(context)
     {
         _statusService = statusService;
+        _workflow = workflow;
         _emailSender = emailSender;
         _bayiiCustomerService = bayiiCustomerService;
     }
@@ -32,77 +36,54 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
     {
         base.BeforeSave();
 
-        // 0. IsCreate ve CustomerId boş ise permission kontrolü yap
         if (IsCreate && !Row.CustomerId.HasValue)
         {
-            // Bayi permission'a sahipse CustomerId'yi otomatik doldur
             if (Permissions.HasPermission(Administration.PermissionKeys.Bayii))
             {
                 var bayiiCustomerId = _bayiiCustomerService.GetCurrentBayiiCustomerId();
                 if (bayiiCustomerId.HasValue)
-                {
                     Row.CustomerId = bayiiCustomerId;
-                }
             }
         }
-        // 1. Auto-numbering
-        if (IsCreate && Row.OrderNumber.IsNullOrEmpty())
-        {
-            Row.OrderNumber = GenerateOrderNumber();
-        }
 
-        // 2. Varsayılan değerler
+        if (IsCreate && Row.OrderNumber.IsNullOrEmpty())
+            Row.OrderNumber = GenerateOrderNumber();
+
         if (IsCreate)
         {
-            if (Row.OrderDate == null)
-                Row.OrderDate = DateTime.Now;
-
-            if (Row.Status == null)
-                Row.Status = OrderStatus.TALEP_GONDERILDI;
-
-            // Audit alanlarını doldur
-            Row.InsertDate = DateTime.Now;
-            Row.InsertUserId = int.Parse(Context.User.GetIdentifier());
+            Row.OrderDate   ??= DateTime.Now;
+            Row.Status      ??= OrderStatus.TALEP_BEKLETTE;
+            Row.InsertDate    = DateTime.Now;
+            Row.InsertUserId  = int.Parse(Context.User.GetIdentifier());
         }
 
-        // Update için audit alanlarını doldur
         if (IsUpdate)
         {
-            Row.UpdateDate = DateTime.Now;
+            Row.UpdateDate   = DateTime.Now;
             Row.UpdateUserId = int.Parse(Context.User.GetIdentifier());
         }
 
-        // 3. Bayi'nin yöneticisini otomatik ata
         if (IsCreate && Row.CustomerId.HasValue && !Row.ManagerUserId.HasValue)
         {
             var customer = Connection.TryById<Customer.CustomersRow>(Row.CustomerId.Value);
             if (customer != null)
-            {
                 Row.ManagerUserId = customer.ManagerUserId;
-            }
         }
 
-        // 4. Detaylardan tutarları hesapla
         if (Row.DetailList != null && Row.DetailList.Count > 0)
-        {
             CalculateTotals();
-        }
 
-        // 5. Durum değişikliği validasyonu
         if (IsUpdate && Old.Status != Row.Status)
-        {
             ValidateStatusTransition();
-        }
     }
 
     protected override void AfterSave()
     {
         base.AfterSave();
 
-        // 6. Durum geçişi logu
         if (IsUpdate && Old.Status != Row.Status)
         {
-            var userId = int.Parse(Context.User.GetIdentifier());
+            var userId   = int.Parse(Context.User.GetIdentifier());
             var userRole = GetUserRole(userId);
 
             _statusService.LogStatusChange(
@@ -115,15 +96,11 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
                 Row.RejectReason
             );
 
-            // 7. Email bildirimi gönder
-            SendStatusChangeEmail(Old.Status.Value, Row.Status.Value);
+            SendStatusChangeEmail(Row.Status.Value);
         }
 
-        // 8. Stok güncelleme (HAZIRLANIYOR durumuna geçerken)
         if (IsUpdate && Row.Status == OrderStatus.HAZIRLANIYOR && Old.Status != OrderStatus.HAZIRLANIYOR)
-        {
             UpdateStockFromOrder();
-        }
     }
 
     private string GenerateOrderNumber()
@@ -162,22 +139,15 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
 
     private void CalculateTotals()
     {
-        // Satır toplamlarını hesapla
         foreach (var detail in Row.DetailList)
-        {
             detail.LineTotal = (detail.Quantity ?? 0) * (detail.UnitPrice ?? 0) - (detail.Discount ?? 0);
-        }
 
-        // Toplam tutar
         Row.TotalAmount = Row.DetailList.Sum(d => d.LineTotal ?? 0);
 
-        // Kademeli indirim hesapla
         var tieredDiscount = CalculateTieredDiscount(Row.TotalAmount.Value);
         Row.DiscountPercentage = tieredDiscount.percentage;
-        Row.DiscountAmount = tieredDiscount.amount;
-
-        // Net tutar
-        Row.NetAmount = Row.TotalAmount - Row.DiscountAmount;
+        Row.DiscountAmount     = tieredDiscount.amount;
+        Row.NetAmount          = Row.TotalAmount - Row.DiscountAmount;
     }
 
     private (decimal percentage, decimal amount) CalculateTieredDiscount(decimal totalAmount)
@@ -204,74 +174,13 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
     {
         var oldStatus = Old.Status.Value;
         var newStatus = Row.Status.Value;
+        var userId    = int.Parse(Context.User.GetIdentifier());
+        var userRole  = GetUserRole(userId);
 
-        // Terminal durumlardan çıkış kontrolü
-        if (oldStatus == OrderStatus.TESLIM_EDILDI || oldStatus == OrderStatus.TALEP_IPTAL)
-        {
-            throw new ValidationError("Tamamlanan veya iptal edilen siparişler güncellenemez!");
-        }
+        if (_workflow.RequiresReason(newStatus) && Row.RejectReason.IsNullOrEmpty())
+            throw new ValidationError("Bu durum için açıklama/neden girilmesi zorunludur!");
 
-        // Red durumları için açıklama zorunlu
-        if (newStatus == OrderStatus.BAYI_REDDETTI ||
-            newStatus == OrderStatus.DEKONT_REDDEDILDI ||
-            newStatus == OrderStatus.TALEP_IPTAL)
-        {
-            if (Row.RejectReason.IsNullOrEmpty())
-            {
-                throw new ValidationError("Red/iptal nedeni zorunludur!");
-            }
-        }
-
-        // Rol bazlı geçiş kontrolü
-        var userId = int.Parse(Context.User.GetIdentifier());
-        var userRole = GetUserRole(userId);
-
-        switch (userRole)
-        {
-            case "Bayi":
-                ValidateDealerStatusTransition(oldStatus, newStatus);
-                break;
-            case "Yönetici":
-                ValidateManagerStatusTransition(oldStatus, newStatus);
-                break;
-            case "SüperAdmin":
-                // Süper admin her geçişi yapabilir
-                break;
-            default:
-                throw new ValidationError("Bu işlem için yetkiniz yok!");
-        }
-    }
-
-    private void ValidateDealerStatusTransition(OrderStatus oldStatus, OrderStatus newStatus)
-    {
-        var validTransitions = new Dictionary<OrderStatus, List<OrderStatus>>
-        {
-            { OrderStatus.REVIZE_EDILDI, new List<OrderStatus> { OrderStatus.BAYI_ONAYLADI, OrderStatus.BAYI_REDDETTI } },
-            { OrderStatus.BAYI_ONAYLADI, new List<OrderStatus> { OrderStatus.DEKONT_YUKLENDI } },
-            { OrderStatus.DEKONT_REDDEDILDI, new List<OrderStatus> { OrderStatus.DEKONT_YUKLENDI, OrderStatus.TALEP_IPTAL } },
-        };
-
-        if (!validTransitions.ContainsKey(oldStatus) || !validTransitions[oldStatus].Contains(newStatus))
-        {
-            throw new ValidationError($"Geçersiz durum geçişi: {oldStatus} → {newStatus}");
-        }
-    }
-
-    private void ValidateManagerStatusTransition(OrderStatus oldStatus, OrderStatus newStatus)
-    {
-        var validTransitions = new Dictionary<OrderStatus, List<OrderStatus>>
-        {
-            { OrderStatus.TALEP_GONDERILDI, new List<OrderStatus> { OrderStatus.REVIZE_EDILDI, OrderStatus.TALEP_IPTAL } },
-            { OrderStatus.BAYI_REDDETTI, new List<OrderStatus> { OrderStatus.REVIZE_EDILDI, OrderStatus.TALEP_IPTAL } },
-            { OrderStatus.DEKONT_YUKLENDI, new List<OrderStatus> { OrderStatus.DEKONT_REDDEDILDI, OrderStatus.HAZIRLANIYOR } },
-            { OrderStatus.HAZIRLANIYOR, new List<OrderStatus> { OrderStatus.SEVK_ASAMASINDA } },
-            { OrderStatus.SEVK_ASAMASINDA, new List<OrderStatus> { OrderStatus.TESLIM_EDILDI } },
-        };
-
-        if (!validTransitions.ContainsKey(oldStatus) || !validTransitions[oldStatus].Contains(newStatus))
-        {
-            throw new ValidationError($"Geçersiz durum geçişi: {oldStatus} → {newStatus}");
-        }
+        _workflow.ValidateTransition(oldStatus, newStatus, userRole);
     }
 
     private void UpdateStockFromOrder()
@@ -294,18 +203,15 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
 
             if (existingStock != null)
             {
-                // Stok miktarını düş
                 var newQuantity = (existingStock.Quantity ?? 0) - (detail.Quantity ?? 0);
 
                 if (newQuantity < 0)
-                {
                     throw new ValidationError($"Ürün '{detail.ProductCodeName}' için yeterli stok yok! Mevcut: {existingStock.Quantity}, Talep: {detail.Quantity}");
-                }
 
                 Connection.UpdateById(new Warehouse.WarehouseStockRow
                 {
-                    Id = existingStock.Id,
-                    Quantity = newQuantity,
+                    Id             = existingStock.Id,
+                    Quantity       = newQuantity,
                     LastUpdateDate = DateTime.Now
                 });
             }
@@ -330,101 +236,73 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         return warehouse.Id.Value;
     }
 
-    private void SendStatusChangeEmail(OrderStatus oldStatus, OrderStatus newStatus)
+    private void SendStatusChangeEmail(OrderStatus newStatus)
     {
-        var templateKey = GetEmailTemplateKey(newStatus);
-        var recipients = GetEmailRecipients(newStatus);
-
-        if (recipients.Count == 0 || templateKey.IsNullOrEmpty())
+        var templateKey = _workflow.GetEmailTemplateKey(newStatus);
+        if (templateKey.IsNullOrEmpty())
             return;
 
-        var customer = Connection.TryById<Customer.CustomersRow>(Row.CustomerId.Value);
-        var siteUrl = "https://localhost:5001"; // TODO: Site URL'ini appsettings'ten al
-        var userId = int.Parse(Context.User.GetIdentifier());
-        var user = Connection.TryById<Administration.UserRow>(userId);
+        var recipientRole = _workflow.GetEmailRecipientRole(newStatus);
+        var recipientEmail = GetEmailByRole(recipientRole);
+        if (recipientEmail.IsNullOrEmpty())
+            return;
+
+        var siteUrl = "https://localhost:5001";
+        var userId  = int.Parse(Context.User.GetIdentifier());
+        var user    = Connection.TryById<Administration.UserRow>(userId);
 
         _ = _emailSender.QueueTemplateEmailAsync(new QueueTemplateEmailRequest
         {
             TemplateKey = templateKey,
-            To = recipients,
+            To          = [recipientEmail],
             TemplateData = new Dictionary<string, object>
             {
-                { "siparis_no", Row.OrderNumber },
-                { "bayi_adi", customer?.Name },
-                { "toplam_tutar", Row.NetAmount?.ToString("N2") + " " + Row.CurrencyCode },
-                { "durum", newStatus.ToString() },
-                { "aciklama", Row.RejectReason ?? Row.Notes },
-                { "siparis_link", $"{siteUrl}/Order/Order#{Row.Id}" },
+                { "siparis_no",          Row.OrderNumber },
+                { "bayi_adi",            Row.CustomerName },
+                { "toplam_tutar",        Row.NetAmount?.ToString("N2") + " " + Row.CurrencyCode },
+                { "durum",               newStatus.GetDescription() },
+                { "aciklama",            Row.RejectReason ?? Row.Notes },
+                { "siparis_link",        $"{siteUrl}/Order/Order#{Row.Id}" },
                 { "degistiren_kullanici", user?.DisplayName }
             },
             ReferenceType = "Order",
-            ReferenceId = Row.Id?.ToString()
+            ReferenceId   = Row.Id?.ToString()
         });
     }
 
-    private string GetEmailTemplateKey(OrderStatus status)
+    private string GetEmailByRole(string recipientRole)
     {
-        return status switch
+        if (recipientRole == "Yönetici")
         {
-            OrderStatus.TALEP_GONDERILDI => "MAIL_YENI_TALEP",
-            OrderStatus.REVIZE_EDILDI => "MAIL_REVIZE_EDILDI",
-            OrderStatus.BAYI_ONAYLADI => "MAIL_BAYI_ONAYLADI",
-            OrderStatus.BAYI_REDDETTI => "MAIL_BAYI_REDDETTI",
-            OrderStatus.DEKONT_YUKLENDI => "MAIL_DEKONT_YUKLENDI",
-            OrderStatus.DEKONT_REDDEDILDI => "MAIL_DEKONT_REDDEDILDI",
-            OrderStatus.HAZIRLANIYOR => "MAIL_HAZIRLANIYOR",
-            OrderStatus.SEVK_ASAMASINDA => "MAIL_SEVK_ASAMASINDA",
-            OrderStatus.TESLIM_EDILDI => "MAIL_TESLIM_EDILDI",
-            OrderStatus.TALEP_IPTAL => "MAIL_TALEP_IPTAL",
-            _ => null
-        };
-    }
-
-    private List<string> GetEmailRecipients(OrderStatus status)
-    {
-        var recipients = new List<string>();
-        var customer = Connection.TryById<Customer.CustomersRow>(Row.CustomerId.Value);
-        var manager = Row.ManagerUserId.HasValue ? Connection.TryById<Administration.UserRow>(Row.ManagerUserId.Value) : null;
-
-        // Bayi aksiyonları → Yönetici'ye
-        if (status == OrderStatus.TALEP_GONDERILDI ||
-            status == OrderStatus.BAYI_ONAYLADI ||
-            status == OrderStatus.BAYI_REDDETTI ||
-            status == OrderStatus.DEKONT_YUKLENDI)
-        {
-            if (manager?.Email != null)
-                recipients.Add(manager.Email);
-        }
-        // Yönetici/Admin aksiyonları → Bayi'ye
-        else
-        {
-            if (customer?.Email != null)
-                recipients.Add(customer.Email);
+            if (!Row.ManagerUserId.HasValue)
+                return null;
+            return Connection.TryById<Administration.UserRow>(Row.ManagerUserId.Value)?.Email;
         }
 
-        return recipients;
+        // Bayi
+        if (!Row.CustomerId.HasValue)
+            return null;
+        return Connection.TryById<Customer.CustomersRow>(Row.CustomerId.Value)?.Email;
     }
 
     private string GetUserRole(int userId)
     {
-        // Süper Admin kontrolü
-        if (Context.User.IsInRole("Admin"))
-            return "SüperAdmin";
-
-        // Yönetici kontrolü
-        var isManager = Connection.Exists<Customer.CustomersRow>(
-            new Criteria(Customer.CustomersRow.Fields.ManagerUserId) == userId);
-
-        if (isManager)
-            return "Yönetici";
-
-        // Bayi kontrolü
-        var isDealer = Connection.Exists<Customer.CustomersRow>(
-            new Criteria(Customer.CustomersRow.Fields.UserId) == userId);
-
-        if (isDealer)
+        // Bayii permission'ı varsa ve güvenlik yetkisi yoksa → Bayi
+        if (Permissions.HasPermission(Administration.PermissionKeys.Bayii)
+            && !Permissions.HasPermission("Administration:Security"))
             return "Bayi";
 
-        throw new ValidationError("Kullanıcı rolü belirlenemedi!");
+        // DB: yönetici mi?
+        if (Connection.Exists<Customer.CustomersRow>(
+                new Criteria(Customer.CustomersRow.Fields.ManagerUserId) == userId))
+            return "Yönetici";
+
+        // DB: bayi kullanıcısı mı?
+        if (Connection.Exists<Customer.CustomersRow>(
+                new Criteria(Customer.CustomersRow.Fields.UserId) == userId))
+            return "Bayi";
+
+        // Fallback: oturumu açık, yetkili kullanıcı → Yönetici
+        return "Yönetici";
     }
 }

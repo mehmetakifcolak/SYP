@@ -28,10 +28,7 @@ public class ProductsColumns
     [Width(80)]
     public string UnitName { get; set; }
 
-    [Width(100), AlignRight, DisplayFormat("#,##0.0000")]
-    public decimal? CurrentValidPrice { get; set; }
-
-    [Width(80)]
+[Width(80)]
     public string CurrencyCode { get; set; }
 
     [Width(80)]

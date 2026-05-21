@@ -78,11 +78,11 @@ public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Ad
     public int? InsertUserId { get => fields.InsertUserId[this]; set => fields.InsertUserId[this] = value; }
     public partial class RowFields { public Int32Field InsertUserId; }
 
-    [DisplayName("Güncelleme Tarihi"), Insertable(false), Updatable(false)]
+    [DisplayName("Güncelleme Tarihi"), Insertable(false)]
     public DateTime? UpdateDate { get => fields.UpdateDate[this]; set => fields.UpdateDate[this] = value; }
     public partial class RowFields { public DateTimeField UpdateDate; }
 
-    [DisplayName("Güncelleyen"), Insertable(false), Updatable(false)]
+    [DisplayName("Güncelleyen"), Insertable(false)]
     public int? UpdateUserId { get => fields.UpdateUserId[this]; set => fields.UpdateUserId[this] = value; }
     public partial class RowFields { public Int32Field UpdateUserId; }
 

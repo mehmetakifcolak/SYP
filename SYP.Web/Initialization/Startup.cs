@@ -120,6 +120,7 @@ public partial class Startup
         services.AddSingleton<IUserPasswordValidator, AppServices.UserPasswordValidator>();
         services.AddUserProvider<AppServices.UserAccessor, AppServices.UserRetrieveService>();
         services.AddScoped<Order.IOrderStatusService, Order.OrderStatusService>();
+        services.AddScoped<Order.IOrderWorkflowService, Order.OrderWorkflowService>();
         services.AddScoped<Customer.Services.IGetBayiiCustomerService, Customer.Services.GetBayiiCustomerService>();
         services.AddServiceHandlers();
         services.AddDynamicScripts();

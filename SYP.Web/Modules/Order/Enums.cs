@@ -22,10 +22,18 @@ public enum OrderStatus
     HAZIRLANIYOR = 7,
     [Description("Sevk Aşamasında")]
     SEVK_ASAMASINDA = 8,
-    [Description("Teslim Edildi")]
-    TESLIM_EDILDI = 9,
+    [Description("Teslim Alındı")]
+    TESLIM_ALINDI = 9,
     [Description("Talep İptal")]
-    TALEP_IPTAL = 10
+    TALEP_IPTAL = 10,
+    [Description("Temsilci Onayladı")]
+    TEMSILCI_ONAYLADI = 11,
+    [Description("Dekont Onaylandı")]
+    DEKONT_ONAYLANDI = 12,
+    [Description("Teslim Alınmadı")]
+    TESLIM_ALINMADI = 13,
+    [Description("Talep Beklemede")]
+    TALEP_BEKLETTE = 14
 }
 
 [EnumKey("Order.DocumentType"), ScriptInclude]

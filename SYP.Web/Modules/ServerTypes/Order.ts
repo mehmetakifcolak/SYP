@@ -1,4 +1,7 @@
-﻿export * from "./Order/DocumentType";
+﻿export * from "./Order/AllowedTransitionItem";
+export * from "./Order/DocumentType";
+export * from "./Order/GetAllowedTransitionsRequest";
+export * from "./Order/GetAllowedTransitionsResponse";
 export * from "./Order/GetBayiiCustomerResponse";
 export * from "./Order/OrderColumns";
 export * from "./Order/OrderDetailColumns";
@@ -32,3 +35,4 @@ export * from "./Order/TieredDiscountSettingsEditorForm";
 export * from "./Order/TieredDiscountSettingsForm";
 export * from "./Order/TieredDiscountSettingsRow";
 export * from "./Order/TieredDiscountSettingsService";
+export * from "./Order/UploadDekontRequest";
