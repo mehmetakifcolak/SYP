@@ -25,17 +25,10 @@ export class CustomersGrid extends EntityGrid<CustomersRow, any> {
     protected getColumns(): Column[] {
         let columns = super.getColumns();
 
-        console.log('All columns:', columns.map(c => c.field));
-
         let userIsActiveCol = columns.find(c => c.field === 'UserIsActive');
-        console.log('UserIsActive column found:', !!userIsActiveCol);
-
         if (userIsActiveCol) {
             let formatter = new UserStatusFormatter();
-            userIsActiveCol.format = ctx => {
-                console.log('Formatter called, value:', ctx.value);
-                return formatter.format(ctx);
-            };
+            userIsActiveCol.format = ctx => formatter.format(ctx);
         }
 
         return columns;

@@ -2389,6 +2389,8 @@ body#s-LoginPage .s-full-page {
 }
 .oed-save-btn:hover { background: #059669 !important; }
 .opd-complete-btn:hover { background: #059669 !important; }
+.oed-footer-actions { display: flex; gap: 8px; align-items: center; }
+.oed-delete-btn { border-radius: 8px; font-weight: 700; }
 
 .panel-titlebar { padding: 10px 16px !important; }
 

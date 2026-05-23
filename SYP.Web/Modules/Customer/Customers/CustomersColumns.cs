@@ -43,7 +43,13 @@ public class CustomersColumns
     [DisplayName("Para Birimi"), Width(100), AlignCenter]
     public string CurrencyCode { get; set; }
 
-    public bool IsActive { get; set; } 
+    public bool IsActive { get; set; }
+
+    [DisplayName("Sorumlu Yönetici"), Width(150)]
+    public string ManagerName { get; set; }
+
+    [DisplayName("Kullanıcı"), Width(150)]
+    public string UserDisplayName { get; set; }
 
     [DisplayName("K. Durumu"), Width(120)]
     [FormatterType("SYP.Customer.UserStatusFormatter")]

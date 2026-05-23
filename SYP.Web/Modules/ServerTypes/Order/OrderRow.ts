@@ -17,6 +17,9 @@ export interface OrderRow {
     WarehouseId?: number;
     Notes?: string;
     IsStockExitCreated?: boolean;
+    IsDeleted?: boolean;
+    DeletedDate?: string;
+    DeletedUserId?: number;
     RejectReason?: string;
     InsertDate?: string;
     InsertUserId?: number;
@@ -32,6 +35,7 @@ export interface OrderRow {
 
 export abstract class OrderRow {
     static readonly idProperty = 'Id';
+    static readonly isDeletedProperty = 'IsDeleted';
     static readonly nameProperty = 'OrderNumber';
     static readonly localTextPrefix = 'Order.Order';
     static readonly deletePermission = 'Order:Order:Delete';

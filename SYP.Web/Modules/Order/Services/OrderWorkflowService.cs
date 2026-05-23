@@ -7,6 +7,8 @@ namespace SYP.Order;
 /// <summary>
 /// Sipariş durum akışı:
 ///
+///  TALEP_BEKLETTE ──► [Bayi/Temsilci] TALEP_GONDERILDI
+///
 ///  TALEP_GONDERILDI ──► [Temsilci] TEMSILCI_ONAYLADI ──► [Bayi] DEKONT_YUKLENDI
 ///       │                                 ▲                          │
 ///       ├──► [Temsilci] REVIZE_EDILDI ────┤          ┌──────────────┤
@@ -15,7 +17,7 @@ namespace SYP.Order;
 ///       │         └──► [Bayi] BAYI_REDDETTI ──► [Temsilci] REVIZE_EDILDI veya TALEP_IPTAL
 ///       └──► [Temsilci] TALEP_IPTAL
 ///
-///  DEKONT_YUKLENDI ──► [Temsilci] DEKONT_ONAYLANDI ──► HAZIRLANIYOR ──► SEVK_ASAMASINDA
+///  DEKONT_YUKLENDI ──► [Temsilci] DEKONT_ONAYLANDI ──► [Temsilci] SEVK_ASAMASINDA
 ///                 └──► [Temsilci] DEKONT_REDDEDILDI ──► [Bayi] DEKONT_YUKLENDI veya TALEP_IPTAL
 ///
 ///  SEVK_ASAMASINDA ──► [Bayi] TESLIM_ALINDI (terminal)
@@ -30,7 +32,7 @@ public class OrderWorkflowService : IOrderWorkflowService
         { (OrderStatus.BAYI_ONAYLADI,    "Yönetici"),  [OrderStatus.TEMSILCI_ONAYLADI] },
         { (OrderStatus.BAYI_REDDETTI,    "Yönetici"),  [OrderStatus.REVIZE_EDILDI, OrderStatus.TALEP_IPTAL] },
         { (OrderStatus.DEKONT_YUKLENDI,  "Yönetici"),  [OrderStatus.DEKONT_ONAYLANDI, OrderStatus.DEKONT_REDDEDILDI] },
-        { (OrderStatus.DEKONT_ONAYLANDI, "Yönetici"),  [OrderStatus.HAZIRLANIYOR] },
+        { (OrderStatus.DEKONT_ONAYLANDI, "Yönetici"),  [OrderStatus.SEVK_ASAMASINDA] },
         { (OrderStatus.HAZIRLANIYOR,     "Yönetici"),  [OrderStatus.SEVK_ASAMASINDA] },
 
         // Talep beklemede geçişleri

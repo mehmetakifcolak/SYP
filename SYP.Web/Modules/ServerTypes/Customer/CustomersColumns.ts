@@ -20,6 +20,8 @@ export interface CustomersColumns {
     VendorTypeTitle: Column<CustomersRow>;
     CurrencyCode: Column<CustomersRow>;
     IsActive: Column<CustomersRow>;
+    ManagerName: Column<CustomersRow>;
+    UserDisplayName: Column<CustomersRow>;
     UserIsActive: Column<CustomersRow>;
 }
 

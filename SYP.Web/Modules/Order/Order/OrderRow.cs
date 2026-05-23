@@ -8,7 +8,8 @@ namespace SYP.Order;
 [UpdatePermission("Order:Order:Update")]
 [DeletePermission("Order:Order:Delete")]
 [ServiceLookupPermission("Order:Order:Lookup")]
-public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
+public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow,
+    IInsertLogRow, IUpdateLogRow, IIsDeletedRow, IDeleteLogRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
@@ -28,7 +29,7 @@ public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Ad
     public int? ManagerUserId { get => fields.ManagerUserId[this]; set => fields.ManagerUserId[this] = value; }
     public partial class RowFields { public Int32Field ManagerUserId; }
 
-    [DisplayName("Durum"), NotNull, DefaultValue(1)]
+    [DisplayName("Durum"), NotNull, DefaultValue(14)]
     public OrderStatus? Status { get => (OrderStatus?)fields.Status[this]; set => fields.Status[this] = (int?)value; }
     public partial class RowFields { public Int32Field Status; }
 
@@ -69,6 +70,18 @@ public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Ad
     [DisplayName("Stok Çıkışı Oluşturuldu"), DefaultValue(false), Insertable(false), Updatable(false)]
     public bool? IsStockExitCreated { get => fields.IsStockExitCreated[this]; set => fields.IsStockExitCreated[this] = value; }
     public partial class RowFields { public BooleanField IsStockExitCreated; }
+
+    [DisplayName("Silindi"), DefaultValue(false), Insertable(false), Updatable(false)]
+    public bool? IsDeleted { get => fields.IsDeleted[this]; set => fields.IsDeleted[this] = value; }
+    public partial class RowFields { public BooleanField IsDeleted; }
+
+    [DisplayName("Silinme Tarihi"), Insertable(false), Updatable(false)]
+    public DateTime? DeletedDate { get => fields.DeletedDate[this]; set => fields.DeletedDate[this] = value; }
+    public partial class RowFields { public DateTimeField DeletedDate; }
+
+    [DisplayName("Silen Kullanıcı"), Insertable(false), Updatable(false)]
+    public int? DeletedUserId { get => fields.DeletedUserId[this]; set => fields.DeletedUserId[this] = value; }
+    public partial class RowFields { public Int32Field DeletedUserId; }
 
     [DisplayName("Red Nedeni"), Size(int.MaxValue)]
     public string RejectReason { get => fields.RejectReason[this]; set => fields.RejectReason[this] = value; }
@@ -122,6 +135,14 @@ public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Ad
     public partial class RowFields { public RowListField<OrderDetailRow> DetailList; }
 
     #endregion Master-Detail
+
+    DateTimeField IInsertDateRow.InsertDateField => fields.InsertDate;
+    Field IInsertUserIdRow.InsertUserIdField => fields.InsertUserId;
+    DateTimeField IUpdateDateRow.UpdateDateField => fields.UpdateDate;
+    Field IUpdateUserIdRow.UpdateUserIdField => fields.UpdateUserId;
+    BooleanField IIsDeletedRow.IsDeletedField => fields.IsDeleted;
+    Field IDeleteLogRow.DeleteUserIdField => fields.DeletedUserId;
+    DateTimeField IDeleteLogRow.DeleteDateField => fields.DeletedDate;
 
     public partial class RowFields : RowFieldsBase { }
 }

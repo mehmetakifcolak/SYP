@@ -34,17 +34,17 @@ const STEP_ERR_MSG: Record<number, Partial<Record<number, string>>> = {
 function getStepStates(status: number): StepState[] {
     const [d, a, p, e, c]: StepState[] = ['done','active','pending','error','cancel'];
     switch (status) {
-        case 14: return [a,p,p,p,p,p];  // talep beklemede → step 1 aktif, bar gri
-        case 1:  return [d,a,p,p,p,p];  // talep gönderildi → step 1 done (yeşil bar), step 2 aktif
-        case 2:  return [d,a,p,p,p,p];  // revize edildi
+        case 14: return [a,p,p,p,p,p];  // talep beklemede → step 1 aktif
+        case 1:  return [d,a,p,p,p,p];  // talep gönderildi → step 2 aktif (onay bekliyor)
+        case 2:  return [d,a,p,p,p,p];  // revize edildi → step 2 aktif
         case 3:  return [d,a,p,p,p,p];  // bayi onayladı — temsilci bekliyor
         case 4:  return [d,e,p,p,p,p];  // reddedildi
         case 11: return [d,d,a,p,p,p];  // temsilci onayladı → step 3 aktif (dekont bekleniyor)
-        case 5:  return [d,d,a,p,p,p];  // dekont yüklendi → step 3 aktif (1 kademe)
-        case 6:  return [d,d,a,p,p,p];  // dekont reddedildi — yeniden yükleme bekleniyor
-        case 12: return [d,d,d,a,p,p];  // dekont onaylandı → step 4 aktif
-        case 7:  return [d,d,d,a,p,p];  // hazırlanıyor
-        case 8:  return [d,d,d,d,a,p];  // kargoda → step 5 aktif
+        case 5:  return [d,d,d,a,p,p];  // dekont yüklendi → step 4 aktif (inceleniyor)
+        case 6:  return [d,d,e,p,p,p];  // dekont reddedildi → step 3 hata
+        case 12: return [d,d,d,d,a,p];  // dekont onaylandı → step 5 aktif (kargoda)
+        case 7:  return [d,d,d,d,a,p];  // hazırlanıyor (legacy) → step 5 aktif
+        case 8:  return [d,d,d,d,d,a];  // kargoya verildi → step 6 aktif (teslim)
         case 9:  return [d,d,d,d,d,d];  // teslim alındı ✓
         case 13: return [d,d,d,d,d,e];  // teslim alınmadı
         case 10: return [c,c,c,c,c,c];  // iptal
@@ -74,22 +74,21 @@ const STEP_ACTIONS: Record<number, StepAction[]> = {
         { label: 'Reddet',        status: 10, icon: 'fa-times',           cls: 'danger',  requiresReason: true }
     ],
     3: [
-        { label: 'Dekont Yükle',     status: 5,  icon: 'fa-upload', cls: 'primary', isUpload: true },
-        { label: 'Dekontu Görüntüle',status: 0, icon: 'fa-eye',    cls: 'info',    isView:   true },
-        { label: 'Dekontu Onayla',   status: 12, icon: 'fa-check', cls: 'success' },
-        { label: 'Dekontu Reddet',   status: 6,  icon: 'fa-ban',   cls: 'danger',  requiresReason: true }
+        { label: 'Dekont Yükle',      status: 5, icon: 'fa-upload', cls: 'primary', isUpload: true },
+        { label: 'Dekontu Görüntüle', status: 0, icon: 'fa-eye',    cls: 'info',    isView:   true },
+        { label: 'Dekontu Reddet',    status: 6, icon: 'fa-ban',    cls: 'danger',  requiresReason: true }
     ],
     4: [
-        { label: 'Hazırla',             status: 7, icon: 'fa-cog',     cls: 'warning' },
-        { label: 'İncelemeyi Onayla',   status: 8, icon: 'fa-check',   cls: 'success' },
-        { label: 'Dekontu Tekrar İste', status: 6, icon: 'fa-refresh', cls: 'danger',  requiresReason: true }
+        { label: 'Dekontu Görüntüle', status: 0,  icon: 'fa-eye',    cls: 'info',    isView:   true },
+        { label: 'İncelemeyi Onayla', status: 12, icon: 'fa-check',  cls: 'success' },
+        { label: 'Dekontu Reddet',    status: 6,  icon: 'fa-ban',    cls: 'danger',  requiresReason: true }
     ],
     5: [
         { label: 'Kargoya Ver',   status: 8,  icon: 'fa-truck',           cls: 'info'    }
     ],
     6: [
-        { label: 'Teslim Alındı', status: 9,  icon: 'fa-check-circle',    cls: 'success' },
-        { label: 'Teslim Alınmadı', status: 13, icon: 'fa-exclamation-circle', cls: 'danger', requiresReason: true }
+        { label: 'Teslim Alındı',   status: 9,  icon: 'fa-check-circle',       cls: 'success' },
+        { label: 'Teslim Alınmadı', status: 13, icon: 'fa-exclamation-circle', cls: 'danger',  requiresReason: true }
     ]
 };
 
@@ -185,9 +184,36 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             <span class="oed-total-label">Genel Toplam</span>
             <strong id="~_Total" class="oed-total-val">0,00 ₺</strong>
         </div>
-        <button id="~_SaveBtn" class="btn btn-success oed-save-btn">
-            <i class="fa fa-save"></i>&nbsp;Kaydet
-        </button>
+        <div class="oed-footer-actions">
+            <button id="~_DeleteBtn" class="btn btn-danger oed-delete-btn">
+                <i class="fa fa-trash"></i>&nbsp;Sil
+            </button>
+            <button id="~_SaveBtn" class="btn btn-success oed-save-btn">
+                <i class="fa fa-save"></i>&nbsp;Kaydet
+            </button>
+        </div>
+    </div>
+
+    <!-- Silme Onay Modali -->
+    <div id="~_DeleteModal" class="oed-reason-overlay" style="display:none">
+        <div class="oed-reason-box" style="max-width:400px">
+            <div class="oed-reason-head">
+                <span class="oed-reason-title"><i class="fa fa-trash"></i>&nbsp;Siparişi Sil</span>
+                <button id="~_DeleteModalClose" class="oed-reason-close"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="oed-reason-body" style="padding:20px 18px;font-size:14px;color:#555;">
+                Bu siparişi silmek istediğinizden emin misiniz?<br/>
+                <strong style="color:#dc3545;">Bu işlem geri alınamaz.</strong>
+            </div>
+            <div class="oed-reason-foot">
+                <button id="~_DeleteModalCancel" class="btn btn-default">
+                    <i class="fa fa-times"></i>&nbsp;Vazgeç
+                </button>
+                <button id="~_DeleteModalConfirm" class="btn btn-danger">
+                    <i class="fa fa-trash"></i>&nbsp;Evet, Sil
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="~_ReasonModal" class="oed-reason-overlay" style="display:none">
@@ -279,6 +305,10 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 
         n('AddBtn').addEventListener('click', () => this.openProductPicker());
         n('SaveBtn').addEventListener('click', () => this.saveOrder());
+        n('DeleteBtn').addEventListener('click', () => this.openDeleteModal());
+        n('DeleteModalClose').addEventListener('click', () => this.closeDeleteModal());
+        n('DeleteModalCancel').addEventListener('click', () => this.closeDeleteModal());
+        n('DeleteModalConfirm').addEventListener('click', () => this.confirmDelete());
         n('ReasonModalClose').addEventListener('click', () => this.closeReasonModal());
         n('ReasonModalCancel').addEventListener('click', () => this.closeReasonModal());
         n('ReasonModalConfirm').addEventListener('click', () => this.confirmTransition());
@@ -334,9 +364,9 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             const step = (e.target as HTMLElement).closest<HTMLElement>('.oed-ps-interactive');
             if (!step) return;
             const stepNo  = parseInt(step.dataset.step!);
-            // O adım için tanımlı aksiyonları göster; backend izni olan durumları filtrele
+            // O adım için tanımlı aksiyonları göster; isView olanlar her zaman gösterilir
             const actions = (STEP_ACTIONS[stepNo] ?? [])
-                .filter(a => allowedStatuses.size === 0 || allowedStatuses.has(a.status));
+                .filter(a => a.isView || allowedStatuses.size === 0 || allowedStatuses.has(a.status));
             if (actions.length > 0) this.showStepPopup(step, actions);
         };
     }
@@ -410,7 +440,6 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             // Duruma göre adım etiketi
             const stepLabel = (stepNo === 1 && status === 14) ? 'Talep Beklemede'
                             : (stepNo === 3 && status === 11) ? 'Dekont Bekleniyor'
-                            : (stepNo === 3 && status === 5)  ? 'Dekont Yüklendi'
                             : step.label.replace('\n', ' ');
 
             const isInteractive = state !== 'cancel';
@@ -432,13 +461,10 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 </div>`;
 
             if (!isLast) {
-                // status=14 (Talep Beklemede) step 1 sonrası gri kalır; diğer active adımlar yeşil
-                const activeLineGray = (status === 14 && stepNo === 1);
-                const lineClass = state === 'done'
-                    ? 'oed-pl-done'
-                    : state === 'active' ? (activeLineGray ? 'oed-pl-pending' : 'oed-pl-done')
-                    : state === 'error'  ? 'oed-pl-error'
-                    : 'oed-pl-pending';
+                // Sadece 'done' adımlardan sonraki çizgi yeşil; aktif/bekleyen adımdan sonrası gri
+                const lineClass = state === 'done'   ? 'oed-pl-done'
+                                : state === 'error'  ? 'oed-pl-error'
+                                : 'oed-pl-pending';
                 html += `<div class="oed-ps-line ${lineClass}"></div>`;
             }
         });
@@ -850,6 +876,29 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     private updateTotal(): void {
         const total = this.rows.reduce((s, r) => s + (r.LineTotal ?? 0), 0);
         if (this.totalEl) this.totalEl.textContent = this.fmt(total) + ' ₺';
+    }
+
+    private openDeleteModal(): void {
+        (this.byId('DeleteModal')?.getNode() as HTMLElement).style.display = 'flex';
+    }
+
+    private closeDeleteModal(): void {
+        (this.byId('DeleteModal')?.getNode() as HTMLElement).style.display = 'none';
+    }
+
+    private async confirmDelete(): Promise<void> {
+        this.closeDeleteModal();
+        const confirmBtn = this.byId('DeleteModalConfirm')?.getNode() as HTMLButtonElement;
+        if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>&nbsp;Siliniyor...'; }
+        try {
+            await OrderService.Delete({ EntityId: this.entityId });
+            notifySuccess('Sipariş başarıyla silindi.');
+            this.options?.onSave?.();
+            this.dialogClose();
+        } catch (err: any) {
+            notifyError('Sipariş silinemedi: ' + (err?.message || ''));
+            if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.innerHTML = '<i class="fa fa-trash"></i>&nbsp;Evet, Sil'; }
+        }
     }
 
     private async saveOrder(): Promise<void> {

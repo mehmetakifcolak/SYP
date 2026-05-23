@@ -11,7 +11,8 @@ namespace SYP.Catalog;
 [InsertPermission("Catalog:Products:Insert")]
 [UpdatePermission("Catalog:Products:Update")]
 [DeletePermission("Catalog:Products:Delete")]
-public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
+public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow,
+    IInsertLogRow, IUpdateLogRow, IIsDeletedRow, IDeleteLogRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
@@ -111,6 +112,18 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     [DisplayName("Is Active"), LookupInclude]
     public short? IsActive { get => fields.IsActive[this]; set => fields.IsActive[this] = value; }
     public partial class RowFields { public Int16Field IsActive; }
+
+    [DisplayName("Silindi"), DefaultValue(false), Insertable(false), Updatable(false)]
+    public bool? IsDeleted { get => fields.IsDeleted[this]; set => fields.IsDeleted[this] = value; }
+    public partial class RowFields { public BooleanField IsDeleted; }
+
+    [DisplayName("Silinme Tarihi"), Insertable(false), Updatable(false)]
+    public DateTime? DeletedDate { get => fields.DeletedDate[this]; set => fields.DeletedDate[this] = value; }
+    public partial class RowFields { public DateTimeField DeletedDate; }
+
+    [DisplayName("Silen Kullanıcı"), Insertable(false), Updatable(false)]
+    public int? DeletedUserId { get => fields.DeletedUserId[this]; set => fields.DeletedUserId[this] = value; }
+    public partial class RowFields { public Int32Field DeletedUserId; }
     
     #region Foreign Fields
 
@@ -147,6 +160,14 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     public partial class RowFields { public Int32Field PackingQuantity; }
 
     #endregion Foreign Fields
+
+    DateTimeField IInsertDateRow.InsertDateField => fields.InsertDate;
+    Field IInsertUserIdRow.InsertUserIdField => fields.InsertUserId;
+    DateTimeField IUpdateDateRow.UpdateDateField => fields.UpdateDate;
+    Field IUpdateUserIdRow.UpdateUserIdField => fields.UpdateUserId;
+    BooleanField IIsDeletedRow.IsDeletedField => fields.IsDeleted;
+    Field IDeleteLogRow.DeleteUserIdField => fields.DeletedUserId;
+    DateTimeField IDeleteLogRow.DeleteDateField => fields.DeletedDate;
 
     public partial class RowFields : RowFieldsBase { }
 }

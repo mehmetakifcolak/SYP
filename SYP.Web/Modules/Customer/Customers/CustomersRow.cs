@@ -10,7 +10,8 @@ namespace SYP.Customer;
 [DeletePermission("Customer:Customers:Delete")]
 [NavigationPermission("Customer:Customers:Navigation")]
 [LookupScript("Customer.Customers", Permission = "Customer:Customers:Read")]
-public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow, IAuditedRow
+public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow, IAuditedRow,
+    IInsertLogRow, IUpdateLogRow, IIsDeletedRow, IDeleteLogRow
 {
     [DisplayName("Id"), Identity, IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
@@ -113,6 +114,18 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public int? ManagerUserId { get => fields.ManagerUserId[this]; set => fields.ManagerUserId[this] = value; }
     public partial class RowFields { public Int32Field ManagerUserId; }
 
+    [DisplayName("Silindi"), DefaultValue(false), Insertable(false), Updatable(false)]
+    public bool? IsDeleted { get => fields.IsDeleted[this]; set => fields.IsDeleted[this] = value; }
+    public partial class RowFields { public BooleanField IsDeleted; }
+
+    [DisplayName("Silinme Tarihi"), Insertable(false), Updatable(false)]
+    public DateTime? DeletedDate { get => fields.DeletedDate[this]; set => fields.DeletedDate[this] = value; }
+    public partial class RowFields { public DateTimeField DeletedDate; }
+
+    [DisplayName("Silen Kullanıcı"), Insertable(false), Updatable(false)]
+    public int? DeletedUserId { get => fields.DeletedUserId[this]; set => fields.DeletedUserId[this] = value; }
+    public partial class RowFields { public Int32Field DeletedUserId; }
+
     [DisplayName("Password"), Size(50), NotMapped]
     public string Password { get => fields.Password[this]; set => fields.Password[this] = value; }
     public partial class RowFields { public StringField Password; }
@@ -131,6 +144,10 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public short? UserIsActive { get => fields.UserIsActive[this]; set => fields.UserIsActive[this] = value; }
     public partial class RowFields { public Int16Field UserIsActive; }
 
+    [DisplayName("Kullanıcı Adı"), Expression("jUser.[DisplayName]")]
+    public string UserDisplayName { get => fields.UserDisplayName[this]; set => fields.UserDisplayName[this] = value; }
+    public partial class RowFields { public StringField UserDisplayName; }
+
     [DisplayName("Country Name"), Expression("jCountry.[Name]")]
     public string CountryName { get => fields.CountryName[this]; set => fields.CountryName[this] = value; }
     public partial class RowFields { public StringField CountryName; }
@@ -148,6 +165,14 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public partial class RowFields { public StringField PriceListName; }
 
     #endregion Foreign Fields
+
+    DateTimeField IInsertDateRow.InsertDateField => fields.InsertDate;
+    Field IInsertUserIdRow.InsertUserIdField => fields.InsertUserId;
+    DateTimeField IUpdateDateRow.UpdateDateField => fields.UpdateDate;
+    Field IUpdateUserIdRow.UpdateUserIdField => fields.UpdateUserId;
+    BooleanField IIsDeletedRow.IsDeletedField => fields.IsDeleted;
+    Field IDeleteLogRow.DeleteUserIdField => fields.DeletedUserId;
+    DateTimeField IDeleteLogRow.DeleteDateField => fields.DeletedDate;
 
     public partial class RowFields : RowFieldsBase { }
 }

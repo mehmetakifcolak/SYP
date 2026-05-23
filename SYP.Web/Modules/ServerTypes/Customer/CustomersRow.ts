@@ -25,10 +25,14 @@ export interface CustomersRow {
     UpdateUserId?: number;
     UserId?: number;
     ManagerUserId?: number;
+    IsDeleted?: boolean;
+    DeletedDate?: string;
+    DeletedUserId?: number;
     Password?: string;
     PasswordConfirm?: string;
     VendorTypeTitle?: string;
     UserIsActive?: number;
+    UserDisplayName?: string;
     CountryName?: string;
     ManagerName?: string;
     CurrencyCode?: string;
@@ -37,6 +41,7 @@ export interface CustomersRow {
 
 export abstract class CustomersRow {
     static readonly idProperty = 'Id';
+    static readonly isDeletedProperty = 'IsDeleted';
     static readonly nameProperty = 'Code';
     static readonly localTextPrefix = 'Customer.Customers';
     static readonly lookupKey = 'Customer.Customers';

@@ -204,6 +204,8 @@ namespace texts {
                 export const CurrencyCode: string;
                 export const CurrencyId: string;
                 export const CurrentValidPrice: string;
+                export const DeletedDate: string;
+                export const DeletedUserId: string;
                 export const Description: string;
                 export const EntityPlural: string;
                 export const EntitySingular: string;
@@ -211,6 +213,7 @@ namespace texts {
                 export const InsertDate: string;
                 export const InsertUserId: string;
                 export const IsActive: string;
+                export const IsDeleted: string;
                 export const Name: string;
                 export const Name2: string;
                 export const PackingId: string;
@@ -240,6 +243,8 @@ namespace texts {
                 export const CountryName: string;
                 export const CurrencyCode: string;
                 export const CurrencyId: string;
+                export const DeletedDate: string;
+                export const DeletedUserId: string;
                 export const District: string;
                 export const Email: string;
                 export const EntityPlural: string;
@@ -249,6 +254,7 @@ namespace texts {
                 export const InsertDate: string;
                 export const InsertUserId: string;
                 export const IsActive: string;
+                export const IsDeleted: string;
                 export const LastName: string;
                 export const ManagerName: string;
                 export const ManagerUserId: string;
@@ -263,6 +269,7 @@ namespace texts {
                 export const TaxOffice: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
+                export const UserDisplayName: string;
                 export const UserId: string;
                 export const UserIsActive: string;
                 export const VendorTypeId: string;
@@ -394,6 +401,8 @@ namespace texts {
                 export const CustomerCode: string;
                 export const CustomerId: string;
                 export const CustomerName: string;
+                export const DeletedDate: string;
+                export const DeletedUserId: string;
                 export const DetailList: string;
                 export const DiscountAmount: string;
                 export const DiscountPercentage: string;
@@ -402,6 +411,7 @@ namespace texts {
                 export const Id: string;
                 export const InsertDate: string;
                 export const InsertUserId: string;
+                export const IsDeleted: string;
                 export const IsStockExitCreated: string;
                 export const ManagerName: string;
                 export const ManagerUserId: string;

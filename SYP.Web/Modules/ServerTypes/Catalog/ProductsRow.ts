@@ -22,6 +22,9 @@ export interface ProductsRow {
     UpdateDate?: string;
     UpdateUserId?: number;
     IsActive?: number;
+    IsDeleted?: boolean;
+    DeletedDate?: string;
+    DeletedUserId?: number;
     CategoryName?: string;
     UnitName?: string;
     CurrencyCode?: string;
@@ -34,6 +37,7 @@ export interface ProductsRow {
 
 export abstract class ProductsRow {
     static readonly idProperty = 'Id';
+    static readonly isDeletedProperty = 'IsDeleted';
     static readonly nameProperty = 'CodeName';
     static readonly localTextPrefix = 'Catalog.Products';
     static readonly lookupKey = 'Catalog.Products';
