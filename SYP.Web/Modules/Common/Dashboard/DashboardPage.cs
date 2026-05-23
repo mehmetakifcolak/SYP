@@ -1,5 +1,6 @@
 using Serenity.Data;
 using Dapper;
+using SYP.Customer.Services;
 using System.Data;
 
 namespace SYP.Common.Pages;
@@ -8,19 +9,66 @@ namespace SYP.Common.Pages;
 public class DashboardPage : Controller
 {
     [PageAuthorize, HttpGet, Route("~/")]
-    public ActionResult Index([FromServices] ISqlConnections sqlConnections)
+    public ActionResult Index(
+        [FromServices] ISqlConnections sqlConnections,
+        [FromServices] IGetBayiiCustomerService bayiiCustomerService)
     {
         var model = new DashboardPageModel();
         var today = DateTime.Today;
         var weekAgo = today.AddDays(-7);
         var monthAgo = today.AddDays(-30);
 
+        var customerId = bayiiCustomerService.GetCurrentBayiiCustomerId();
+
         using (var connection = sqlConnections.NewByKey("Default"))
         {
             connection.EnsureOpen();
 
+            if (customerId.HasValue)
+            {
+                model.IsBayii = true;
+                var id = customerId.Value;
+
+                model.BayiCustomerName = connection.ExecuteScalar<string>(
+                    "SELECT Name FROM Customers WHERE Id = @id", new { id }) ?? "";
+
+                model.BayiTotalOrders = connection.ExecuteScalar<int>(
+                    "SELECT COUNT(*) FROM Orders WHERE CustomerId = @id", new { id });
+
+                model.BayiActiveOrders = connection.ExecuteScalar<int>(
+                    "SELECT COUNT(*) FROM Orders WHERE CustomerId = @id AND Status NOT IN (9, 10, 13)", new { id });
+
+                model.BayiPendingApproval = connection.ExecuteScalar<int>(
+                    "SELECT COUNT(*) FROM Orders WHERE CustomerId = @id AND Status IN (1, 14)", new { id });
+
+                model.BayiDeliveredOrders = connection.ExecuteScalar<int>(
+                    "SELECT COUNT(*) FROM Orders WHERE CustomerId = @id AND Status = 9", new { id });
+
+                model.BayiCancelledOrders = connection.ExecuteScalar<int>(
+                    "SELECT COUNT(*) FROM Orders WHERE CustomerId = @id AND Status IN (4, 6, 10, 13)", new { id });
+
+                model.BayiStatusCounts = Dapper.SqlMapper.Query<BayiOrderStatusCountDto>(connection, @"
+                    SELECT Status, COUNT(*) AS Count
+                    FROM Orders WHERE CustomerId = @id
+                    GROUP BY Status
+                    ORDER BY Status", new { id }).ToList();
+
+                model.BayiRecentOrders = Dapper.SqlMapper.Query<BayiRecentOrderDto>(connection, @"
+                    SELECT TOP 50 o.Id, o.OrderNumber, o.OrderDate,
+                           ISNULL(o.NetAmount, 0) AS NetAmount,
+                           ISNULL(cl.Code, 'TRY') AS CurrencyCode,
+                           o.Status
+                    FROM Orders o
+                    LEFT JOIN CurrencyList cl ON cl.Id = o.CurrencyId
+                    WHERE o.CustomerId = @id
+                    ORDER BY o.OrderDate DESC, o.Id DESC", new { id }).ToList();
+
+                return View(MVC.Views.Common.Dashboard.DashboardIndex, model);
+            }
+
             // === MÜŞTERİ İSTATİSTİKLERİ ===
             model.TotalDealers = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM Customers");
+
             model.ActiveDealers = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM Customers WHERE IsActive = 1");
             model.PassiveDealers = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM Customers WHERE IsActive = 0 OR IsActive IS NULL");
             model.NewDealersLast30Days = connection.ExecuteScalar<int>(

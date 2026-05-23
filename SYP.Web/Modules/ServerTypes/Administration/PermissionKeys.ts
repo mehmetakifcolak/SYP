@@ -2,4 +2,5 @@
     export const Security = "Administration:Security";
     export const Translation = "Administration:Translation";
     export const Bayii = "Administration:Bayii";
+    export const Temsilci = "Administration:Temsilci";
 }

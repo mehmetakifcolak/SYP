@@ -16,6 +16,7 @@ export interface OrderRow {
     CurrencyId?: number;
     WarehouseId?: number;
     Notes?: string;
+    IsStockExitCreated?: boolean;
     RejectReason?: string;
     InsertDate?: string;
     InsertUserId?: number;

@@ -2,6 +2,17 @@ namespace SYP.Common;
 
 public class DashboardPageModel
 {
+    // Bayii modu
+    public bool IsBayii { get; set; }
+    public string BayiCustomerName { get; set; } = "";
+    public int BayiTotalOrders { get; set; }
+    public int BayiActiveOrders { get; set; }
+    public int BayiPendingApproval { get; set; }
+    public int BayiDeliveredOrders { get; set; }
+    public int BayiCancelledOrders { get; set; }
+    public List<BayiOrderStatusCountDto> BayiStatusCounts { get; set; } = new();
+    public List<BayiRecentOrderDto> BayiRecentOrders { get; set; } = new();
+
     // Müşteri İstatistikleri
     public int TotalDealers { get; set; }
     public int ActiveDealers { get; set; }
@@ -110,4 +121,20 @@ public class ExpiringPriceListDto
     public string Name { get; set; }
     public DateTime? ValidTo { get; set; }
     public int DaysLeft { get; set; }
+}
+
+public class BayiOrderStatusCountDto
+{
+    public int Status { get; set; }
+    public int Count { get; set; }
+}
+
+public class BayiRecentOrderDto
+{
+    public int Id { get; set; }
+    public string OrderNumber { get; set; } = "";
+    public DateTime OrderDate { get; set; }
+    public decimal NetAmount { get; set; }
+    public string CurrencyCode { get; set; } = "TRY";
+    public int Status { get; set; }
 }

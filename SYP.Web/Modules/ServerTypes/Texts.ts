@@ -402,6 +402,7 @@ namespace texts {
                 export const Id: string;
                 export const InsertDate: string;
                 export const InsertUserId: string;
+                export const IsStockExitCreated: string;
                 export const ManagerName: string;
                 export const ManagerUserId: string;
                 export const NetAmount: string;
