@@ -434,13 +434,16 @@ namespace texts {
                 export const EntityPlural: string;
                 export const EntitySingular: string;
                 export const Id: string;
+                export const LineStatus: string;
                 export const LineTotal: string;
                 export const Notes: string;
                 export const OrderId: string;
                 export const OrderNumber: string;
+                export const OriginalQuantity: string;
                 export const ProductCodeName: string;
                 export const ProductId: string;
                 export const Quantity: string;
+                export const ReviseNote: string;
                 export const UnitCode: string;
                 export const UnitId: string;
                 export const UnitPrice: string;

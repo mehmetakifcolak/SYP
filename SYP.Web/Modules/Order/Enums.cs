@@ -33,7 +33,9 @@ public enum OrderStatus
     [Description("Teslim Alınmadı")]
     TESLIM_ALINMADI = 13,
     [Description("Talep Beklemede")]
-    TALEP_BEKLETTE = 14
+    TALEP_BEKLETTE = 14,
+    [Description("Kargo Hazırlanıyor")]
+    KARGO_HAZIRLANIYOR = 15
 }
 
 [EnumKey("Order.DocumentType"), ScriptInclude]

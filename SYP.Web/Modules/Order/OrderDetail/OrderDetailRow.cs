@@ -62,6 +62,18 @@ public sealed class OrderDetailRow : Row<OrderDetailRow.RowFields>, IIdRow, INam
     [DisplayName("Notes"), Size(500), QuickSearch, NameProperty]
     public string Notes { get => fields.Notes[this]; set => fields.Notes[this] = value; }
     public partial class RowFields { public StringField Notes; }
+
+    [DisplayName("Line Status")]
+    public int? LineStatus { get => fields.LineStatus[this]; set => fields.LineStatus[this] = value; }
+    public partial class RowFields { public Int32Field LineStatus; }
+
+    [DisplayName("Original Quantity"), Size(18), Scale(4)]
+    public decimal? OriginalQuantity { get => fields.OriginalQuantity[this]; set => fields.OriginalQuantity[this] = value; }
+    public partial class RowFields { public DecimalField OriginalQuantity; }
+
+    [DisplayName("Revise Note"), Size(500)]
+    public string ReviseNote { get => fields.ReviseNote[this]; set => fields.ReviseNote[this] = value; }
+    public partial class RowFields { public StringField ReviseNote; }
     
     #region Foreign Fields
 

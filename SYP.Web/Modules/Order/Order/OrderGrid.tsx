@@ -2,6 +2,7 @@ import { Decorators, EntityGrid } from '@serenity-is/corelib';
 import { OrderColumns, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { OrderDialog } from './OrderDialog';
 import { OrderEditDialog } from './OrderEditDialog';
+import { OrderStatusHistoryDialog } from './OrderStatusHistoryDialog';
 
 // Durum → ilerleme yüzdesi
 const STATUS_PCT: Record<number, number> = {
@@ -81,21 +82,29 @@ export class OrderGrid extends EntityGrid<OrderRow, any> {
         }
 
         cols.push({
-            field: '_editAction',
+            field: '_actions',
             name: '',
-            width: 110,
-            minWidth: 110,
-            maxWidth: 110,
+            width: 190,
+            minWidth: 190,
+            maxWidth: 190,
             sortable: false,
             format: (_ctx: any) => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'btn btn-xs btn-primary row-edit-order-btn';
-                const icon = document.createElement('i');
-                icon.className = 'fa fa-edit';
-                btn.appendChild(icon);
-                btn.appendChild(document.createTextNode(' Düzenle'));
-                return btn;
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'display:flex;gap:4px';
+
+                const editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.className = 'btn btn-xs btn-primary row-edit-order-btn';
+                editBtn.innerHTML = '<i class="fa fa-edit"></i> Düzenle';
+                wrap.appendChild(editBtn);
+
+                const histBtn = document.createElement('button');
+                histBtn.type = 'button';
+                histBtn.className = 'btn btn-xs btn-default row-history-btn';
+                histBtn.innerHTML = '<i class="fa fa-history"></i> Geçmiş';
+                wrap.appendChild(histBtn);
+
+                return wrap;
             }
         });
         return cols;
@@ -103,11 +112,14 @@ export class OrderGrid extends EntityGrid<OrderRow, any> {
 
     protected onClick(e: Event, row: number, _cell: number): void {
         super.onClick(e, row, _cell);
-        if ((e.target as HTMLElement).closest?.('.row-edit-order-btn')) {
-            const item = (this as any).view?.getItem(row) as OrderRow;
-            if (item?.Id)
-                new OrderEditDialog({ entityId: item.Id, onSave: () => this.refresh() }).dialogOpen();
-        }
+        const item = (this as any).view?.getItem(row) as OrderRow;
+        if (!item?.Id) return;
+
+        if ((e.target as HTMLElement).closest?.('.row-edit-order-btn'))
+            new OrderEditDialog({ entityId: item.Id, onSave: () => this.refresh() }).dialogOpen();
+
+        if ((e.target as HTMLElement).closest?.('.row-history-btn'))
+            new OrderStatusHistoryDialog({ orderId: item.Id, orderNumber: item.OrderNumber }).dialogOpen();
     }
 
     protected editItem(entityOrId: any): void {

@@ -12,6 +12,9 @@ export interface OrderDetailRow {
     Discount?: number;
     LineTotal?: number;
     Notes?: string;
+    LineStatus?: number;
+    OriginalQuantity?: number;
+    ReviseNote?: string;
     OrderNumber?: string;
     ProductCodeName?: string;
     UnitCode?: string;

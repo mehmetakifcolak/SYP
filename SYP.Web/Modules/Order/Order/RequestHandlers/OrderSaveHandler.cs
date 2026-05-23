@@ -164,10 +164,11 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
 
         foreach (var setting in settings)
         {
-            if (totalAmount >= setting.MinAmount)
+            if (setting.MinAmount.HasValue && setting.DiscountPercentage.HasValue
+                && totalAmount >= setting.MinAmount.Value)
             {
-                var discountAmount = totalAmount * (setting.DiscountPercentage.Value / 100);
-                return (setting.DiscountPercentage.Value, discountAmount);
+                var pct = setting.DiscountPercentage.Value;
+                return (pct, totalAmount * (pct / 100));
             }
         }
 
@@ -252,7 +253,11 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         };
 
         Connection.Insert(exitRow);
-        var exitId = exitRow.Id.Value;
+        var insertedExit = Connection.TryFirst<Warehouse.StockExitsRow>(q => q
+            .Select(Warehouse.StockExitsRow.Fields.Id)
+            .Where(Warehouse.StockExitsRow.Fields.ExitNo == exitNo));
+        var exitId = insertedExit?.Id
+            ?? throw new ValidationError("Stok çıkış kaydı oluşturulamadı.");
 
         var detailFields = OrderDetailRow.Fields;
         var details = Connection.List<OrderDetailRow>(q => q

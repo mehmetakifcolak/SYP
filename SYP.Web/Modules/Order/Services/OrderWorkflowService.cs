@@ -32,8 +32,9 @@ public class OrderWorkflowService : IOrderWorkflowService
         { (OrderStatus.BAYI_ONAYLADI,    "Yönetici"),  [OrderStatus.TEMSILCI_ONAYLADI] },
         { (OrderStatus.BAYI_REDDETTI,    "Yönetici"),  [OrderStatus.REVIZE_EDILDI, OrderStatus.TALEP_IPTAL] },
         { (OrderStatus.DEKONT_YUKLENDI,  "Yönetici"),  [OrderStatus.DEKONT_ONAYLANDI, OrderStatus.DEKONT_REDDEDILDI] },
-        { (OrderStatus.DEKONT_ONAYLANDI, "Yönetici"),  [OrderStatus.SEVK_ASAMASINDA] },
-        { (OrderStatus.HAZIRLANIYOR,     "Yönetici"),  [OrderStatus.SEVK_ASAMASINDA] },
+        { (OrderStatus.DEKONT_ONAYLANDI,    "Yönetici"),  [OrderStatus.KARGO_HAZIRLANIYOR, OrderStatus.SEVK_ASAMASINDA] },
+        { (OrderStatus.KARGO_HAZIRLANIYOR, "Yönetici"),  [OrderStatus.SEVK_ASAMASINDA] },
+        { (OrderStatus.HAZIRLANIYOR,       "Yönetici"),  [OrderStatus.SEVK_ASAMASINDA] },
 
         // Talep beklemede geçişleri
         { (OrderStatus.TALEP_BEKLETTE,  "Yönetici"),  [OrderStatus.TALEP_GONDERILDI, OrderStatus.TALEP_IPTAL] },
@@ -71,7 +72,8 @@ public class OrderWorkflowService : IOrderWorkflowService
         { OrderStatus.DEKONT_YUKLENDI,    "MAIL_DEKONT_YUKLENDI" },
         { OrderStatus.DEKONT_ONAYLANDI,   "MAIL_DEKONT_ONAYLANDI" },
         { OrderStatus.DEKONT_REDDEDILDI,  "MAIL_DEKONT_REDDEDILDI" },
-        { OrderStatus.HAZIRLANIYOR,       "MAIL_HAZIRLANIYOR" },
+        { OrderStatus.HAZIRLANIYOR,        "MAIL_HAZIRLANIYOR" },
+        { OrderStatus.KARGO_HAZIRLANIYOR,  "MAIL_KARGO_HAZIRLANIYOR" },
         { OrderStatus.SEVK_ASAMASINDA,    "MAIL_SEVK_ASAMASINDA" },
         { OrderStatus.TESLIM_ALINDI,      "MAIL_TESLIM_ALINDI" },
         { OrderStatus.TESLIM_ALINMADI,    "MAIL_TESLIM_ALINMADI" },

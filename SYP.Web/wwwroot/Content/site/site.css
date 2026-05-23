@@ -2210,7 +2210,7 @@ body#s-LoginPage .s-full-page {
 .oed-header {
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
-  padding: 14px 20px 10px;
+  padding-left: 20px;
   flex-shrink: 0;
 }
 .oed-header-grid {
@@ -2267,7 +2267,8 @@ body#s-LoginPage .s-full-page {
   margin: 0;
 }
 .oed-warehouse-select {
-  max-width: 260px;
+  max-width: 200px;
+  margin-top: 2px;
 }
 
 /* Table area */
@@ -2392,7 +2393,7 @@ body#s-LoginPage .s-full-page {
 .oed-footer-actions { display: flex; gap: 8px; align-items: center; }
 .oed-delete-btn { border-radius: 8px; font-weight: 700; }
 
-.panel-titlebar { padding: 10px 16px !important; }
+.panel-titlebar { padding-left: 16px !important; }
 
 /* ── OrderGrid ilerleme hücresi ── */
 .s-OrderGrid .slick-row  { height: 44px !important; }
@@ -2797,6 +2798,41 @@ body#s-LoginPage .s-full-page {
 }
 .oed-preview-clear:hover { color: #dc2626; }
 
+/* Çoklu dosya yükleme listesi */
+.oed-upload-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.oed-ufi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 7px;
+  padding: 7px 10px;
+}
+.oed-ufi-icon { font-size: 18px; color: #16a34a; flex-shrink: 0; }
+.oed-ufi-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: #166534;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.oed-ufi-size { font-size: 11px; color: #6b7280; flex-shrink: 0; }
+.oed-ufi-remove {
+  background: none; border: none; color: #9ca3af; cursor: pointer;
+  font-size: 13px; padding: 0 2px; flex-shrink: 0;
+}
+.oed-ufi-remove:hover { color: #dc2626; }
+
 /* Sebep rozeti */
 .oed-ps-reason-dot {
   position: absolute;
@@ -2826,3 +2862,151 @@ body#s-LoginPage .s-full-page {
 }
 .oed-reason-popup-icon { color: #d97706; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 .oed-reason-popup-text { font-size: 12px; color: #374151; line-height: 1.5; }
+
+/* ── Durum Geçmişi Dialog ── */
+.osh-body { padding: 4px 0; min-height: 80px; }
+
+/* ── Durum Geçmişi ── */
+.oed-history-section {
+  margin: 0 0 0;
+  border-top: 1px solid #e5e7eb;
+}
+.oed-history-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f8fafc;
+  cursor: pointer;
+  user-select: none;
+}
+.oed-history-header:hover { background: #f1f5f9; }
+.oed-history-header-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+.oed-history-toggle {
+  font-size: 11px;
+  color: #9ca3af;
+  transition: transform .2s;
+}
+.oed-history-table-wrap { overflow-x: auto; }
+.oed-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.oed-history-table th {
+  padding: 7px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+  background: #f9fafb;
+}
+.oed-history-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+  color: #374151;
+}
+.oed-history-table tbody tr:last-child td { border-bottom: none; }
+.oed-history-table tbody tr:hover td { background: #fafbff; }
+.oed-history-empty {
+  padding: 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 12px;
+}
+.oed-hist-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.oed-hist-badge-blue   { background:#dbeafe; color:#1d4ed8; }
+.oed-hist-badge-green  { background:#d1fae5; color:#065f46; }
+.oed-hist-badge-orange { background:#ffedd5; color:#c2410c; }
+.oed-hist-badge-red    { background:#fee2e2; color:#b91c1c; }
+.oed-hist-badge-teal   { background:#ccfbf1; color:#0f766e; }
+.oed-hist-badge-gray   { background:#f3f4f6; color:#4b5563; }
+.oed-hist-badge-yellow { background:#fef9c3; color:#854d0e; }
+
+/* ── Satır aksiyon butonları ── */
+.oed-col-status  { width: 90px; text-align: center; }
+.oed-col-actions { width: 110px; text-align: center; white-space: nowrap; }
+
+.oed-line-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.oed-line-badge-pending  { background: #f3f4f6; color: #6b7280; }
+.oed-line-badge-approved { background: #d1fae5; color: #065f46; }
+.oed-line-badge-rejected { background: #fee2e2; color: #b91c1c; }
+.oed-line-badge-revised  { background: #ffedd5; color: #c2410c; }
+
+.oed-row-rejected td { opacity: .55; }
+.oed-row-rejected .oed-col-product { text-decoration: line-through; }
+
+.oed-qty-original {
+  text-decoration: line-through;
+  color: #9ca3af;
+  font-size: 11px;
+  margin-right: 4px;
+}
+.oed-qty-new { font-weight: 700; color: #c2410c; }
+
+.oed-act-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 5px;
+  font-size: 13px;
+  line-height: 1;
+  transition: background .12s, color .12s;
+}
+.oed-act-btn:hover { background: #f3f4f6; }
+.oed-act-approve { color: #059669; }
+.oed-act-approve:hover { background: #d1fae5 !important; color: #065f46; }
+.oed-act-reject  { color: #dc2626; }
+.oed-act-reject:hover  { background: #fee2e2 !important; color: #b91c1c; }
+.oed-act-revise  { color: #d97706; }
+.oed-act-revise:hover  { background: #ffedd5 !important; color: #b45309; }
+.oed-act-delete  { color: #9ca3af; }
+.oed-act-delete:hover  { background: #fee2e2 !important; color: #b91c1c; }
+
+/* ── Revize modalı ── */
+.oed-revise-box { width: 460px; }
+.oed-revise-compare {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.oed-revise-side { flex: 1; text-align: center; }
+.oed-revise-side-lbl { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .4px; }
+.oed-revise-side-val { font-size: 20px; font-weight: 800; color: #374151; margin-top: 2px; }
+.oed-revise-side-val.old { color: #dc2626; text-decoration: line-through; font-size: 16px; }
+.oed-revise-side-val.new { color: #059669; }
+.oed-revise-arrow { font-size: 18px; color: #d1d5db; }
+.oed-revise-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 2px; }
+.oed-revise-field label { font-size: 11px; font-weight: 600; color: #6b7280; display: block; margin-bottom: 4px; }
+.oed-revise-note { margin-top: 12px; }
+.oed-revise-note label { font-size: 11px; font-weight: 600; color: #6b7280; display: block; margin-bottom: 4px; }

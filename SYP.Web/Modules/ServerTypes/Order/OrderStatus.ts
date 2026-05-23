@@ -14,6 +14,7 @@ export enum OrderStatus {
     TEMSILCI_ONAYLADI = 11,
     DEKONT_ONAYLANDI = 12,
     TESLIM_ALINMADI = 13,
-    TALEP_BEKLETTE = 14
+    TALEP_BEKLETTE = 14,
+    KARGO_HAZIRLANIYOR = 15
 }
 registerEnum(OrderStatus, 'SYP.Order.OrderStatus', 'Order.OrderStatus');
