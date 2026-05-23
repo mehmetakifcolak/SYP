@@ -8,7 +8,7 @@
 [UpdatePermission("Setting:CurrencyList:Update")]
 [DeletePermission("Setting:CurrencyList:Delete")]
 [ServiceLookupPermission("Setting:CurrencyList:Lookup")]
-[LookupScript(Permission = "*", Expiration = -1)]
+[LookupScript("Setting.CurrencyList", Permission = "*", Expiration = -1)]
 public sealed class CurrencyListRow : Row<CurrencyListRow.RowFields>, IIdRow, INameRow, SYP.Administration.IAuditedRow
 {
     [DisplayName("Id"), Identity, IdProperty]
