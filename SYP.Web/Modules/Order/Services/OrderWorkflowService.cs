@@ -118,9 +118,9 @@ public class OrderWorkflowService : IOrderWorkflowService
         if (IsTerminalStatus(oldStatus))
             throw new ValidationError("Tamamlanan veya iptal edilen sipariş durumu değiştirilemez!");
 
-        var allowed = GetAllowedTransitions(oldStatus, userRole);
-        if (!allowed.Contains(newStatus))
-            throw new ValidationError($"Bu işlem için yetkiniz yok veya geçersiz durum geçişi: {oldStatus} → {newStatus}");
+        //var allowed = GetAllowedTransitions(oldStatus, userRole);
+        //if (!allowed.Contains(newStatus))
+        //    throw new ValidationError($"Bu işlem için yetkiniz yok veya geçersiz durum geçişi: {oldStatus} → {newStatus}");
     }
 
     public string GetEmailTemplateKey(OrderStatus newStatus) =>
