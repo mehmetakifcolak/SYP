@@ -713,7 +713,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         const order: OrderRow = {
             CustomerId:  this.customerId ?? undefined,
             OrderDate:   new Date().toISOString(),
-            Status:      1,
+            Status:      14,
             TotalAmount: totalAmount,
             NetAmount:   totalAmount,
             DetailList:  detailList
