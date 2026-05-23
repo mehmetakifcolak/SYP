@@ -12,4 +12,7 @@ public class PermissionKeys
 
     [Description("Bayii")]
     public const string Bayii = "Administration:Bayii";
+
+     [Description("Temsilci")]
+    public const string Temsilci = "Administration:Temsilci";
 }

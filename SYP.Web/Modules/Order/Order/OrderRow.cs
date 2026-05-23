@@ -66,6 +66,10 @@ public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Ad
     public string Notes { get => fields.Notes[this]; set => fields.Notes[this] = value; }
     public partial class RowFields { public StringField Notes; }
 
+    [DisplayName("Stok Çıkışı Oluşturuldu"), DefaultValue(false), Insertable(false), Updatable(false)]
+    public bool? IsStockExitCreated { get => fields.IsStockExitCreated[this]; set => fields.IsStockExitCreated[this] = value; }
+    public partial class RowFields { public BooleanField IsStockExitCreated; }
+
     [DisplayName("Red Nedeni"), Size(int.MaxValue)]
     public string RejectReason { get => fields.RejectReason[this]; set => fields.RejectReason[this] = value; }
     public partial class RowFields { public StringField RejectReason; }

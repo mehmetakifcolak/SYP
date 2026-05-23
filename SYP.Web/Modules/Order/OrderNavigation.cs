@@ -3,4 +3,5 @@ using Serenity.Navigation;
 
 [assembly: NavigationMenu(3000, "Sipariş", icon: "fa-shopping-cart")]
 [assembly: NavigationLink(3010, "Sipariş/Siparişler", typeof(MyPages.OrderPage), icon: "fa-list-alt")]
+[assembly: NavigationLink(3015, "Sipariş/Sipariş Durumlarım", typeof(MyPages.BayiOrdersPage), icon: "fa-tasks", permission: "Administration:Bayii")]
 [assembly: NavigationLink(3020, "Sipariş/Kademeli İndirim Ayarları", typeof(MyPages.TieredDiscountSettingsPage), icon: "fa-percent")]

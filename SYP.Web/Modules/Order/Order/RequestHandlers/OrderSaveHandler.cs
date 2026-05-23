@@ -101,6 +101,10 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
 
         if (IsUpdate && Row.Status == OrderStatus.HAZIRLANIYOR && Old.Status != OrderStatus.HAZIRLANIYOR)
             UpdateStockFromOrder();
+
+        if (IsUpdate && Row.Status == OrderStatus.TESLIM_ALINDI && Old.Status != OrderStatus.TESLIM_ALINDI
+            && !(Old.IsStockExitCreated ?? false))
+            CreateStockExitFromOrder();
     }
 
     private string GenerateOrderNumber()
@@ -222,6 +226,61 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         }
     }
 
+    private void CreateStockExitFromOrder()
+    {
+        var warehouseId = Row.WarehouseId ?? GetDefaultWarehouseId();
+
+        var prefix = "SCK" + DateTime.Now.ToString("yyyyMM");
+        var exitNo = GetNextNumberHelper.GetNextNumber(
+            Connection,
+            new GetNextNumberRequest { Length = prefix.Length + 5, Prefix = prefix },
+            Warehouse.StockExitsRow.Fields.ExitNo,
+            Warehouse.StockExitsRow.Fields.Id
+        ).Serial;
+
+        var userId = int.Parse(Context.User.GetIdentifier());
+
+        var exitRow = new Warehouse.StockExitsRow
+        {
+            ExitNo      = exitNo,
+            WarehouseId = warehouseId,
+            ExitDate    = DateTime.Now,
+            Description = $"Sipariş teslimi: {Row.OrderNumber}",
+            Status      = Warehouse.StockExitStatus.Approved,
+            InsertDate  = DateTime.Now,
+            InsertUserId = userId
+        };
+
+        Connection.Insert(exitRow);
+        var exitId = exitRow.Id.Value;
+
+        var detailFields = OrderDetailRow.Fields;
+        var details = Connection.List<OrderDetailRow>(q => q
+            .SelectTableFields()
+            .Where(new Criteria(detailFields.OrderId) == Row.Id.Value));
+
+        foreach (var detail in details)
+        {
+            Connection.Insert(new Warehouse.StockExitDetailsRow
+            {
+                StockExitId = exitId,
+                ProductId   = detail.ProductId,
+                Quantity    = detail.Quantity,
+                UnitPrice   = detail.UnitPrice,
+                VatRate     = detail.VatRate,
+                Notes       = Row.OrderNumber
+            });
+        }
+
+        Connection.UpdateById(new OrderRow
+        {
+            Id                 = Row.Id,
+            IsStockExitCreated = true,
+            UpdateDate         = DateTime.Now,
+            UpdateUserId       = userId
+        });
+    }
+
     private int GetDefaultWarehouseId()
     {
         var whFields = Warehouse.WarehousesRow.Fields;
@@ -242,9 +301,8 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         if (templateKey.IsNullOrEmpty())
             return;
 
-        var recipientRole = _workflow.GetEmailRecipientRole(newStatus);
-        var recipientEmail = GetEmailByRole(recipientRole);
-        if (recipientEmail.IsNullOrEmpty())
+        var recipients = GetAllRecipientEmails();
+        if (recipients.Count == 0)
             return;
 
         var siteUrl = "https://localhost:5001";
@@ -254,15 +312,15 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         _ = _emailSender.QueueTemplateEmailAsync(new QueueTemplateEmailRequest
         {
             TemplateKey = templateKey,
-            To          = [recipientEmail],
+            To          = recipients,
             TemplateData = new Dictionary<string, object>
             {
-                { "siparis_no",          Row.OrderNumber },
-                { "bayi_adi",            Row.CustomerName },
-                { "toplam_tutar",        Row.NetAmount?.ToString("N2") + " " + Row.CurrencyCode },
-                { "durum",               newStatus.GetDescription() },
-                { "aciklama",            Row.RejectReason ?? Row.Notes },
-                { "siparis_link",        $"{siteUrl}/Order/Order#{Row.Id}" },
+                { "siparis_no",           Row.OrderNumber },
+                { "bayi_adi",             Row.CustomerName },
+                { "toplam_tutar",         Row.NetAmount?.ToString("N2") + " " + Row.CurrencyCode },
+                { "durum",                newStatus.GetDescription() },
+                { "aciklama",             Row.RejectReason ?? Row.Notes },
+                { "siparis_link",         $"{siteUrl}/Order/Order#{Row.Id}" },
                 { "degistiren_kullanici", user?.DisplayName }
             },
             ReferenceType = "Order",
@@ -270,19 +328,25 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         });
     }
 
-    private string GetEmailByRole(string recipientRole)
+    private List<string> GetAllRecipientEmails()
     {
-        if (recipientRole == "Yönetici")
+        var emails = new List<string>();
+
+        if (Row.CustomerId.HasValue)
         {
-            if (!Row.ManagerUserId.HasValue)
-                return null;
-            return Connection.TryById<Administration.UserRow>(Row.ManagerUserId.Value)?.Email;
+            var customerEmail = Connection.TryById<Customer.CustomersRow>(Row.CustomerId.Value)?.Email;
+            if (!customerEmail.IsNullOrEmpty())
+                emails.Add(customerEmail);
         }
 
-        // Bayi
-        if (!Row.CustomerId.HasValue)
-            return null;
-        return Connection.TryById<Customer.CustomersRow>(Row.CustomerId.Value)?.Email;
+        if (Row.ManagerUserId.HasValue)
+        {
+            var managerEmail = Connection.TryById<Administration.UserRow>(Row.ManagerUserId.Value)?.Email;
+            if (!managerEmail.IsNullOrEmpty())
+                emails.Add(managerEmail);
+        }
+
+        return emails;
     }
 
     private string GetUserRole(int userId)
