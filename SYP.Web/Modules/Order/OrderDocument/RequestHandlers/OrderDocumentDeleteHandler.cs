@@ -1,4 +1,4 @@
-﻿using MyRow = SYP.Order.OrderDocumentRow;
+using MyRow = SYP.Order.OrderDocumentRow;
 
 namespace SYP.Order;
 

@@ -1,6 +1,8 @@
-﻿using Serenity.Reporting;
+﻿using Microsoft.AspNetCore.Hosting;
+using Serenity.Reporting;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using MyRow = SYP.Order.OrderDocumentRow;
 
 namespace SYP.Order.Endpoints;
@@ -25,9 +27,18 @@ public class OrderDocumentEndpoint : ServiceEndpoint
  
     [HttpPost, AuthorizeDelete(typeof(MyRow))]
     public DeleteResponse Delete(IUnitOfWork uow, DeleteRequest request,
-        [FromServices] IOrderDocumentDeleteHandler handler)
+        [FromServices] IOrderDocumentDeleteHandler handler,
+        [FromServices] IWebHostEnvironment env)
     {
-        return handler.Delete(uow, request);
+        var filePath = uow.Connection.TryById<MyRow>(request.EntityId)?.FilePath;
+        var response = handler.Delete(uow, request);
+        if (!string.IsNullOrEmpty(filePath))
+        {
+            var fullPath = Path.Combine(env.WebRootPath, filePath);
+            if (System.IO.File.Exists(fullPath))
+                System.IO.File.Delete(fullPath);
+        }
+        return response;
     }
 
     [HttpPost, AuthorizeRetrieve(typeof(MyRow))]

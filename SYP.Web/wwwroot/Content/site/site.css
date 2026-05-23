@@ -2305,6 +2305,7 @@ body#s-LoginPage .s-full-page {
 .oed-table tbody tr:last-child td { border-bottom: none; }
 .oed-table tbody tr:hover td { background: #fafbff; }
 
+.oed-col-no { width: 36px; min-width: 36px; text-align: center; color: #9ca3af; font-size: 12px; font-weight: 600; }
 .oed-col-product { min-width: 200px; }
 .oed-col-qty     { width: 90px; }
 .oed-col-koli    { width: 90px; }
@@ -2399,6 +2400,13 @@ body#s-LoginPage .s-full-page {
 .s-OrderGrid .slick-row  { height: 44px !important; }
 .s-OrderGrid .slick-cell { height: 44px !important; display: flex !important;
                             align-items: center !important; padding: 0 8px !important; }
+
+/* OrderGrid aksiyon butonları */
+.row-edit-order-btn, .row-history-btn {
+  font-size: 11px !important;
+  padding: 2px 7px !important;
+  line-height: 1.4 !important;
+}
 
 /* Track: tüm hücre genişliğini kaplar, yazı + bar içinde */
 .ogr-prog-track {

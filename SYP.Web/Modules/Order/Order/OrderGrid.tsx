@@ -8,14 +8,14 @@ import { OrderStatusHistoryDialog } from './OrderStatusHistoryDialog';
 const STATUS_PCT: Record<number, number> = {
     14: 0, 1: 17, 2: 17, 3: 25, 4: 17,
     11: 33, 5: 50, 6: 50, 12: 58, 7: 67,
-    8: 83, 9: 100, 13: 100, 10: 0
+    15: 75, 8: 83, 9: 100, 13: 100, 10: 0
 };
 
 const STATUS_LABEL: Record<number, string> = {
     14: 'Talep Beklemede', 1: 'Talep Gönderildi', 2: 'Revize Edildi',
     3: 'Bayi Onayladı', 4: 'Bayi Reddetti', 11: 'Temsilci Onayladı',
     5: 'Dekont Yüklendi', 6: 'Dekont Reddedildi', 12: 'Dekont Onaylandı',
-    7: 'Hazırlanıyor', 8: 'Kargoda', 9: 'Teslim Alındı',
+    7: 'Hazırlanıyor', 15: 'Kargo Hazırlanıyor', 8: 'Kargoda', 9: 'Teslim Alındı',
     13: 'Teslim Alınmadı', 10: 'İptal'
 };
 

@@ -262,7 +262,10 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         var detailFields = OrderDetailRow.Fields;
         var details = Connection.List<OrderDetailRow>(q => q
             .SelectTableFields()
-            .Where(new Criteria(detailFields.OrderId) == Row.Id.Value));
+            .Where(
+                new Criteria(detailFields.OrderId) == Row.Id.Value &
+                (new Criteria(detailFields.LineStatus) == 1 |   // Onaylandı
+                 new Criteria(detailFields.LineStatus) == 3))); // Revize (onaylı yeni miktar)
 
         foreach (var detail in details)
         {

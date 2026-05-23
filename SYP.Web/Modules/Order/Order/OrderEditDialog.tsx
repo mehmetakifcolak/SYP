@@ -59,8 +59,9 @@ interface StepAction {
     icon: string;
     cls: string;
     requiresReason?: boolean;
-    isUpload?: boolean;   // dosya yükleme modalı açılır
-    isView?: boolean;     // belgeyi yeni sekmede görüntüle
+    isUpload?: boolean;
+    isView?: boolean;
+    filePath?: string;    // isView için spesifik dosya yolu
 }
 
 // Her adım için gösterilecek sabit aksiyonlar
@@ -82,7 +83,7 @@ const STEP_ACTIONS: Record<number, StepAction[]> = {
     4: [
         { label: 'Dekontu Görüntüle', status: 0,  icon: 'fa-eye',    cls: 'info',    isView:   true },
         { label: 'Dekontu Onayla', status: 15, icon: 'fa-check',  cls: 'success' },
-        { label: 'Bayiden Dekontu Tekrar İste',    status: 6,  icon: 'fa-ban',    cls: 'danger',  requiresReason: true }
+        { label: 'Bayiden Dekontu İste',    status: 6,  icon: 'fa-ban',    cls: 'danger',  requiresReason: true }
     ],
     5: [
         { label: 'Kargo Hazırlanıyor', status: 15, icon: 'fa-archive',         cls: 'warning' },
@@ -159,6 +160,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         <table class="oed-table">
             <thead>
                 <tr>
+                    <th class="oed-col-no">#</th>
                     <th class="oed-col-product">Ürün</th>
                     <th class="oed-col-qty">Miktar</th>
                     <th class="oed-col-koli">Koli</th>
@@ -170,7 +172,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                 </tr>
             </thead>
             <tbody id="~_TableBody">
-                <tr><td colspan="8" class="oed-loading">
+                <tr><td colspan="9" class="oed-loading">
                     <i class="fa fa-spinner fa-spin"></i>&nbsp;Yükleniyor...
                 </td></tr>
             </tbody>
@@ -391,19 +393,42 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     private bindStepClicks(): void {
         const allowedStatuses = new Set(this.transitions.map(t => t.Status));
 
-        this.statusFlowEl.onclick = (e: MouseEvent) => {
-            e.stopPropagation(); // document'a kabarmayı önle → outsideClickHandler tetiklenmesin
+        this.statusFlowEl.onclick = async (e: MouseEvent) => {
+            e.stopPropagation();
 
-            // Rozete tıklandıysa sebebi göster
             const dot = (e.target as HTMLElement).closest<HTMLElement>('.oed-ps-reason-dot');
             if (dot) { this.showReasonPopup(dot); return; }
 
             const step = (e.target as HTMLElement).closest<HTMLElement>('.oed-ps-interactive');
             if (!step) return;
-            const stepNo  = parseInt(step.dataset.step!);
-            // O adım için tanımlı aksiyonları göster; isView olanlar her zaman gösterilir
-            const actions = (STEP_ACTIONS[stepNo] ?? [])
+            const stepNo = parseInt(step.dataset.step!);
+
+            let actions: StepAction[] = (STEP_ACTIONS[stepNo] ?? [])
                 .filter(a => a.isView || allowedStatuses.size === 0 || allowedStatuses.has(a.status));
+
+            // isView aksiyonunu her yüklenen dosya için ayrı butona dönüştür
+            if (actions.some(a => a.isView)) {
+                const nonViewActions = actions.filter(a => !a.isView);
+                try {
+                    const resp = await OrderDocumentService.List({
+                        EqualityFilter: { OrderId: String(this.entityId) },
+                        Sort: ['Id'], Take: 50
+                    });
+                    const docs = (resp?.Entities ?? []).filter(d => d.IsActive !== false);
+                    const viewActions: StepAction[] = docs.map((doc, i) => {
+                        const name = doc.FileName ?? `Dekont ${i + 1}`;
+                        const short = name.length > 28 ? name.substring(0, 25) + '…' : name;
+                        const isPdf = doc.MimeType === 'application/pdf';
+                        return {
+                            label: short,
+                            status: 0, icon: isPdf ? 'fa-file-pdf-o' : 'fa-file-image-o',
+                            cls: 'info', isView: true, filePath: doc.FilePath ?? undefined
+                        };
+                    });
+                    actions = [...nonViewActions, ...viewActions];
+                } catch { /* hata durumunda statik isView kalsın */ }
+            }
+
             if (actions.length > 0) this.showStepPopup(step, actions);
         };
     }
@@ -547,15 +572,15 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         if (!this.stepPopupEl) return;
         this.hideStepPopup(); // eski handler varsa temizle
 
-        this.stepPopupEl.innerHTML = actions.map(a => {
+        this.stepPopupEl.innerHTML = actions.map((a, i) => {
             const req = a.requiresReason ? ' <span class="oed-spp-req">*</span>' : '';
-            return `<button class="oed-spp-btn oed-spp-${a.cls}" data-status="${a.status}">
+            return `<button class="oed-spp-btn oed-spp-${a.cls}" data-idx="${i}">
                 <i class="fa ${a.icon}"></i>&nbsp;${htmlEncode(a.label)}${req}
             </button>`;
         }).join('');
 
         const rect = stepEl.getBoundingClientRect();
-        const pw   = 200;
+        const pw   = 220;
         const left = Math.max(8, Math.min(rect.left + rect.width / 2 - pw / 2, window.innerWidth - pw - 8));
         this.stepPopupEl.style.cssText =
             `display:flex; flex-direction:column; gap:3px;
@@ -564,8 +589,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         this.stepPopupEl.querySelectorAll<HTMLButtonElement>('.oed-spp-btn').forEach(btn => {
             btn.addEventListener('click', e => {
                 e.stopPropagation();
-                const status = parseInt(btn.dataset.status!);
-                const a = actions.find(x => x.status === status);
+                const a = actions[parseInt(btn.dataset.idx!)];
                 if (a) { this.hideStepPopup(); this.executeStepAction(a); }
             });
         });
@@ -618,7 +642,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     // ── Geçiş mantığı ────────────────────────────────────────────
     private executeStepAction(a: StepAction): void {
         if (a.isUpload) { this.openUploadModal(); return; }
-        if (a.isView)   { this.viewDekont();       return; }
+        if (a.isView)   { a.filePath ? window.open('/' + a.filePath, '_blank') : this.viewDekont(); return; }
         this.pendingTransition = {
             Status:         a.status,
             Label:          a.label,
@@ -702,6 +726,20 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         if (this.selectedFiles.length === 0) return;
 
         this.uploadSubmitEl.disabled = true;
+
+        // Mevcut dekont dosyalarını sil (fiziksel + DB)
+        this.uploadSubmitEl.innerHTML = '<i class="fa fa-spinner fa-spin"></i>&nbsp;Mevcut dosyalar siliniyor...';
+        try {
+            const existingResp = await OrderDocumentService.List({
+                EqualityFilter: { OrderId: String(this.entityId) },
+                Sort: ['-Id'], Take: 100
+            });
+            for (const doc of existingResp?.Entities ?? []) {
+                if (doc.Id && doc.IsActive !== false)
+                    try { await OrderDocumentService.Delete({ EntityId: doc.Id }); } catch { /* devam et */ }
+            }
+        } catch { /* silme hatası yüklemeyi engellemez */ }
+
         const csrf = document.cookie.match(/(?:^|;\s*)CSRF-TOKEN=([^;]*)/)?.[1] ?? '';
         let uploaded = 0;
 
@@ -789,6 +827,13 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     private async executeTransition(reason: string | null): Promise<void> {
         if (!this.pendingTransition || !this.order) return;
         const t = this.pendingTransition;
+
+        if (t.Status === 9 && !this.warehouseSelectEl?.value) {
+            notifyError('Lütfen teslim öncesi depo seçiniz.');
+            this.pendingTransition = null;
+            return;
+        }
+
         this.pendingTransition = null;
 
         this.statusFlowEl.querySelectorAll<HTMLElement>('.oed-ps-interactive')
@@ -862,7 +907,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         if (!this.tableBodyEl) return;
         if (this.rows.length === 0) {
             this.tableBodyEl.innerHTML =
-                '<tr><td colspan="8" class="oed-empty">Sipariş kalemi yok.</td></tr>';
+                '<tr><td colspan="9" class="oed-empty">Sipariş kalemi yok.</td></tr>';
             this.updateTotal();
             return;
         }
@@ -894,6 +939,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 
             html += `
 <tr data-idx="${idx}" class="${rowCls}">
+    <td class="oed-col-no">${idx + 1}</td>
     <td class="oed-col-product">${htmlEncode(name)}</td>
     <td class="oed-col-qty">
         <input type="number" class="form-control form-control-sm oed-num oed-qty"
