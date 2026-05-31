@@ -2,10 +2,10 @@ import {
     Decorators, DialogButton, Lookup, TemplatedDialog,
     getLookupAsync, htmlEncode, notifyError, notifySuccess, notifyWarning
 } from '@serenity-is/corelib';
-import { BrandsRow, PriceListItemsRow, PriceListItemsService, ProductCategoryRow, ProductsRow } from '../../ServerTypes/Catalog';
+import { BrandsRow, PriceListItemsRow, PriceListItemsService, PriceListsRow, ProductCategoryRow, ProductsRow } from '../../ServerTypes/Catalog';
 import { CustomersRow } from '../../ServerTypes/Customer';
 import { OrderDetailRow, OrderDetailService, OrderRow, OrderService } from '../../ServerTypes/Order';
-import { VendorTypeRow } from '../../ServerTypes/Setting';
+import { CurrencyListRow, VendorTypeRow } from '../../ServerTypes/Setting';
 
 export interface OrderDialogOptions {
     entityId?: number | null;
@@ -48,8 +48,11 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private searchTerm = '';
     private customerId: number | null = null;
     private priceListItems = new Map<number, PriceListItemsRow>();
+    private activeCurrencyCode = '₺';
+    private activeCurrencyId: number | undefined = undefined;
     private cartVisible = false;
 
+    private imgTooltipEl!: HTMLElement;
     private catListEl!: HTMLElement;
     private brandSectionEl!: HTMLElement;
     private brandListEl!: HTMLElement;
@@ -136,6 +139,13 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private bindElements(): void {
         const n = (id: string) => this.byId(id)?.getNode() as HTMLElement;
 
+        this.imgTooltipEl = document.createElement('div');
+        this.imgTooltipEl.style.cssText =
+            'display:none;position:fixed;z-index:99999;pointer-events:none;' +
+            'background:#fff;border:1px solid #ddd;border-radius:6px;' +
+            'box-shadow:0 4px 16px rgba(0,0,0,.18);padding:4px;';
+        document.body.appendChild(this.imgTooltipEl);
+
         this.catListEl      = n('CategoryList');
         this.brandSectionEl = n('BrandSection');
         this.brandListEl    = n('BrandList');
@@ -157,13 +167,25 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     }
 
     private async loadData(): Promise<void> {
-        [this.productLookup, this.customerLookup, this.vendorTypeLookup, this.categoryLookup, this.brandLookup] = await Promise.all([
+        const [pl, cl, vt, cat, br, currLookup] = await Promise.all([
             getLookupAsync<ProductsRow>(ProductsRow.lookupKey),
             getLookupAsync<CustomersRow>(CustomersRow.lookupKey),
             getLookupAsync<VendorTypeRow>(VendorTypeRow.lookupKey),
             getLookupAsync<ProductCategoryRow>('Catalog.ProductCategory'),
-            getLookupAsync<BrandsRow>('Catalog.Brands')
+            getLookupAsync<BrandsRow>('Catalog.Brands'),
+            getLookupAsync<CurrencyListRow>(CurrencyListRow.lookupKey)
         ]);
+        this.productLookup    = pl;
+        this.customerLookup   = cl;
+        this.vendorTypeLookup = vt;
+        this.categoryLookup   = cat;
+        this.brandLookup      = br;
+
+        const eur = currLookup.items.find(c => c.Code === 'EUR');
+        if (eur) {
+            this.activeCurrencyCode = eur.Symbol || eur.Code || '€';
+            this.activeCurrencyId   = eur.Id;
+        }
 
         this.allProducts = this.productLookup.items.filter(p => p.IsActive !== 0);
         this.renderCategories();
@@ -202,14 +224,25 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         if (!priceListId) return;
 
         try {
-            const resp = await PriceListItemsService.List({
-                EqualityFilter: { PriceListId: String(priceListId) }
-            });
+            const [priceListLookup, resp] = await Promise.all([
+                getLookupAsync<PriceListsRow>(PriceListsRow.lookupKey),
+                PriceListItemsService.List({ EqualityFilter: { PriceListId: String(priceListId) } })
+            ]);
+
+            const priceList  = priceListLookup.itemById[priceListId];
+            const currLookup = await getLookupAsync<CurrencyListRow>(CurrencyListRow.lookupKey);
+            const cur = priceList?.CurrencyId ? currLookup.itemById[priceList.CurrencyId] : null;
+            if (cur) {
+                this.activeCurrencyCode = cur.Symbol || cur.Code || '₺';
+                this.activeCurrencyId   = cur.Id;
+            }
+
             this.priceListItems.clear();
             for (const item of resp?.Entities ?? []) {
                 if (item.ProductId != null) this.priceListItems.set(item.ProductId, item);
             }
             this.renderProducts();
+            this.renderCart();
         } catch { /* fiyat listesi yoksa varsayılan fiyat kullanılır */ }
     }
 
@@ -488,7 +521,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         products.forEach(product => {
             const inCart   = this.cart.has(product.Id!);
             const price    = this.getProductPrice(product);
-            const currency = htmlEncode(product.CurrencyCode || '₺');
+            const currency = htmlEncode(this.activeCurrencyCode);
 
             html += `
 <div class="opd-card${inCart ? ' opd-card--in-cart' : ''}" data-id="${product.Id}">
@@ -520,8 +553,41 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         this.bindProductEvents();
     }
 
+    private getThumbUrl(imagePath: string | undefined): string | null {
+        if (!imagePath) return null;
+        const dot = imagePath.lastIndexOf('.');
+        const thumb = dot > -1 ? imagePath.slice(0, dot) + '_t.jpg' : imagePath + '_t.jpg';
+        return '/upload/' + thumb;
+    }
+
+    private positionImgTooltip(e: MouseEvent): void {
+        const gap = 12, tw = 188, th = 188;
+        let left = e.clientX + gap;
+        let top  = e.clientY + gap;
+        if (left + tw > window.innerWidth)  left = e.clientX - tw - gap;
+        if (top  + th > window.innerHeight) top  = e.clientY - th - gap;
+        this.imgTooltipEl.style.left = left + 'px';
+        this.imgTooltipEl.style.top  = top  + 'px';
+    }
+
     private bindProductEvents(): void {
         const g = this.productGridEl;
+
+        g.querySelectorAll<HTMLDivElement>('.opd-card').forEach(card => {
+            card.addEventListener('mouseenter', (e: MouseEvent) => {
+                const id = parseInt(card.dataset.id!);
+                const product = this.productLookup?.itemById[id];
+                const thumbUrl = this.getThumbUrl((product as any)?.ProductImage);
+                if (!thumbUrl) return;
+                this.imgTooltipEl.innerHTML =
+                    `<img src="${thumbUrl}" alt="" style="max-width:180px;max-height:180px;display:block;"
+                          onerror="this.parentElement.style.display='none'" />`;
+                this.imgTooltipEl.style.display = 'block';
+                this.positionImgTooltip(e);
+            });
+            card.addEventListener('mousemove', (e: MouseEvent) => this.positionImgTooltip(e));
+            card.addEventListener('mouseleave', () => { this.imgTooltipEl.style.display = 'none'; });
+        });
 
         g.querySelectorAll<HTMLButtonElement>('.opd-qty-minus').forEach(btn => {
             btn.addEventListener('click', e => {
@@ -607,7 +673,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
         if (count === 0) {
             if (this.cartItemsEl) this.cartItemsEl.innerHTML = '<div class="opd-cart-empty">Sepet boş</div>';
-            if (this.cartTotalEl) this.cartTotalEl.textContent = '0,00 ₺';
+            if (this.cartTotalEl) this.cartTotalEl.textContent = '0,00 ' + this.activeCurrencyCode;
             return;
         }
 
@@ -628,7 +694,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     <input type="number" class="opd-cart-qty" data-id="${item.productId}"
            value="${item.quantity}" min="1" step="1" title="Koli sayısı" />
     <div class="opd-ci-price">
-        <div>${this.fmt(item.lineTotal)}&nbsp;₺</div>
+        <div>${this.fmt(item.lineTotal)}&nbsp;${htmlEncode(this.activeCurrencyCode)}</div>
         <small>${koliLabel}</small>
     </div>
     <button class="opd-ci-del" data-id="${item.productId}" title="Kaldır">
@@ -663,7 +729,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             });
         }
 
-        if (this.cartTotalEl) this.cartTotalEl.textContent = this.fmt(total) + ' ₺';
+        if (this.cartTotalEl) this.cartTotalEl.textContent = this.fmt(total) + ' ' + this.activeCurrencyCode;
     }
 
     private toggleCart(show?: boolean): void {
@@ -712,6 +778,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
         const order: OrderRow = {
             CustomerId:  this.customerId ?? undefined,
+            CurrencyId:  this.activeCurrencyId,
             OrderDate:   new Date().toISOString(),
             Status:      14,
             TotalAmount: totalAmount,
@@ -737,6 +804,12 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
     private fmt(n: number): string {
         return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+    }
+
+    public destroy(): void {
+        if (this.imgTooltipEl?.parentNode)
+            this.imgTooltipEl.parentNode.removeChild(this.imgTooltipEl);
+        super.destroy();
     }
 
     protected getDialogButtons(): DialogButton[] {

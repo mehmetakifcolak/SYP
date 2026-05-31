@@ -72,7 +72,7 @@ public sealed class PriceListsRow : Row<PriceListsRow.RowFields>, IIdRow, INameR
     
     #region Foreign Fields
 
-    [DisplayName("Currency Code"), Origin(jCurrency, nameof(Setting.CurrencyListRow.Code)), ReadOnly(true)]
+    [DisplayName("Currency Code"), Origin(jCurrency, nameof(Setting.CurrencyListRow.Code)), ReadOnly(true), LookupInclude]
     public string CurrencyCode { get => fields.CurrencyCode[this]; set => fields.CurrencyCode[this] = value; }
     public partial class RowFields { public StringField CurrencyCode; }
 

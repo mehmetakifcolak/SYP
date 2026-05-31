@@ -43,8 +43,8 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     public string Barcode { get => fields.Barcode[this]; set => fields.Barcode[this] = value; }
     public partial class RowFields { public StringField Barcode; }
 
-    [DisplayName("Product Image"), Size(200)]
-    [ImageUploadEditor(FilenameFormat = "Products/~", CopyToHistory = true  )]
+    [DisplayName("Product Image"), Size(200), LookupInclude]
+    [ImageUploadEditor(FilenameFormat = "Products/~", CopyToHistory = true)]
     public string ProductImage { get => fields.ProductImage[this]; set => fields.ProductImage[this] = value; }
     public partial class RowFields { public StringField ProductImage; }
 

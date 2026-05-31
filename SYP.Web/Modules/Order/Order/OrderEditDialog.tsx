@@ -4,6 +4,7 @@ import {
 } from '@serenity-is/corelib';
 import { ProductsRow } from '../../ServerTypes/Catalog';
 import { AllowedTransitionItem, OrderDetailRow, OrderDocumentService, OrderRow, OrderService } from '../../ServerTypes/Order';
+import { CurrencyListRow } from '../../ServerTypes/Setting';
 import { WarehousesRow } from '../../ServerTypes/Warehouse';
 import { OrderDialog } from './OrderDialog';
 
@@ -113,12 +114,18 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     private transitions: AllowedTransitionItem[] = [];
     private productLookup!: Lookup<ProductsRow>;
     private warehouseLookup!: Lookup<WarehousesRow>;
+    private currencyLookup!: Lookup<CurrencyListRow>;
+    private imgTooltipEl!: HTMLElement;
+    private pendingDeleteRowIdx: number | null = null;
 
     private statusFlowEl!: HTMLElement;
     private stepPopupEl!: HTMLElement;
     private tableBodyEl!: HTMLElement;
     private totalEl!: HTMLElement;
+    private grossTotalEl!: HTMLElement;
+    private discountTotalEl!: HTMLElement;
     private warehouseSelectEl: HTMLSelectElement | null = null;
+    private currencySelectEl: HTMLSelectElement | null = null;
 
     // Açıklama modali
     private reasonModalEl!: HTMLElement;
@@ -166,13 +173,14 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                     <th class="oed-col-koli">Koli</th>
                     <th class="oed-col-price">Birim Fiyat</th>
                     <th class="oed-col-disc">İndirim %</th>
-                    <th class="oed-col-total">Satır Toplamı</th>
+                    <th class="oed-col-gross">Brüt Tutar</th>
+                    <th class="oed-col-net">Net Tutar</th>
                     <th class="oed-col-status">Durum</th>
                     <th class="oed-col-actions">İşlem</th>
                 </tr>
             </thead>
             <tbody id="~_TableBody">
-                <tr><td colspan="9" class="oed-loading">
+                <tr><td colspan="10" class="oed-loading">
                     <i class="fa fa-spinner fa-spin"></i>&nbsp;Yükleniyor...
                 </td></tr>
             </tbody>
@@ -180,8 +188,18 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     </div>
     <div class="oed-footer">
         <div class="oed-total-wrap">
-            <span class="oed-total-label">Genel Toplam</span>
-            <strong id="~_Total" class="oed-total-val">0,00 ₺</strong>
+            <div class="oed-total-row">
+                <span class="oed-total-label">Brüt Toplam</span>
+                <strong id="~_GrossTotal" class="oed-total-val">0,00</strong>
+            </div>
+            <div class="oed-total-row">
+                <span class="oed-total-label">Toplam İndirim</span>
+                <strong id="~_DiscountTotal" class="oed-total-val oed-discount-val">0,00</strong>
+            </div>
+            <div class="oed-total-row oed-total-row--net">
+                <span class="oed-total-label">Net Toplam</span>
+                <strong id="~_Total" class="oed-total-val">0,00 ₺</strong>
+            </div>
         </div>
         <div class="oed-footer-actions">
             <button id="~_AddBtn" class="btn btn-primary oed-add-product-btn">
@@ -306,9 +324,20 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 
     private bindStatic(): void {
         const n = (id: string) => this.byId(id)?.getNode() as HTMLElement;
+
+        this.imgTooltipEl = document.createElement('div');
+        this.imgTooltipEl.className = 'oed-img-tooltip';
+        this.imgTooltipEl.style.cssText =
+            'display:none;position:fixed;z-index:99999;pointer-events:none;' +
+            'background:#fff;border:1px solid #ddd;border-radius:6px;' +
+            'box-shadow:0 4px 16px rgba(0,0,0,.18);padding:4px;';
+        document.body.appendChild(this.imgTooltipEl);
+
         this.statusFlowEl       = n('StatusFlow');
         this.tableBodyEl        = n('TableBody');
         this.totalEl            = n('Total');
+        this.grossTotalEl       = n('GrossTotal');
+        this.discountTotalEl    = n('DiscountTotal');
         this.warehouseSelectEl  = n('WarehouseSelect') as HTMLSelectElement;
         this.reasonModalEl      = n('ReasonModal');
         this.reasonModalTitleEl = n('ReasonModalTitle');
@@ -355,9 +384,10 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 
     private async loadData(): Promise<void> {
         try {
-            [this.productLookup, this.warehouseLookup] = await Promise.all([
+            [this.productLookup, this.warehouseLookup, this.currencyLookup] = await Promise.all([
                 getLookupAsync<ProductsRow>(ProductsRow.lookupKey),
-                getLookupAsync<WarehousesRow>(WarehousesRow.lookupKey)
+                getLookupAsync<WarehousesRow>(WarehousesRow.lookupKey),
+                getLookupAsync<CurrencyListRow>(CurrencyListRow.lookupKey)
             ]);
             const resp = await OrderService.Retrieve({ EntityId: this.entityId });
             this.order = resp.Entity;
@@ -437,6 +467,8 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         this.hideStepPopup();
         if (this.stepPopupEl?.parentNode)
             this.stepPopupEl.parentNode.removeChild(this.stepPopupEl);
+        if (this.imgTooltipEl?.parentNode)
+            this.imgTooltipEl.parentNode.removeChild(this.imgTooltipEl);
         super.destroy();
     }
 
@@ -450,6 +482,12 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             .filter(w => w.IsActive !== false)
             .sort((a, b) => (a.Name || '').localeCompare(b.Name || '', 'tr'))
             .map(w => `<option value="${w.Id}"${String(w.Id) === currentWid ? ' selected' : ''}>${htmlEncode(w.Name || '')}</option>`)
+            .join('');
+
+        const currentCid = this.currencySelectEl?.value || (o.CurrencyId ? String(o.CurrencyId) : '');
+        const currencyOpts = (this.currencyLookup?.items ?? [])
+            .filter(c => (c as any).IsActive !== false)
+            .map(c => `<option value="${c.Id}"${String(c.Id) === currentCid ? ' selected' : ''}>${htmlEncode(c.Code || '')} ${htmlEncode(c.Symbol || '')}</option>`)
             .join('');
         grid.innerHTML = `
 <div class="oed-hfield">
@@ -466,7 +504,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 </div>
 <div class="oed-hfield">
     <span class="oed-hlabel">Net Tutar</span>
-    <span class="oed-hval oed-net-amount">${this.fmt(o.NetAmount ?? 0)}&nbsp;₺</span>
+    <span class="oed-hval oed-net-amount">${this.fmt(o.NetAmount ?? 0)}&nbsp;${this.currencySymbol}</span>
 </div>
 <div class="oed-hfield">
     <span class="oed-hlabel"><i class="fa fa-building-o"></i>&nbsp;Depo</span>
@@ -474,8 +512,20 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         <option value="">— Depo Seçin —</option>
         ${warehouseOpts}
     </select>
+</div>
+<div class="oed-hfield">
+    <span class="oed-hlabel"><i class="fa fa-money"></i>&nbsp;Para Birimi</span>
+    <select class="form-control form-control-sm oed-hcurrency">
+        ${currencyOpts}
+    </select>
 </div>`;
         this.warehouseSelectEl = grid.querySelector<HTMLSelectElement>('.oed-hwarehouse');
+
+        this.currencySelectEl = grid.querySelector<HTMLSelectElement>('.oed-hcurrency');
+        this.currencySelectEl?.addEventListener('change', () => {
+            this.renderTable();
+            this.updateTotal();
+        });
     }
 
     // ── İlerleme çubuğu ──────────────────────────────────────────
@@ -854,6 +904,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                     Status:       t.Status as any,
                     RejectReason: reason ?? undefined,
                     WarehouseId:  wid,
+                    CurrencyId:   this.currencySelectEl?.value ? parseInt(this.currencySelectEl.value) : undefined,
                     TotalAmount:  total,
                     NetAmount:    total,
                     DetailList:   rowsToSave
@@ -907,7 +958,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         if (!this.tableBodyEl) return;
         if (this.rows.length === 0) {
             this.tableBodyEl.innerHTML =
-                '<tr><td colspan="9" class="oed-empty">Sipariş kalemi yok.</td></tr>';
+                '<tr><td colspan="10" class="oed-empty">Sipariş kalemi yok.</td></tr>';
             this.updateTotal();
             return;
         }
@@ -917,7 +968,9 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             const name       = p ? `${p.Code || ''} - ${p.Name || ''}` : (row.ProductCodeName || '—');
             const packingQty = ((p as any)?.PackingQuantity as number) || 1;
             const qty   = row.Quantity ?? 1, price = row.UnitPrice ?? 0,
-                  disc  = row.Discount ?? 0, total = row.LineTotal ?? qty * price * (1 - disc / 100);
+                  disc  = row.Discount ?? 0,
+                  gross = qty * price,
+                  net   = row.LineTotal ?? gross * (1 - disc / 100);
             const boxCount  = packingQty > 1 ? Math.round(qty / packingQty) : qty;
             const isRevised = row.LineStatus === 3 && row.OriginalQuantity != null;
             const origQty   = row.OriginalQuantity ?? 0;
@@ -940,7 +993,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             html += `
 <tr data-idx="${idx}" class="${rowCls}">
     <td class="oed-col-no">${idx + 1}</td>
-    <td class="oed-col-product">${htmlEncode(name)}</td>
+    <td class="oed-col-product oed-product-cell" data-pid="${row.ProductId ?? ''}">${htmlEncode(name)}</td>
     <td class="oed-col-qty">
         <input type="number" class="form-control form-control-sm oed-num oed-qty"
                data-idx="${idx}" value="${qty}" min="0.001" step="1" />
@@ -953,14 +1006,14 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         ${koliExtra}
     </td>
     <td class="oed-col-price">
-        <input type="number" class="form-control form-control-sm oed-num oed-price"
-               data-idx="${idx}" value="${price}" min="0" step="0.01" />
+        <span class="oed-price-readonly" data-idx="${idx}">${this.fmt(price)}</span>
     </td>
     <td class="oed-col-disc">
         <input type="number" class="form-control form-control-sm oed-num oed-disc"
                data-idx="${idx}" value="${disc}" min="0" max="100" step="0.01" />
     </td>
-    <td class="oed-col-total oed-line-total" data-idx="${idx}">${this.fmt(total)}&nbsp;₺</td>
+    <td class="oed-col-gross oed-line-gross" data-idx="${idx}">${this.fmt(gross)}&nbsp;${this.currencySymbol}</td>
+    <td class="oed-col-net oed-line-total" data-idx="${idx}">${this.fmt(net)}&nbsp;${this.currencySymbol}</td>
     <td class="oed-col-status">${this.lineBadge(row.LineStatus)}</td>
     <td class="oed-col-actions">
         <button class="oed-act-btn oed-act-approve" data-idx="${idx}" title="Onayla">
@@ -983,8 +1036,40 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         this.updateTotal();
     }
 
+    private getThumbUrl(imagePath: string | undefined): string | null {
+        if (!imagePath) return null;
+        const dot = imagePath.lastIndexOf('.');
+        const thumb = dot > -1
+            ? imagePath.slice(0, dot) + '_t.jpg'
+            : imagePath + '_t.jpg';
+        return '/upload/' + thumb;
+    }
+
     private bindTableEvents(): void {
         const tb = this.tableBodyEl;
+
+        tb.querySelectorAll<HTMLTableCellElement>('.oed-product-cell').forEach(cell => {
+            cell.addEventListener('mouseenter', (e: MouseEvent) => {
+                const pid = parseInt(cell.dataset.pid || '');
+                if (!pid || !this.productLookup) return;
+                const product = this.productLookup.itemById[pid];
+                const thumbUrl = this.getThumbUrl((product as any)?.ProductImage);
+                if (!thumbUrl) return;
+
+                this.imgTooltipEl.innerHTML =
+                    `<img src="${thumbUrl}" alt="" style="max-width:180px;max-height:180px;display:block;"
+                          onerror="this.parentElement.style.display='none'" />`;
+                this.imgTooltipEl.style.display = 'block';
+                this.positionImgTooltip(e);
+            });
+            cell.addEventListener('mousemove', (e: MouseEvent) => {
+                this.positionImgTooltip(e);
+            });
+            cell.addEventListener('mouseleave', () => {
+                this.imgTooltipEl.style.display = 'none';
+            });
+        });
+
         tb.querySelectorAll<HTMLInputElement>('.oed-qty').forEach(inp =>
             inp.addEventListener('input', () => {
                 const idx = parseInt(inp.dataset.idx!);
@@ -1005,7 +1090,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                 this.recalcRow(idx);
             })
         );
-        tb.querySelectorAll<HTMLInputElement>('.oed-price, .oed-disc').forEach(inp =>
+        tb.querySelectorAll<HTMLInputElement>('.oed-disc').forEach(inp =>
             inp.addEventListener('input', () => this.recalcRow(parseInt(inp.dataset.idx!)))
         );
         tb.querySelectorAll<HTMLButtonElement>('.oed-act-approve').forEach(btn =>
@@ -1018,7 +1103,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             btn.addEventListener('click', () => this.openReviseModal(parseInt(btn.dataset.idx!)))
         );
         tb.querySelectorAll<HTMLButtonElement>('.oed-act-delete').forEach(btn =>
-            btn.addEventListener('click', () => { this.rows.splice(parseInt(btn.dataset.idx!), 1); this.renderTable(); })
+            btn.addEventListener('click', () => this.openRowDeleteModal(parseInt(btn.dataset.idx!)))
         );
     }
 
@@ -1122,30 +1207,68 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         const tb  = this.tableBodyEl;
         const row = this.rows[idx];
         if (!row) return;
-        const qty   = parseFloat(tb.querySelector<HTMLInputElement>(`.oed-qty[data-idx="${idx}"]`)?.value   || '0') || 0;
-        const price = parseFloat(tb.querySelector<HTMLInputElement>(`.oed-price[data-idx="${idx}"]`)?.value || '0') || 0;
-        const disc  = parseFloat(tb.querySelector<HTMLInputElement>(`.oed-disc[data-idx="${idx}"]`)?.value  || '0') || 0;
-        row.Quantity = qty; row.UnitPrice = price; row.Discount = disc;
-        row.LineTotal = qty * price * (1 - disc / 100);
-        const cell = tb.querySelector<HTMLElement>(`.oed-line-total[data-idx="${idx}"]`);
-        if (cell) cell.textContent = this.fmt(row.LineTotal) + ' ₺';
+        const qty   = parseFloat(tb.querySelector<HTMLInputElement>(`.oed-qty[data-idx="${idx}"]`)?.value  || '0') || 0;
+        const price = row.UnitPrice ?? 0;
+        const disc  = parseFloat(tb.querySelector<HTMLInputElement>(`.oed-disc[data-idx="${idx}"]`)?.value || '0') || 0;
+        const gross = qty * price;
+        const net   = gross * (1 - disc / 100);
+        row.Quantity = qty; row.Discount = disc;
+        row.LineTotal = net;
+        const sym = this.currencySymbol;
+        const grossCell = tb.querySelector<HTMLElement>(`.oed-line-gross[data-idx="${idx}"]`);
+        const netCell   = tb.querySelector<HTMLElement>(`.oed-line-total[data-idx="${idx}"]`);
+        if (grossCell) grossCell.textContent = this.fmt(gross) + ' ' + sym;
+        if (netCell)   netCell.textContent   = this.fmt(net)   + ' ' + sym;
         this.updateTotal();
     }
 
     private updateTotal(): void {
-        const total = this.rows.reduce((s, r) => s + (r.LineTotal ?? 0), 0);
-        if (this.totalEl) this.totalEl.textContent = this.fmt(total) + ' ₺';
+        const sym     = this.currencySymbol;
+        const gross   = this.rows.reduce((s, r) => s + (r.Quantity ?? 0) * (r.UnitPrice ?? 0), 0);
+        const net     = this.rows.reduce((s, r) => s + (r.LineTotal ?? 0), 0);
+        const disc    = gross - net;
+        if (this.grossTotalEl)    this.grossTotalEl.textContent    = this.fmt(gross) + ' ' + sym;
+        if (this.discountTotalEl) this.discountTotalEl.textContent = '−' + this.fmt(disc) + ' ' + sym;
+        if (this.totalEl)         this.totalEl.textContent         = this.fmt(net)   + ' ' + sym;
     }
 
     private openDeleteModal(): void {
-        (this.byId('DeleteModal')?.getNode() as HTMLElement).style.display = 'flex';
+        this.pendingDeleteRowIdx = null;
+        const modal = this.byId('DeleteModal')?.getNode() as HTMLElement;
+        const body  = modal?.querySelector('.oed-reason-body') as HTMLElement;
+        if (body) body.innerHTML =
+            'Bu siparişi silmek istediğinizden emin misiniz?<br/>' +
+            '<strong style="color:#dc3545;">Bu işlem geri alınamaz.</strong>';
+        modal.style.display = 'flex';
+    }
+
+    private openRowDeleteModal(idx: number): void {
+        this.pendingDeleteRowIdx = idx;
+        const row     = this.rows[idx];
+        const product = row?.ProductId ? this.productLookup?.itemById[row.ProductId] : null;
+        const name    = product ? `${product.Code || ''} - ${product.Name || ''}` : `Satır ${idx + 1}`;
+        const modal = this.byId('DeleteModal')?.getNode() as HTMLElement;
+        const body  = modal?.querySelector('.oed-reason-body') as HTMLElement;
+        if (body) body.innerHTML =
+            `<strong>${htmlEncode(name)}</strong> satırını silmek istediğinize emin misiniz?`;
+        modal.style.display = 'flex';
     }
 
     private closeDeleteModal(): void {
         (this.byId('DeleteModal')?.getNode() as HTMLElement).style.display = 'none';
+        this.pendingDeleteRowIdx = null;
     }
 
     private async confirmDelete(): Promise<void> {
+        if (this.pendingDeleteRowIdx !== null) {
+            // Satır silme
+            this.rows.splice(this.pendingDeleteRowIdx, 1);
+            this.closeDeleteModal();
+            this.renderTable();
+            return;
+        }
+
+        // Sipariş silme
         this.closeDeleteModal();
         const confirmBtn = this.byId('DeleteModalConfirm')?.getNode() as HTMLButtonElement;
         if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>&nbsp;Siliniyor...'; }
@@ -1173,7 +1296,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         try {
             await OrderService.Update({
                 EntityId: this.entityId,
-                Entity: { ...this.order, WarehouseId: wid, TotalAmount: total, NetAmount: total, DetailList: rowsToSave }
+                Entity: { ...this.order, WarehouseId: wid, CurrencyId: this.currencySelectEl?.value ? parseInt(this.currencySelectEl.value) : undefined, TotalAmount: total, NetAmount: total, DetailList: rowsToSave }
             });
             notifySuccess('Sipariş başarıyla güncellendi!');
             this.options?.onSave?.();
@@ -1181,6 +1304,32 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         } catch (err: any) {
             notifyError('Güncelleme sırasında hata: ' + (err?.message || ''));
         }
+    }
+
+    private positionImgTooltip(e: MouseEvent): void {
+        const gap = 12, tw = 188, th = 188;
+        let left = e.clientX + gap;
+        let top  = e.clientY + gap;
+        if (left + tw > window.innerWidth)  left = e.clientX - tw - gap;
+        if (top  + th > window.innerHeight) top  = e.clientY - th - gap;
+        this.imgTooltipEl.style.left = left + 'px';
+        this.imgTooltipEl.style.top  = top  + 'px';
+    }
+
+    private get currencySymbol(): string {
+        const selectedId = this.currencySelectEl?.value
+            ? parseInt(this.currencySelectEl.value) : null;
+        if (selectedId && this.currencyLookup) {
+            const c = this.currencyLookup.itemById[selectedId];
+            if (c?.Symbol) return c.Symbol;
+            if (c?.Code)   return c.Code;
+        }
+        const code = (this.order as any)?.CurrencyCode;
+        if (code && this.currencyLookup) {
+            const c = this.currencyLookup.items.find(x => x.Code === code);
+            if (c?.Symbol) return c.Symbol;
+        }
+        return code || '₺';
     }
 
     private fmt(n: number): string {
