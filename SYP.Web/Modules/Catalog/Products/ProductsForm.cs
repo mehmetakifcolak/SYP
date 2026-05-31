@@ -36,9 +36,6 @@ public class ProductsForm
     public int? PackingId { get; set; }
 
     [HalfWidth]
-    public int? CurrencyId { get; set; }
-
-    [HalfWidth]
     public int? VatRateId { get; set; }
 
 [Tab("Image")]

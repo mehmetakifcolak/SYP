@@ -201,9 +201,6 @@ namespace texts {
                 export const CategoryName: string;
                 export const Code: string;
                 export const CodeName: string;
-                export const CurrencyCode: string;
-                export const CurrencyId: string;
-                export const CurrentValidPrice: string;
                 export const DeletedDate: string;
                 export const DeletedUserId: string;
                 export const Description: string;
@@ -222,7 +219,6 @@ namespace texts {
                 export const ProductImage: string;
                 export const UnitId: string;
                 export const UnitName: string;
-                export const UnitPrice: string;
                 export const UpdateDate: string;
                 export const UpdateUserId: string;
                 export const VatRate: string;
@@ -259,8 +255,6 @@ namespace texts {
                 export const ManagerName: string;
                 export const ManagerUserId: string;
                 export const Name: string;
-                export const Password: string;
-                export const PasswordConfirm: string;
                 export const Phone: string;
                 export const Phone2: string;
                 export const PriceListId: string;

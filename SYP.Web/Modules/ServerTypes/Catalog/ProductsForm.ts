@@ -10,7 +10,6 @@ export interface ProductsForm {
     Description: TextAreaEditor;
     UnitId: LookupEditor;
     PackingId: LookupEditor;
-    CurrencyId: LookupEditor;
     VatRateId: LookupEditor;
     ProductImage: ImageUploadEditor;
     IsActive: BooleanEditor;
@@ -42,7 +41,6 @@ export class ProductsForm extends PrefixedContext {
                 'Description', w2,
                 'UnitId', w1,
                 'PackingId', w1,
-                'CurrencyId', w1,
                 'VatRateId', w1,
                 'ProductImage', w3,
                 'IsActive', w4

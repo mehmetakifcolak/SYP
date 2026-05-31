@@ -145,8 +145,7 @@ export class OrderDetailGridEditor extends GridEditorBase<OrderDetailRow> {
         const product = this.productLookup.itemById[row.ProductId];
         if (!product) return;
 
-        // Birim fiyatı güncel fiyattan al
-        row.UnitPrice = product.CurrentValidPrice || product.UnitPrice || 0;
+        row.UnitPrice = 0;
 
         // Unit ID'yi al
         if (product.UnitId) {
@@ -177,7 +176,7 @@ export class OrderDetailGridEditor extends GridEditorBase<OrderDetailRow> {
             const product = this.productLookup.itemById[row.ProductId];
             if (product) {
                 if (!row.UnitPrice || row.UnitPrice === 0) {
-                    row.UnitPrice = product.CurrentValidPrice || product.UnitPrice || 0;
+                    row.UnitPrice = 0;
                 }
 
                 if (!row.UnitId && product.UnitId) {

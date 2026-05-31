@@ -20,8 +20,7 @@ export class OrderDetailEditorDialog extends GridEditorDialog<OrderDetailRow> {
                 const lookup = await getLookupAsync<ProductsRow>(ProductsRow.lookupKey);
                 const product = lookup.itemById[productId];
                 if (product) {
-                    // Birim fiyatı güncel fiyattan al
-                    const unitPrice = product.CurrentValidPrice || product.UnitPrice || 0;
+                    const unitPrice = 0;
                     this.form.UnitPrice.value = unitPrice;
 
                     // Unit ID'yi al

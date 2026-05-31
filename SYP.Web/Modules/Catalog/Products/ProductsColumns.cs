@@ -28,9 +28,6 @@ public class ProductsColumns
     [Width(80)]
     public string UnitName { get; set; }
 
-[Width(80)]
-    public string CurrencyCode { get; set; }
-
     [Width(80)]
     public string VatRateName { get; set; }
 

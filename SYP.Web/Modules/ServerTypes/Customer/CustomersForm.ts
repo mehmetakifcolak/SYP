@@ -1,4 +1,5 @@
-﻿import { BooleanEditor, EmailAddressEditor, initFormType, LookupEditor, PasswordEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
+﻿import { BooleanEditor, EmailAddressEditor, initFormType, LookupEditor, PrefixedContext, StringEditor, TextAreaEditor } from "@serenity-is/corelib";
+import { UserDialog } from "../../Administration/User/UserDialog";
 
 export interface CustomersForm {
     Code: StringEditor;
@@ -20,8 +21,6 @@ export interface CustomersForm {
     TaxOffice: StringEditor;
     TaxNumber: StringEditor;
     UserId: LookupEditor;
-    Password: PasswordEditor;
-    PasswordConfirm: PasswordEditor;
 }
 
 export class CustomersForm extends PrefixedContext {
@@ -39,7 +38,6 @@ export class CustomersForm extends PrefixedContext {
             var w2 = BooleanEditor;
             var w3 = EmailAddressEditor;
             var w4 = TextAreaEditor;
-            var w5 = PasswordEditor;
 
             initFormType(CustomersForm, [
                 'Code', w0,
@@ -60,10 +58,10 @@ export class CustomersForm extends PrefixedContext {
                 'District', w0,
                 'TaxOffice', w0,
                 'TaxNumber', w0,
-                'UserId', w1,
-                'Password', w5,
-                'PasswordConfirm', w5
+                'UserId', w1
             ]);
         }
     }
 }
+
+queueMicrotask(() => [UserDialog]); // referenced dialogs

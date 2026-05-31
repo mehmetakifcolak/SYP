@@ -1,6 +1,6 @@
 import { Decorators, DialogButton, TemplatedDialog, getLookupAsync, notifyError, notifySuccess, notifyWarning, Lookup, serviceCall } from "@serenity-is/corelib";
 import { ProductsRow, ProductsService, ProductCategoryRow, BrandsRow } from "../../ServerTypes/Catalog";
-import { UnitsRow, CurrencyListRow, VatRatesRow } from "../../ServerTypes/Setting";
+import { UnitsRow, VatRatesRow } from "../../ServerTypes/Setting";
 import { ProductPackingRow } from "../../ServerTypes/Catalog";
 import * as XLSX from 'xlsx';
 
@@ -14,11 +14,9 @@ export interface ExcelRowData {
     name2?: string;
     description?: string;
     barcode?: string;
-    unitPrice?: number;
     categoryName?: string;
     brandName?: string;
     unitName?: string;
-    currencyCode?: string;
     vatRateName?: string;
     packingName?: string;
     rowIndex: number;
@@ -31,11 +29,9 @@ export interface ParsedProduct {
     name2?: string;
     description?: string;
     barcode?: string;
-    unitPrice?: number;
     categoryId?: number;
     brandId?: number;
     unitId?: number;
-    currencyId?: number;
     vatRateId?: number;
     packingId?: number;
     isValid: boolean;
@@ -51,7 +47,6 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
     private categoryLookup: Lookup<ProductCategoryRow>;
     private brandLookup: Lookup<BrandsRow>;
     private unitLookup: Lookup<UnitsRow>;
-    private currencyLookup: Lookup<CurrencyListRow>;
     private vatRateLookup: Lookup<VatRatesRow>;
     private packingLookup: Lookup<ProductPackingRow>;
 
@@ -74,13 +69,11 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
                     3. <b>İkinci İsim</b> (opsiyonel)<br/>
                     4. <b>Açıklama</b> (opsiyonel)<br/>
                     5. <b>Barkod</b> (opsiyonel)<br/>
-                    6. <b>Birim Fiyat</b> (opsiyonel)<br/>
-                    7. <b>Kategori</b> (kategori adı)<br/>
-                    8. <b>Marka</b> (marka adı)<br/>
-                    9. <b>Birim</b> (birim adı)<br/>
-                    10. <b>Para Birimi</b> (kod: TRY, USD, vb.)<br/>
-                    11. <b>KDV Oranı</b> (oran adı)<br/>
-                    12. <b>Ambalaj</b> (ambalaj adı, opsiyonel)<br/>
+                    6. <b>Kategori</b> (kategori adı)<br/>
+                    7. <b>Marka</b> (marka adı)<br/>
+                    8. <b>Birim</b> (birim adı)<br/>
+                    9. <b>KDV Oranı</b> (oran adı)<br/>
+                    10. <b>Ambalaj</b> (ambalaj adı, opsiyonel)<br/>
                     <br/>
                     <small>İlk satır başlık satırı olarak kabul edilir ve atlanır.</small>
                 </div>
@@ -112,7 +105,6 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
         this.categoryLookup = await getLookupAsync<ProductCategoryRow>("Catalog.ProductCategory");
         this.brandLookup = await getLookupAsync<BrandsRow>("Catalog.Brands");
         this.unitLookup = await getLookupAsync<UnitsRow>("Setting.Units");
-        this.currencyLookup = await getLookupAsync<CurrencyListRow>("Setting.CurrencyList");
         this.vatRateLookup = await getLookupAsync<VatRatesRow>("Setting.VatRates");
         this.packingLookup = await getLookupAsync<ProductPackingRow>("Catalog.ProductPacking");
 
@@ -185,13 +177,11 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
                 name2: this.getCellValue(row[2]),
                 description: this.getCellValue(row[3]),
                 barcode: this.getCellValue(row[4]),
-                unitPrice: this.parseDecimal(row[5]),
-                categoryName: this.getCellValue(row[6]),
-                brandName: this.getCellValue(row[7]),
-                unitName: this.getCellValue(row[8]),
-                currencyCode: this.getCellValue(row[9]),
-                vatRateName: this.getCellValue(row[10]),
-                packingName: this.getCellValue(row[11]),
+                categoryName: this.getCellValue(row[5]),
+                brandName: this.getCellValue(row[6]),
+                unitName: this.getCellValue(row[7]),
+                vatRateName: this.getCellValue(row[8]),
+                packingName: this.getCellValue(row[9]),
                 rowIndex: i + 1
             };
 
@@ -218,12 +208,6 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
         return String(cell).trim();
     }
 
-    private parseDecimal(value: any): number | undefined {
-        if (value === null || value === undefined || value === '') return undefined;
-        const num = parseFloat(value);
-        return isNaN(num) ? undefined : num;
-    }
-
     private validateAndMapProduct(excelRow: ExcelRowData): ParsedProduct {
         const product: ParsedProduct = {
             rowIndex: excelRow.rowIndex,
@@ -232,7 +216,6 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
             name2: excelRow.name2,
             description: excelRow.description,
             barcode: excelRow.barcode,
-            unitPrice: excelRow.unitPrice,
             isValid: true,
             errors: []
         };
@@ -270,18 +253,6 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
                 product.unitId = unit.Id;
             } else {
                 product.errors.push(`Birim bulunamadı: ${excelRow.unitName}`);
-            }
-        }
-
-        // Currency lookup
-        if (excelRow.currencyCode) {
-            const currency = this.currencyLookup.items.find(c =>
-                c.Code?.toLowerCase() === excelRow.currencyCode.toLowerCase()
-            );
-            if (currency) {
-                product.currencyId = currency.Id;
-            } else {
-                product.errors.push(`Para birimi bulunamadı: ${excelRow.currencyCode}`);
             }
         }
 
@@ -330,7 +301,7 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
         </div>`;
 
         html += '<table class="table table-sm table-bordered mb-0">';
-        html += '<thead><tr><th>Satır</th><th>Kod</th><th>Ürün Adı</th><th>Fiyat</th><th>Durum</th></tr></thead>';
+        html += '<thead><tr><th>Satır</th><th>Kod</th><th>Ürün Adı</th><th>Durum</th></tr></thead>';
         html += '<tbody>';
 
         const allProducts = [...this.validProducts, ...this.invalidProducts]
@@ -342,13 +313,11 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
                 ? '✓ Geçerli'
                 : '✗ ' + product.errors.join(', ');
             const codeDisplay = product.code || '&lt;otomatik&gt;';
-            const priceDisplay = product.unitPrice ? product.unitPrice.toFixed(2) : '-';
 
             html += `<tr class="${product.isValid ? '' : 'table-danger'}">
                 <td>${product.rowIndex}</td>
                 <td>${codeDisplay}</td>
                 <td>${product.name}</td>
-                <td class="text-right">${priceDisplay}</td>
                 <td class="${statusClass}">${statusText}</td>
             </tr>`;
         }
@@ -377,11 +346,9 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
                     Name2: p.name2,
                     Description: p.description,
                     Barcode: p.barcode,
-                    UnitPrice: p.unitPrice,
                     CategoryId: p.categoryId,
                     BrandId: p.brandId,
                     UnitId: p.unitId,
-                    CurrencyId: p.currencyId,
                     VatRateId: p.vatRateId,
                     PackingId: p.packingId
                 }))
@@ -420,11 +387,9 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
                 'İkinci İsim',
                 'Açıklama',
                 'Barkod',
-                'Birim Fiyat',
                 'Kategori',
                 'Marka',
                 'Birim',
-                'Para Birimi',
                 'KDV Oranı',
                 'Ambalaj'
             ],
@@ -434,11 +399,9 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
                 'Sample Product 1',
                 'Ürün açıklaması',
                 '1234567890123',
-                150.50,
                 'Kategori Adı',
                 'Marka Adı',
                 'Adet',
-                'TRY',
                 'KDV 20',
                 ''
             ],
@@ -448,11 +411,9 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
                 '',
                 '',
                 '',
-                280.00,
                 'Kategori Adı',
                 'Marka Adı',
                 'Kg',
-                'USD',
                 'KDV 20',
                 'Ambalaj Adı'
             ]
@@ -469,11 +430,9 @@ export class ProductsExcelImportDialog extends TemplatedDialog<ProductsExcelImpo
             { wch: 25 },  // Name2
             { wch: 30 },  // Description
             { wch: 18 },  // Barcode
-            { wch: 12 },  // UnitPrice
             { wch: 20 },  // Category
             { wch: 20 },  // Brand
             { wch: 12 },  // Unit
-            { wch: 12 },  // Currency
             { wch: 12 },  // VatRate
             { wch: 15 }   // Packing
         ];

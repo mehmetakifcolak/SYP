@@ -216,7 +216,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private getProductPrice(product: ProductsRow): number {
         const item = this.priceListItems.get(product.Id!);
         if (item?.UnitPrice != null) return item.UnitPrice;
-        return product.CurrentValidPrice ?? product.UnitPrice ?? 0;
+        return 0;
     }
 
     private getPackingQty(product: ProductsRow): number {

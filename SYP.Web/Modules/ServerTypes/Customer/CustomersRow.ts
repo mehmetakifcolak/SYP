@@ -28,8 +28,6 @@ export interface CustomersRow {
     IsDeleted?: boolean;
     DeletedDate?: string;
     DeletedUserId?: number;
-    Password?: string;
-    PasswordConfirm?: string;
     VendorTypeTitle?: string;
     UserIsActive?: number;
     UserDisplayName?: string;

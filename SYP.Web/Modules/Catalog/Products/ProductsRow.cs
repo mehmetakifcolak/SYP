@@ -49,7 +49,6 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     public partial class RowFields { public StringField ProductImage; }
 
     const string jUnit = nameof(jUnit);
-    const string jCurrency = nameof(jCurrency);
     const string jVatRate = nameof(jVatRate);
     const string jBrand = nameof(jBrand);
     const string jCategory = nameof(jCategory);
@@ -70,12 +69,7 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     public int? UnitId { get => fields.UnitId[this]; set => fields.UnitId[this] = value; }
     public partial class RowFields { public Int32Field UnitId; }
 
-    [DisplayName("Currency"), LookupInclude, ForeignKey(typeof(Setting.CurrencyListRow)), LeftJoin(jCurrency)]
-    [LookupEditor(typeof(Setting.CurrencyListRow), FilterField = "IsActive", FilterValue = true)]
-    public int? CurrencyId { get => fields.CurrencyId[this]; set => fields.CurrencyId[this] = value; }
-    public partial class RowFields { public Int32Field CurrencyId; }
-
-    [DisplayName("VAT Rate"), LookupInclude, ForeignKey(typeof(Setting.VatRatesRow)), LeftJoin(jVatRate)]
+[DisplayName("VAT Rate"), LookupInclude, ForeignKey(typeof(Setting.VatRatesRow)), LeftJoin(jVatRate)]
     [LookupEditor(typeof(Setting.VatRatesRow), FilterField = "IsActive", FilterValue = true)]
     public int? VatRateId { get => fields.VatRateId[this]; set => fields.VatRateId[this] = value; }
     public partial class RowFields { public Int32Field VatRateId; }
@@ -85,15 +79,7 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     public int? PackingId { get => fields.PackingId[this]; set => fields.PackingId[this] = value; }
     public partial class RowFields { public Int32Field PackingId; }
 
-    [DisplayName("Unit Price (Base)"), DecimalEditor(Decimals = 4, MinValue = "0"), LookupInclude]
-    public decimal? UnitPrice { get => fields.UnitPrice[this]; set => fields.UnitPrice[this] = value; }
-    public partial class RowFields { public DecimalField UnitPrice; }
-
-    [DisplayName("Current Unit Price"), NotMapped, DecimalEditor(Decimals = 4, MinValue = "0")]
-    public decimal? CurrentValidPrice { get => fields.CurrentValidPrice[this]; set => fields.CurrentValidPrice[this] = value; }
-    public partial class RowFields { public DecimalField CurrentValidPrice; }
-
-    [DisplayName("Insert Date")]
+[DisplayName("Insert Date")]
     public DateTime? InsertDate { get => fields.InsertDate[this]; set => fields.InsertDate[this] = value; }
     public partial class RowFields { public DateTimeField InsertDate; }
     
@@ -135,11 +121,7 @@ public sealed class ProductsRow : Row<ProductsRow.RowFields>, IIdRow, INameRow, 
     public string UnitName { get => fields.UnitName[this]; set => fields.UnitName[this] = value; }
     public partial class RowFields { public StringField UnitName; }
 
-    [DisplayName("Currency Code"), Expression($"{jCurrency}.[Code]"), LookupInclude]
-    public string CurrencyCode { get => fields.CurrencyCode[this]; set => fields.CurrencyCode[this] = value; }
-    public partial class RowFields { public StringField CurrencyCode; }
-
-    [DisplayName("VAT Rate Name"), Expression($"{jVatRate}.[Name]"), LookupInclude]
+[DisplayName("VAT Rate Name"), Expression($"{jVatRate}.[Name]"), LookupInclude]
     public string VatRateName { get => fields.VatRateName[this]; set => fields.VatRateName[this] = value; }
     public partial class RowFields { public StringField VatRateName; }
 

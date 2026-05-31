@@ -25,11 +25,13 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
 
-    [DisplayName("First Name"), Size(1000)]
+    [DisplayName("Ad"), Insertable(false), Updatable(false)]
+    [Expression("CASE WHEN CHARINDEX(' ', jUser.[DisplayName]) > 0 THEN LEFT(jUser.[DisplayName], CHARINDEX(' ', jUser.[DisplayName]) - 1) ELSE jUser.[DisplayName] END")]
     public string FirstName { get => fields.FirstName[this]; set => fields.FirstName[this] = value; }
     public partial class RowFields { public StringField FirstName; }
 
-    [DisplayName("Last Name"), Size(300)]
+    [DisplayName("Soyad"), Insertable(false), Updatable(false)]
+    [Expression("CASE WHEN CHARINDEX(' ', jUser.[DisplayName]) > 0 THEN SUBSTRING(jUser.[DisplayName], CHARINDEX(' ', jUser.[DisplayName]) + 1, LEN(jUser.[DisplayName])) ELSE NULL END")]
     public string LastName { get => fields.LastName[this]; set => fields.LastName[this] = value; }
     public partial class RowFields { public StringField LastName; }
 
@@ -125,14 +127,6 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     [DisplayName("Silen Kullanıcı"), Insertable(false), Updatable(false)]
     public int? DeletedUserId { get => fields.DeletedUserId[this]; set => fields.DeletedUserId[this] = value; }
     public partial class RowFields { public Int32Field DeletedUserId; }
-
-    [DisplayName("Password"), Size(50), NotMapped]
-    public string Password { get => fields.Password[this]; set => fields.Password[this] = value; }
-    public partial class RowFields { public StringField Password; }
-
-    [DisplayName("Password Confirm"), Size(50), NotMapped]
-    public string PasswordConfirm { get => fields.PasswordConfirm[this]; set => fields.PasswordConfirm[this] = value; }
-    public partial class RowFields { public StringField PasswordConfirm; }
 
     #region Foreign Fields
 

@@ -87,11 +87,9 @@ public class ProductsEndpoint : ServiceEndpoint
                         Name2 = product.Name2,
                         Description = product.Description,
                         Barcode = product.Barcode,
-                        UnitPrice = product.UnitPrice,
                         CategoryId = product.CategoryId,
                         BrandId = product.BrandId,
                         UnitId = product.UnitId,
-                        CurrencyId = product.CurrencyId,
                         VatRateId = product.VatRateId,
                         PackingId = product.PackingId,
                         IsActive = 1
@@ -156,9 +154,6 @@ public class ProductImportItem
     public string Barcode { get; set; }
 
     [DataMember]
-    public decimal? UnitPrice { get; set; }
-
-    [DataMember]
     public int? CategoryId { get; set; }
 
     [DataMember]
@@ -166,9 +161,6 @@ public class ProductImportItem
 
     [DataMember]
     public int? UnitId { get; set; }
-
-    [DataMember]
-    public int? CurrencyId { get; set; }
 
     [DataMember]
     public int? VatRateId { get; set; }

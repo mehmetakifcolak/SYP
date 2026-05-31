@@ -12,11 +12,8 @@ export interface ProductsRow {
     CategoryId?: number;
     BrandId?: number;
     UnitId?: number;
-    CurrencyId?: number;
     VatRateId?: number;
     PackingId?: number;
-    UnitPrice?: number;
-    CurrentValidPrice?: number;
     InsertDate?: string;
     InsertUserId?: number;
     UpdateDate?: string;
@@ -27,7 +24,6 @@ export interface ProductsRow {
     DeletedUserId?: number;
     CategoryName?: string;
     UnitName?: string;
-    CurrencyCode?: string;
     VatRateName?: string;
     VatRate?: number;
     BrandName?: string;

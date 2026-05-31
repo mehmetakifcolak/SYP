@@ -1,6 +1,4 @@
-﻿import { DeleteRequest, DeleteResponse, ListRequest, ListResponse, RetrieveRequest, RetrieveResponse, SaveRequest, SaveResponse, ServiceOptions, serviceRequest } from "@serenity-is/corelib";
-import { CreateUserRequest } from "./CreateUserRequest";
-import { CreateUserResponse } from "./CreateUserResponse";
+import { DeleteRequest, DeleteResponse, ListRequest, ListResponse, RetrieveRequest, RetrieveResponse, SaveRequest, SaveResponse, ServiceOptions, serviceRequest } from "@serenity-is/corelib";
 import { CustomersRow } from "./CustomersRow";
 
 export namespace CustomersService {
@@ -11,15 +9,13 @@ export namespace CustomersService {
     export declare function Delete(request: DeleteRequest, onSuccess?: (response: DeleteResponse) => void, opt?: ServiceOptions<any>): PromiseLike<DeleteResponse>;
     export declare function Retrieve(request: RetrieveRequest, onSuccess?: (response: RetrieveResponse<CustomersRow>) => void, opt?: ServiceOptions<any>): PromiseLike<RetrieveResponse<CustomersRow>>;
     export declare function List(request: ListRequest, onSuccess?: (response: ListResponse<CustomersRow>) => void, opt?: ServiceOptions<any>): PromiseLike<ListResponse<CustomersRow>>;
-    export declare function CreateUser(request: CreateUserRequest, onSuccess?: (response: CreateUserResponse) => void, opt?: ServiceOptions<any>): PromiseLike<CreateUserResponse>;
 
     export const Methods = {
         Create: "Customer/Customers/Create",
         Update: "Customer/Customers/Update",
         Delete: "Customer/Customers/Delete",
         Retrieve: "Customer/Customers/Retrieve",
-        List: "Customer/Customers/List",
-        CreateUser: "Customer/Customers/CreateUser"
+        List: "Customer/Customers/List"
     } as const;
 
     [
@@ -27,8 +23,7 @@ export namespace CustomersService {
         'Update',
         'Delete',
         'Retrieve',
-        'List',
-        'CreateUser'
+        'List'
     ].forEach(x => {
         (<any>CustomersService)[x] = function (r, s, o) {
             return serviceRequest(baseUrl + '/' + x, r, s, o);

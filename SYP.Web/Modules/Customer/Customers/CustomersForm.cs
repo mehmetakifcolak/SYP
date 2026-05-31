@@ -30,10 +30,10 @@ public class CustomersForm
     [HalfWidth, DefaultValue(true), DisplayName("Aktif")]
     public bool IsActive { get; set; }
 
-    [HalfWidth, DisplayName("Ad")]
+    [HalfWidth, DisplayName("Ad"), ReadOnly(true)]
     public string FirstName { get; set; }
 
-    [HalfWidth, DisplayName("Soyad")]
+    [HalfWidth, DisplayName("Soyad"), ReadOnly(true)]
     public string LastName { get; set; }
 
     [Category("İletişim Bilgileri")]
@@ -69,12 +69,6 @@ public class CustomersForm
 
     [Category("Kullanıcı Hesabı")]
     [HalfWidth, DisplayName("Kullanıcı")]
-    [AsyncLookupEditor(typeof(UserRow))]
+    [AsyncLookupEditor(typeof(UserRow), InplaceAdd = true)]
     public int? UserId { get; set; }
-
-    [HalfWidth, PasswordEditor, Placeholder("Min 6 karakter"), DisplayName("Şifre")]
-    public string Password { get; set; }
-
-    [HalfWidth, PasswordEditor, Placeholder("Şifre tekrarı"), DisplayName("Şifre Tekrarı")]
-    public string PasswordConfirm { get; set; }
 }
