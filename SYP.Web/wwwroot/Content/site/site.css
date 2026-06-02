@@ -2431,8 +2431,9 @@ body#s-LoginPage .s-full-page {
 /* OrderGrid aksiyon butonları */
 .row-edit-order-btn, .row-history-btn {
   font-size: 11px !important;
-  padding: 2px 7px !important;
-  line-height: 1.4 !important;
+  padding: 0 8px !important;
+  line-height: 1.3 !important;
+  min-height: 0 !important;
 }
 
 /* Track: tüm hücre genişliğini kaplar, yazı + bar içinde */
@@ -3045,3 +3046,162 @@ body#s-LoginPage .s-full-page {
 .oed-revise-field label { font-size: 11px; font-weight: 600; color: #6b7280; display: block; margin-bottom: 4px; }
 .oed-revise-note { margin-top: 12px; }
 .oed-revise-note label { font-size: 11px; font-weight: 600; color: #6b7280; display: block; margin-bottom: 4px; }
+
+/* ════════════════════════════════════════════════════════════════
+   OrderEditDialog — telefon (mobil) düzeni
+   Durum adımları ve alt buton grubu telefonda alt alta dizilir.
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* Başlık alanı — kenar boşlukları daralır, alanlar tam genişlik */
+  .oed-header { padding: 12px 14px; }
+  .oed-header-grid { gap: 12px 18px; }
+  .oed-hfield { min-width: 0; flex: 1 1 45%; }
+
+  /* ── Durum ilerleme çubuğu: dikey (alt alta) stepper ── */
+  .oed-progress {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .oed-ps {
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+  .oed-ps-label {
+    text-align: left;
+    max-width: none;
+    flex: 1;
+    font-size: 13px;
+  }
+  .oed-ps-errnote {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+  /* Bağlantı çizgisi yatay yerine dikey, çemberin altında ortalanır */
+  .oed-ps-line {
+    flex: 0 0 auto;
+    width: 3px;
+    min-width: 3px;
+    height: 14px;
+    margin: 0 0 0 14.5px;   /* (32px çember - 3px çizgi) / 2 */
+  }
+
+  /* ── Tablo: yatay kaydırma, daha sıkı hücreler ── */
+  .oed-table-wrap { margin: 10px 10px 0; }
+  .oed-table th, .oed-table td { padding: 7px 8px; }
+
+  /* ── Alt bar: toplamlar ve butonlar alt alta ── */
+  .oed-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin: 10px 10px 12px;
+  }
+  .oed-total-label { min-width: 90px; }
+
+  /* Ürün Ekle · Sil · Kaydet · Kaydet ve Kapat → tam genişlik, alt alta */
+  .oed-footer-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .oed-footer-actions .btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   OrderDialog (sipariş oluşturma / ürün seçme) — telefon (mobil) düzeni
+   Kategoriler üstte, ürünler altında; sepet alttan açılan panel olur.
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* Üst bar biraz daralır */
+  .opd-topbar { padding: 8px 10px; gap: 8px; }
+  .opd-search-wrap { max-width: none; }
+
+  /* Gövde dikey: kategoriler → ürünler → (sepet bottom-sheet) */
+  .opd-body {
+    flex-direction: column;
+    position: relative;   /* sepet bottom-sheet için referans */
+  }
+
+  /* Kategoriler / markalar üstte, tam genişlik, sınırlı yükseklik */
+  .opd-sidebar {
+    width: 100%;
+    flex-shrink: 0;
+    max-height: 35vh;
+    border-right: none;
+    border-bottom: 1px solid var(--syp-card-border);
+  }
+
+  /* Ürün alanı altta, kalan alanı kaplar */
+  .opd-main {
+    width: 100%;
+    flex: 1;
+    min-height: 180px;
+  }
+  .opd-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    padding: 10px;
+  }
+
+  /* ── Sepet: alttan açılan panel (bottom sheet) ── */
+  .opd-cart-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto !important;
+    border-left: none;
+    border-top: 1px solid var(--syp-card-border);
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    box-shadow: 0 -6px 24px rgba(0,0,0,.18);
+    transition: transform .25s ease, opacity .25s ease;
+    z-index: 30;
+  }
+  .opd-cart-closed {
+    width: auto !important;
+    max-height: 72vh;
+    transform: translateY(110%);   /* aşağı kayıp gizlenir */
+    opacity: 0;
+    pointer-events: none;
+    border-left-width: 0;
+  }
+  .opd-cart-open {
+    width: auto !important;
+    max-height: 72vh;
+    transform: translateY(0);      /* alttan yukarı açılır */
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* ================================================================
+   STOK GİRİŞ / ÇIKIŞ — ÜRÜN GRID YÜKSEKLİĞİ (ekrana göre)
+   StockEntries ve StockExits dialoglarındaki ürün grid editörleri
+   ekran yüksekliğine göre büyür; içerik fazlaysa grid içinde kayar.
+   (.s-PermissionCheckEditor ile aynı yaklaşım — editör kök elemanına
+    yükseklik verilir, slick grid bu alanı doldurur.)
+   ================================================================ */
+.s-StockEntryDetailsEditor,
+.s-StockExitDetailsEditor {
+  height: 60vh;
+  min-height: 360px;
+}
+
+@media (max-width: 640px) {
+  .s-StockEntryDetailsEditor,
+  .s-StockExitDetailsEditor {
+    height: 55vh;
+    min-height: 300px;
+  }
+}

@@ -1,5 +1,7 @@
 using Serenity.Web.Providers;
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
 using MyRow = SYP.Administration.UserRow;
 
 namespace SYP.Administration;
@@ -46,6 +48,19 @@ public static class UserHelper
     {
         salt ??= Serenity.IO.TemporaryFileHelper.RandomFileCode()[..5];
         return CalculateHash(password, salt);
+    }
+
+    /// <summary>
+    /// Kullanıcıya e-posta ile gönderilecek geçici şifre üretir.
+    /// Karışıklığa yol açan karakterler (0/O, 1/l/I) hariç tutulur.
+    /// </summary>
+    public static string GenerateTemporaryPassword(int length = 10)
+    {
+        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+        var sb = new StringBuilder(length);
+        for (var i = 0; i < length; i++)
+            sb.Append(chars[RandomNumberGenerator.GetInt32(chars.Length)]);
+        return sb.ToString();
     }
 
     public static MyRow GetUser(IDbConnection connection, BaseCriteria filter)

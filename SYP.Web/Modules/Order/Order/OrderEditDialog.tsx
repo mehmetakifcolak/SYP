@@ -503,10 +503,6 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     <span class="oed-hval">${o.OrderDate ? new Date(o.OrderDate).toLocaleDateString('tr-TR') : '—'}</span>
 </div>
 <div class="oed-hfield">
-    <span class="oed-hlabel">Net Tutar</span>
-    <span class="oed-hval oed-net-amount">${this.fmt(o.NetAmount ?? 0)}&nbsp;${this.currencySymbol}</span>
-</div>
-<div class="oed-hfield">
     <span class="oed-hlabel"><i class="fa fa-building-o"></i>&nbsp;Depo</span>
     <select class="form-control form-control-sm oed-warehouse-select oed-hwarehouse">
         <option value="">— Depo Seçin —</option>

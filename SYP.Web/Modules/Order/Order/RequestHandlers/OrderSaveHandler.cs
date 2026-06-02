@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Serenity;
 using Serenity.Data;
 using Serenity.Services;
@@ -7,7 +8,9 @@ using SYP.Customer.Services;
 using SYP.Administration;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net;
 using MyRow = SYP.Order.OrderRow;
 
 namespace SYP.Order;
@@ -20,16 +23,18 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
     private readonly IOrderWorkflowService _workflow;
     private readonly IEmailQueueSender _emailSender;
     private readonly IGetBayiiCustomerService _bayiiCustomerService;
+    private readonly ILogger<OrderSaveHandler> _logger;
 
     public OrderSaveHandler(IRequestContext context, IOrderStatusService statusService,
         IOrderWorkflowService workflow, IEmailQueueSender emailSender,
-        IGetBayiiCustomerService bayiiCustomerService)
+        IGetBayiiCustomerService bayiiCustomerService, ILogger<OrderSaveHandler> logger)
         : base(context)
     {
         _statusService = statusService;
         _workflow = workflow;
         _emailSender = emailSender;
         _bayiiCustomerService = bayiiCustomerService;
+        _logger = logger;
     }
 
     protected override void BeforeSave()
@@ -303,59 +308,144 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         return warehouse.Id.Value;
     }
 
+    /// <summary>
+    /// Durum her değiştiğinde hem bayiye hem de sorumlu yöneticiye (temsilciye)
+    /// AYRI AYRI, kendilerine hitap eden, sipariş kalemlerini miktarlarıyla içeren
+    /// e-posta gönderir. E-posta hatası sipariş kaydını etkilemez.
+    /// </summary>
     private void SendStatusChangeEmail(OrderStatus newStatus)
     {
-        var templateKey = _workflow.GetEmailTemplateKey(newStatus);
-        if (templateKey.IsNullOrEmpty())
-            return;
-
-        var recipients = GetAllRecipientEmails();
-        if (recipients.Count == 0)
-            return;
-
-        var siteUrl = "https://localhost:5001";
-        var userId  = int.Parse(Context.User.GetIdentifier());
-        var user    = Connection.TryById<Administration.UserRow>(userId);
-
-        _ = _emailSender.QueueTemplateEmailAsync(new QueueTemplateEmailRequest
+        try
         {
-            TemplateKey = templateKey,
-            To          = recipients,
-            TemplateData = new Dictionary<string, object>
+            var customer = Row.CustomerId.HasValue
+                ? Connection.TryById<Customer.CustomersRow>(Row.CustomerId.Value) : null;
+            var manager = Row.ManagerUserId.HasValue
+                ? Connection.TryById<Administration.UserRow>(Row.ManagerUserId.Value) : null;
+
+            var bayiHasMail     = !customer?.Email.IsNullOrEmpty() ?? false;
+            var temsilciHasMail = !manager?.Email.IsNullOrEmpty() ?? false;
+            if (!bayiHasMail && !temsilciHasMail)
+                return;
+
+            var bayiAdi     = customer?.Name.TrimToNull() ?? Row.CustomerName ?? "Bayi";
+            var temsilciAdi = manager?.DisplayName.TrimToNull() ?? Row.ManagerName ?? "Sorumlu Yönetici";
+
+            var currency = Row.CurrencyId.HasValue
+                ? Connection.TryById<Setting.CurrencyListRow>(Row.CurrencyId.Value) : null;
+            var cur = currency?.Symbol.TrimToNull() ?? currency?.Code.TrimToNull() ?? Row.CurrencyCode ?? "";
+
+            var tr    = CultureInfo.GetCultureInfo("tr-TR");
+            var lines = BuildOrderLines(cur, tr);
+
+            var statusLabel = newStatus.GetDescription();
+            var accent      = AccentColorFor(newStatus);
+            var orderNo     = Row.OrderNumber;
+            var changedBy   = Connection.TryById<Administration.UserRow>(int.Parse(Context.User.GetIdentifier()))?.DisplayName;
+            var reason      = Row.RejectReason.TrimToNull() ?? Row.Notes.TrimToNull();
+            var discount    = (Row.DiscountAmount ?? 0) > 0
+                ? (Row.DiscountAmount ?? 0).ToString("N2", tr) + " " + cur : null;
+            var net         = (Row.NetAmount ?? Row.TotalAmount ?? 0).ToString("N2", tr) + " " + cur;
+
+            const string siteUrl = "https://localhost:5001";
+            var link    = $"{siteUrl}/Order/Order#{Row.Id}";
+            var subject = OrderStatusEmailBuilder.BuildSubject(statusLabel, orderNo);
+
+            OrderStatusEmailBuilder.Model Build(string recipientName, string introHtml) => new()
             {
-                { "siparis_no",           Row.OrderNumber },
-                { "bayi_adi",             Row.CustomerName },
-                { "toplam_tutar",         Row.NetAmount?.ToString("N2") + " " + Row.CurrencyCode },
-                { "durum",                newStatus.GetDescription() },
-                { "aciklama",             Row.RejectReason ?? Row.Notes },
-                { "siparis_link",         $"{siteUrl}/Order/Order#{Row.Id}" },
-                { "degistiren_kullanici", user?.DisplayName }
-            },
+                RecipientName = recipientName,
+                IntroHtml     = introHtml,
+                StatusLabel   = statusLabel,
+                AccentColor   = accent,
+                OrderNumber   = orderNo,
+                BayiName      = bayiAdi,
+                TemsilciName  = temsilciAdi,
+                OrderDate     = (Row.OrderDate ?? DateTime.Now).ToString("dd.MM.yyyy", tr),
+                Lines         = lines,
+                DiscountTotal = discount,
+                NetTotal      = net,
+                Reason        = reason,
+                ChangedBy     = changedBy,
+                OrderLink     = link
+            };
+
+            if (bayiHasMail)
+            {
+                var intro = $"<strong>{Enc(orderNo)}</strong> numaralı siparişinizin durumu " +
+                            $"<strong>{Enc(statusLabel)}</strong> olarak güncellendi. " +
+                            "Sipariş kalemleri aşağıda yer almaktadır.";
+                QueueOrderEmail(customer.Email, subject, Build(bayiAdi, intro));
+            }
+
+            if (temsilciHasMail)
+            {
+                var intro = $"<strong>{Enc(bayiAdi)}</strong> bayisine ait <strong>{Enc(orderNo)}</strong> numaralı " +
+                            $"siparişin durumu <strong>{Enc(statusLabel)}</strong> olarak güncellendi. " +
+                            "Sipariş kalemleri aşağıda yer almaktadır.";
+                QueueOrderEmail(manager.Email, subject, Build(temsilciAdi, intro));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sipariş durum e-postası gönderilemedi. OrderId: {OrderId}", Row?.Id);
+        }
+    }
+
+    private List<OrderStatusEmailBuilder.Line> BuildOrderLines(string currency, CultureInfo tr)
+    {
+        var df = OrderDetailRow.Fields;
+        var details = Connection.List<OrderDetailRow>(q => q
+            .SelectTableFields()
+            .Select(df.ProductCodeName)
+            .Select(df.UnitCode)
+            .Where(new Criteria(df.OrderId) == Row.Id.Value)
+            .OrderBy(df.Id));
+
+        var lines = new List<OrderStatusEmailBuilder.Line>();
+        var no = 1;
+        foreach (var d in details)
+        {
+            var qty = (d.Quantity ?? 0).ToString("0.####", tr);
+            if (!d.UnitCode.IsNullOrEmpty())
+                qty += " " + d.UnitCode;
+
+            lines.Add(new OrderStatusEmailBuilder.Line
+            {
+                No        = no++,
+                Product   = d.ProductCodeName.TrimToNull() ?? ("#" + d.ProductId),
+                Quantity  = qty,
+                UnitPrice = (d.UnitPrice ?? 0).ToString("N2", tr) + " " + currency,
+                LineTotal = (d.LineTotal ?? 0).ToString("N2", tr) + " " + currency
+            });
+        }
+        return lines;
+    }
+
+    private void QueueOrderEmail(string toEmail, string subject, OrderStatusEmailBuilder.Model model)
+    {
+        _ = _emailSender.QueueEmailAsync(new QueueEmailRequest
+        {
+            To            = new List<string> { toEmail },
+            Subject       = subject,
+            Body          = OrderStatusEmailBuilder.BuildBody(model),
+            BodyText      = OrderStatusEmailBuilder.BuildPlainText(model),
             ReferenceType = "Order",
             ReferenceId   = Row.Id?.ToString()
         });
     }
 
-    private List<string> GetAllRecipientEmails()
+    private static string Enc(string s) => WebUtility.HtmlEncode(s ?? "");
+
+    private static string AccentColorFor(OrderStatus s) => s switch
     {
-        var emails = new List<string>();
-
-        if (Row.CustomerId.HasValue)
-        {
-            var customerEmail = Connection.TryById<Customer.CustomersRow>(Row.CustomerId.Value)?.Email;
-            if (!customerEmail.IsNullOrEmpty())
-                emails.Add(customerEmail);
-        }
-
-        if (Row.ManagerUserId.HasValue)
-        {
-            var managerEmail = Connection.TryById<Administration.UserRow>(Row.ManagerUserId.Value)?.Email;
-            if (!managerEmail.IsNullOrEmpty())
-                emails.Add(managerEmail);
-        }
-
-        return emails;
-    }
+        OrderStatus.TESLIM_ALINDI or OrderStatus.DEKONT_ONAYLANDI
+            or OrderStatus.TEMSILCI_ONAYLADI or OrderStatus.BAYI_ONAYLADI => "#16a34a",
+        OrderStatus.BAYI_REDDETTI or OrderStatus.DEKONT_REDDEDILDI
+            or OrderStatus.TESLIM_ALINMADI => "#dc2626",
+        OrderStatus.TALEP_IPTAL => "#6b7280",
+        OrderStatus.SEVK_ASAMASINDA or OrderStatus.KARGO_HAZIRLANIYOR
+            or OrderStatus.HAZIRLANIYOR => "#0891b2",
+        _ => "#7c3aed"
+    };
 
     private string GetUserRole(int userId)
     {

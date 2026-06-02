@@ -1,6 +1,8 @@
 ﻿import { DeleteRequest, DeleteResponse, ListResponse, RetrieveRequest, RetrieveResponse, SaveRequest, SaveResponse, ServiceOptions, serviceRequest } from "@serenity-is/corelib";
 import { GetImpersonateTokenRequest } from "./GetImpersonateTokenRequest";
 import { GetImpersonateTokenResponse } from "./GetImpersonateTokenResponse";
+import { SendUserCredentialsRequest } from "./SendUserCredentialsRequest";
+import { SendUserCredentialsResponse } from "./SendUserCredentialsResponse";
 import { UserListRequest } from "./UserListRequest";
 import { UserRow } from "./UserRow";
 
@@ -13,6 +15,7 @@ export namespace UserService {
     export declare function Retrieve(request: RetrieveRequest, onSuccess?: (response: RetrieveResponse<UserRow>) => void, opt?: ServiceOptions<any>): PromiseLike<RetrieveResponse<UserRow>>;
     export declare function List(request: UserListRequest, onSuccess?: (response: ListResponse<UserRow>) => void, opt?: ServiceOptions<any>): PromiseLike<ListResponse<UserRow>>;
     export declare function GetImpersonateToken(request: GetImpersonateTokenRequest, onSuccess?: (response: GetImpersonateTokenResponse) => void, opt?: ServiceOptions<any>): PromiseLike<GetImpersonateTokenResponse>;
+    export declare function SendCredentialsEmail(request: SendUserCredentialsRequest, onSuccess?: (response: SendUserCredentialsResponse) => void, opt?: ServiceOptions<any>): PromiseLike<SendUserCredentialsResponse>;
 
     export const Methods = {
         Create: "Administration/User/Create",
@@ -20,7 +23,8 @@ export namespace UserService {
         Delete: "Administration/User/Delete",
         Retrieve: "Administration/User/Retrieve",
         List: "Administration/User/List",
-        GetImpersonateToken: "Administration/User/GetImpersonateToken"
+        GetImpersonateToken: "Administration/User/GetImpersonateToken",
+        SendCredentialsEmail: "Administration/User/SendCredentialsEmail"
     } as const;
 
     [
@@ -29,7 +33,8 @@ export namespace UserService {
         'Delete',
         'Retrieve',
         'List',
-        'GetImpersonateToken'
+        'GetImpersonateToken',
+        'SendCredentialsEmail'
     ].forEach(x => {
         (<any>UserService)[x] = function (r, s, o) {
             return serviceRequest(baseUrl + '/' + x, r, s, o);

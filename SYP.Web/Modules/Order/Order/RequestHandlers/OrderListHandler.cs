@@ -63,11 +63,7 @@ public class OrderListHandler : ListRequestHandler<MyRow, ListRequest, ListRespo
     }
 
     private string GetUserRole(int userId)
-    {
-        if (Permissions.HasPermission(Administration.PermissionKeys.Bayii)
-            && !Permissions.HasPermission("Administration:Security"))
-            return "Bayi";
-
+    { 
         if (Connection.Exists<Customer.CustomersRow>(
                 new Criteria(Customer.CustomersRow.Fields.ManagerUserId) == userId))
             return "Yönetici";
@@ -76,6 +72,6 @@ public class OrderListHandler : ListRequestHandler<MyRow, ListRequest, ListRespo
                 new Criteria(Customer.CustomersRow.Fields.UserId) == userId))
             return "Bayi";
 
-        return "Yönetici";
+        return "SüperAdmin";
     }
 }

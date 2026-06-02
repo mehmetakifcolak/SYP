@@ -1,4 +1,4 @@
-import { Authorization, Lookup, serviceRequest, tryFirst, EntityGrid} from "@serenity-is/corelib";
+import { Authorization, confirmDialog, Lookup, notifySuccess, serviceRequest, tryFirst, EntityGrid} from "@serenity-is/corelib";
 import { PermissionKeys, RoleRow, UserColumns, UserRow, UserService } from "../../ServerTypes/Administration";
 import { nsAdministration } from "../../ServerTypes/Namespaces";
 import { UserDialog } from "./UserDialog";
@@ -47,6 +47,43 @@ export class UserGrid extends EntityGrid<UserRow, any> {
 
         if (!Authorization.hasPermission(PermissionKeys.Security))
             return columns;
+
+        columns.push({
+            field: "SendCredentialsButton",
+            name: "",
+            width: 38,
+            minWidth: 38,
+            maxWidth: 38,
+            format: ctx => {
+                const userId = ctx.item?.UserId;
+                if (!userId) return null;
+                return (
+                    <a
+                        href="#"
+                        class="btn btn-sm text-primary"
+                        title="Giriş bilgilerini e-posta ile gönder"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            confirmDialog(
+                                "Bu kullanıcı için yeni bir geçici şifre oluşturulup e-posta ile gönderilecek. " +
+                                "Kullanıcının mevcut şifresi geçersiz olacaktır. Devam edilsin mi?",
+                                () => {
+                                    serviceRequest(
+                                        "Administration/User/SendCredentialsEmail",
+                                        { UserId: userId },
+                                        (resp: any) => {
+                                            notifySuccess("Giriş bilgileri " +
+                                                (resp?.Email || "kullanıcıya") + " adresine gönderildi.");
+                                        }
+                                    );
+                                });
+                        }}
+                    >
+                        <i class="fa fa-envelope" />
+                    </a>
+                );
+            }
+        });
 
         columns.push({
             field: "ImpersonateButton",

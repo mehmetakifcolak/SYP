@@ -18,6 +18,8 @@ export * from "./Administration/RolePermissionService";
 export * from "./Administration/RolePermissionUpdateRequest";
 export * from "./Administration/RoleRow";
 export * from "./Administration/RoleService";
+export * from "./Administration/SendUserCredentialsRequest";
+export * from "./Administration/SendUserCredentialsResponse";
 export * from "./Administration/TranslationItem";
 export * from "./Administration/TranslationListRequest";
 export * from "./Administration/TranslationService";
