@@ -6,6 +6,7 @@ using Serenity.Data;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 using System.Text.Json;
 
 namespace SYP.Email.Services;
@@ -241,17 +242,26 @@ public class EmailQueueService : BackgroundService
         if (!string.IsNullOrEmpty(email.ReplyToAddress))
             message.ReplyToList.Add(email.ReplyToAddress);
 
-        // Subject & Body
+        // Subject
         message.Subject = email.Subject;
-        message.Body = email.Body;
-        message.IsBodyHtml = true;
+        message.SubjectEncoding = Encoding.UTF8;
 
-        // Plain text alternate view
+        // Gövde: düz metin alternatifi varsa multipart/alternative kur.
+        // multipart/alternative'de istemciler SON (en zengin) parçayı tercih ettiğinden
+        // önce text/plain, ardından text/html eklenir. Aksi halde (Body + sonradan
+        // eklenen plain view) bazı istemciler düz metni tercih edip HTML'i bozuk/boş gösterir.
         if (!string.IsNullOrEmpty(email.BodyText))
         {
-            var plainView = AlternateView.CreateAlternateViewFromString(
-                email.BodyText, null, "text/plain");
-            message.AlternateViews.Add(plainView);
+            message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(
+                email.BodyText, Encoding.UTF8, "text/plain"));
+            message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(
+                email.Body, Encoding.UTF8, "text/html"));
+        }
+        else
+        {
+            message.Body = email.Body;
+            message.BodyEncoding = Encoding.UTF8;
+            message.IsBodyHtml = true;
         }
 
         // Attachments
