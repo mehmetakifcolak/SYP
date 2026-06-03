@@ -55,7 +55,7 @@
     @@media (max-width: 900px) { .bo-grid { grid-template-columns: 1fr; } }
     .bo-section { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.07); overflow: hidden; }
     .bo-section.full { grid-column: 1 / -1; }
-    .bo-section-head { display: flex; justify-content: space-between; align-items: center; padding: 13px 18px; background: #f8f9fa; border-bottom: 1px solid #e9ecef; font-size: 13px; font-weight: 600; color: #333; }
+    .bo-section-head { display: flex; justify-content: space-between; align-items: center; padding: 13px 18px; background: #f8f9fa; border-bottom: 1px solid #e9ecef; font-size: 13px; font-weight: 600; color: #333; flex-wrap: wrap; gap: 8px; }
     .bo-section-body { padding: 15px; }
     .dist-item { margin-bottom: 11px; }
     .dist-item:last-child { margin-bottom: 0; }
@@ -71,6 +71,7 @@
     .step-bar .step-fill { flex: 1; height: 6px; border-radius: 3px; background: #e9ecef; overflow: hidden; position: relative; }
     .step-bar .step-fill-inner { position: absolute; left: 0; top: 0; height: 100%; border-radius: 3px; transition: width .5s; }
     .step-label { font-size: 10px; color: #6c757d; margin-left: 8px; white-space: nowrap; }
+    .orders-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .orders-table { width: 100%; font-size: 13px; border-collapse: collapse; }
     .orders-table th { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #6c757d; padding: 9px 10px; border-bottom: 2px solid #e9ecef; white-space: nowrap; }
     .orders-table td { padding: 9px 10px; border-bottom: 1px solid #f1f3f4; vertical-align: middle; }
@@ -78,9 +79,50 @@
     .orders-table tr:hover td { background: #f8f9fa; }
     .no-data { text-align: center; padding: 30px; color: #aaa; }
     .no-data i { font-size: 28px; margin-bottom: 8px; display: block; }
+
+    /* Mobil Uyumluluk */
+    @@media (max-width: 768px) {
+        .bo-header { padding: 12px 15px 0 !important; }
+        .bo-header h4 { font-size: 16px !important; }
+        .bo-header i { font-size: 18px !important; }
+        .bo-stats { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; padding: 15px 15px 0; }
+        .bo-card { padding: 14px 16px; border-radius: 10px; }
+        .bo-card .val { font-size: 24px; }
+        .bo-card .lbl { font-size: 10px; }
+        .bo-card .icon { font-size: 36px; right: 10px; }
+        .bo-grid { gap: 15px; padding: 15px; }
+        .bo-section-head { padding: 10px 14px; font-size: 12px; }
+        .bo-section-body { padding: 12px; }
+        .dist-label { font-size: 11px; }
+        .active-order-card { padding: 10px 12px; }
+        .order-no { font-size: 12px; }
+        .order-meta { font-size: 10px; }
+    }
+
+    @@media (max-width: 576px) {
+        .bo-header { padding: 10px 10px 0 !important; }
+        .bo-header h4 { font-size: 14px !important; }
+        .bo-header i { font-size: 16px !important; }
+        .bo-header div > div { font-size: 11px !important; }
+        .bo-stats { grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 10px 0; }
+        .bo-card { padding: 12px; }
+        .bo-card .val { font-size: 20px; }
+        .bo-card .lbl { font-size: 9px; letter-spacing: 0.5px; }
+        .bo-card .icon { font-size: 30px; }
+        .bo-grid { gap: 12px; padding: 10px; }
+        .bo-section-head { padding: 8px 12px; font-size: 11px; }
+        .bo-section-body { padding: 10px; }
+        .orders-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .orders-table { font-size: 11px; min-width: 600px; }
+        .orders-table th { font-size: 10px; padding: 7px 6px; }
+        .orders-table td { padding: 7px 6px; }
+        .badge { font-size: 10px !important; padding: 3px 6px; }
+        .no-data { padding: 20px; font-size: 13px; }
+        .no-data i { font-size: 24px; }
+    }
     </style>
 
-    <div style="padding: 18px 20px 0; display:flex; align-items:center; gap:10px;">
+    <div class="bo-header" style="padding: 18px 20px 0; display:flex; align-items:center; gap:10px;">
         <i class="fa fa-clipboard-list" style="font-size:22px; color:#667eea;"></i>
         <div>
             <h4 style="margin:0; font-size:18px; font-weight:700;">Sipariş Durumlarım</h4>
@@ -201,6 +243,7 @@
             <div class="bo-section-body" style="padding:0;">
                 @if (Model.BayiRecentOrders.Any())
                 {
+                    <div class="orders-table-wrapper">
                     <table class="orders-table">
                         <thead>
                             <tr>
@@ -249,6 +292,7 @@
                             }
                         </tbody>
                     </table>
+                    </div>
                 }
                 else
                 {
@@ -355,6 +399,11 @@ else
 .section-body { padding: 15px; }
 
 /* Tables */
+.mini-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .mini-table {
     width: 100%;
     font-size: 13px;
@@ -424,6 +473,64 @@ else
 
 .no-data { text-align: center; padding: 30px; color: #aaa; }
 .no-data i { font-size: 32px; margin-bottom: 10px; display: block; }
+
+/* Admin Dashboard Mobil Uyumluluk */
+@@media (max-width: 768px) {
+    .dashboard-stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; padding: 15px; }
+    .stat-card { padding: 16px; }
+    .stat-card .stat-value { font-size: 26px; }
+    .stat-card .stat-label { font-size: 11px; }
+    .stat-card .icon { font-size: 40px; }
+    .dashboard-grid { gap: 15px; padding: 0 15px 15px; }
+    .section-header { padding: 12px 15px; font-size: 13px; }
+    .section-header h4 { font-size: 13px; }
+    .section-body { padding: 12px; }
+    .movement-box .count { font-size: 24px; }
+    .movement-summary { gap: 15px; }
+    .rate-currency { font-size: 14px; width: 45px; }
+    .rate-values { gap: 15px; }
+    .rate-value { font-size: 12px; }
+}
+
+@@media (max-width: 576px) {
+    .dashboard-stats { grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+    .stat-card { padding: 14px; border-radius: 10px; }
+    .stat-card .stat-value { font-size: 22px; }
+    .stat-card .stat-label { font-size: 10px; letter-spacing: 0.5px; }
+    .stat-card .icon { font-size: 34px; }
+    .dashboard-grid { gap: 12px; padding: 0 10px 10px; }
+    .section-header { padding: 10px 12px; font-size: 12px; flex-direction: column; align-items: flex-start; }
+    .section-header h4 { font-size: 12px; }
+    .section-body { padding: 10px; }
+    .mini-table { font-size: 11px; min-width: 500px; }
+    .mini-table th { font-size: 10px; padding: 7px 5px; }
+    .mini-table td { padding: 7px 5px; }
+    .mini-table code { font-size: 10px; padding: 2px 4px; }
+    .movement-box { padding: 12px; }
+    .movement-box .count { font-size: 20px; }
+    .movement-box .label { font-size: 10px; }
+    .movement-summary { gap: 10px; }
+    .rate-item { padding: 8px 0; flex-wrap: wrap; }
+    .rate-currency { font-size: 13px; width: 40px; }
+    .rate-values { gap: 10px; flex-wrap: wrap; }
+    .rate-value { font-size: 11px; }
+    .alert-item { padding: 8px; }
+    .alert-item .alert-icon { font-size: 16px; margin-right: 10px; }
+    .alert-item .alert-title { font-size: 12px; }
+    .alert-item .alert-subtitle { font-size: 10px; }
+    .progress-label { font-size: 11px; }
+    .stat-row { padding: 8px 0; font-size: 12px; }
+    .stat-row-label { font-size: 12px; }
+    .stat-row-value { font-size: 13px; }
+    .badge { font-size: 10px !important; padding: 3px 6px; }
+    .no-data { padding: 20px; font-size: 13px; }
+    .no-data i { font-size: 26px; }
+}
+
+@@media (max-width: 480px) {
+    .dashboard-stats { grid-template-columns: 1fr; }
+    .stat-card .stat-value { font-size: 28px; }
+}
 </style>
 
 <!-- Ana İstatistik Kartları -->
@@ -661,6 +768,7 @@ else
         <div class="section-body">
             @if (Model.TopMovingProducts.Any())
             {
+                <div class="mini-table-wrapper">
                 <table class="mini-table">
                     <thead>
                         <tr>
@@ -683,6 +791,7 @@ else
                         }
                     </tbody>
                 </table>
+                </div>
             }
             else
             {
@@ -699,6 +808,7 @@ else
         <div class="section-body">
             @if (Model.ExpiringPriceListDetails.Any())
             {
+                <div class="mini-table-wrapper">
                 <table class="mini-table">
                     <thead>
                         <tr>
@@ -723,6 +833,7 @@ else
                         }
                     </tbody>
                 </table>
+                </div>
             }
             else
             {
@@ -740,6 +851,7 @@ else
             <a href="/Warehouse/StockMovements" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
         </div>
         <div class="section-body" style="padding: 0;">
+            <div class="mini-table-wrapper">
             <table class="mini-table">
                 <thead>
                     <tr>
@@ -790,6 +902,7 @@ else
                     }
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
@@ -802,6 +915,7 @@ else
             <a href="/Administration/AuditLog" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
         </div>
         <div class="section-body" style="padding: 0;">
+            <div class="mini-table-wrapper">
             <table class="mini-table">
                 <thead>
                     <tr>
@@ -848,6 +962,7 @@ else
                     }
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
