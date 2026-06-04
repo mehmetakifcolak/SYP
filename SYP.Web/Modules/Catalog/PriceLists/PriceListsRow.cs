@@ -25,7 +25,7 @@ public sealed class PriceListsRow : Row<PriceListsRow.RowFields>, IIdRow, INameR
     public string Name { get => fields.Name[this]; set => fields.Name[this] = value; }
     public partial class RowFields { public StringField Name; }
 
-    [DisplayName("Type"), NotNull, DefaultValue(PriceListType.Sales)]
+    [DisplayName("Type"), NotNull, DefaultValue(PriceListType.Sales), LookupInclude]
     public PriceListType? Type { get => (PriceListType?)fields.Type[this]; set => fields.Type[this] = (int?)value; }
     public partial class RowFields { public Int32Field Type; }
 
