@@ -29,7 +29,7 @@ public sealed class OrderRow : Row<OrderRow.RowFields>, IIdRow, INameRow, SYP.Ad
     public int? ManagerUserId { get => fields.ManagerUserId[this]; set => fields.ManagerUserId[this] = value; }
     public partial class RowFields { public Int32Field ManagerUserId; }
 
-    [DisplayName("Durum"), NotNull, DefaultValue(14)]
+    [DisplayName("Durum"), NotNull, DefaultValue(14),QuickFilter]
     public OrderStatus? Status { get => (OrderStatus?)fields.Status[this]; set => fields.Status[this] = (int?)value; }
     public partial class RowFields { public Int32Field Status; }
 

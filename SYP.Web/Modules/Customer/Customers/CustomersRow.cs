@@ -87,7 +87,8 @@ public sealed class CustomersRow : Row<CustomersRow.RowFields>, IIdRow, INameRow
     public partial class RowFields { public Int32Field CurrencyId; }
 
     [DisplayName("Fiyat Listesi"), ForeignKey("[dbo].[PriceLists]", "Id"), LeftJoin("jPriceList"), LookupInclude]
-    [LookupEditor("Catalog.PriceLists", FilterField = "IsActive", FilterValue = true)]
+    [LookupEditor("Catalog.PriceLists", FilterField = "IsActive", FilterValue = true,
+        CascadeField = "Type", CascadeValue = (int)SYP.Catalog.PriceListType.Sales)]
     public int? PriceListId { get => fields.PriceListId[this]; set => fields.PriceListId[this] = value; }
     public partial class RowFields { public Int32Field PriceListId; }
 

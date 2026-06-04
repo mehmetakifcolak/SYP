@@ -10,7 +10,7 @@ public class OrderColumns
     [Width(150)]
     public string OrderNumber { get; set; }
 
-    [Width(200)]
+    [Width(200), QuickFilter]
     public string CustomerName { get; set; }
 
     [Width(150)]
@@ -19,7 +19,7 @@ public class OrderColumns
     [Width(150)]
     public string ManagerName { get; set; }
 
-    [Width(120)]
+    [Width(120), QuickFilter]
     public DateTime OrderDate { get; set; }
 
     [Width(150)]

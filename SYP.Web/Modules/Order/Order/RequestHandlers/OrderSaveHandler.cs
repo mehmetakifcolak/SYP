@@ -48,6 +48,12 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
                 var bayiiCustomerId = _bayiiCustomerService.GetCurrentBayiiCustomerId();
                 if (bayiiCustomerId.HasValue)
                     Row.CustomerId = bayiiCustomerId;
+                else
+                    throw new ValidationError("Bayii bilgisi bulunamadı!");
+            }
+            else
+            {
+                throw new ValidationError("Lütfen bir bayi seçiniz!");
             }
         }
 
@@ -105,9 +111,9 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         }
 
         if (IsUpdate && Row.Status == OrderStatus.HAZIRLANIYOR && Old.Status != OrderStatus.HAZIRLANIYOR)
-            UpdateStockFromOrder();
+            ValidateStockAvailability();
 
-        if (IsUpdate && Row.Status == OrderStatus.TESLIM_ALINDI && Old.Status != OrderStatus.TESLIM_ALINDI
+        if (IsUpdate && Row.Status == OrderStatus.SEVK_ASAMASINDA && Old.Status != OrderStatus.SEVK_ASAMASINDA
             && !(Old.IsStockExitCreated ?? false))
             CreateStockExitFromOrder();
     }
@@ -193,7 +199,7 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         _workflow.ValidateTransition(oldStatus, newStatus, userRole);
     }
 
-    private void UpdateStockFromOrder()
+    private void ValidateStockAvailability()
     {
         var detailFields = OrderDetailRow.Fields;
         var details = Connection.List<OrderDetailRow>(q => q
@@ -213,17 +219,11 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
 
             if (existingStock != null)
             {
-                var newQuantity = (existingStock.Quantity ?? 0) - (detail.Quantity ?? 0);
+                var availableQuantity = existingStock.Quantity ?? 0;
+                var requestedQuantity = detail.Quantity ?? 0;
 
-                if (newQuantity < 0)
-                    throw new ValidationError($"Ürün '{detail.ProductCodeName}' için yeterli stok yok! Mevcut: {existingStock.Quantity}, Talep: {detail.Quantity}");
-
-                Connection.UpdateById(new Warehouse.WarehouseStockRow
-                {
-                    Id             = existingStock.Id,
-                    Quantity       = newQuantity,
-                    LastUpdateDate = DateTime.Now
-                });
+                if (availableQuantity < requestedQuantity)
+                    throw new ValidationError($"Ürün '{detail.ProductCodeName}' için yeterli stok yok! Mevcut: {availableQuantity}, Talep: {requestedQuantity}");
             }
             else
             {
@@ -267,10 +267,12 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         var detailFields = OrderDetailRow.Fields;
         var details = Connection.List<OrderDetailRow>(q => q
             .SelectTableFields()
-            .Where(
-                new Criteria(detailFields.OrderId) == Row.Id.Value &
-                (new Criteria(detailFields.LineStatus) == 1 |   // Onaylandı
-                 new Criteria(detailFields.LineStatus) == 3))); // Revize (onaylı yeni miktar)
+            .Where(new Criteria(detailFields.OrderId) == Row.Id.Value));
+
+        if (details == null || details.Count == 0)
+        {
+            throw new ValidationError("Sipariş detayları bulunamadı. Stok çıkışı oluşturulamıyor.");
+        }
 
         foreach (var detail in details)
         {
@@ -285,13 +287,18 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
             });
         }
 
-        Connection.UpdateById(new OrderRow
-        {
-            Id                 = Row.Id,
-            IsStockExitCreated = true,
-            UpdateDate         = DateTime.Now,
-            UpdateUserId       = userId
-        });
+        // IsStockExitCreated read-only olduğu için SQL ile güncelliyoruz
+        Connection.Execute(@"
+            UPDATE Orders
+            SET IsStockExitCreated = 1,
+                UpdateDate = @UpdateDate,
+                UpdateUserId = @UpdateUserId
+            WHERE Id = @Id",
+            new {
+                Id = Row.Id.Value,
+                UpdateDate = DateTime.Now,
+                UpdateUserId = userId
+            });
     }
 
     private int GetDefaultWarehouseId()
