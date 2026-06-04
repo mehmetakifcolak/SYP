@@ -70,6 +70,15 @@ export class OrderGrid extends EntityGrid<OrderRow, any> {
         super(props);
     }
 
+    protected override getSlickOptions(): any {
+        const opt = super.getSlickOptions();
+        // Hücre yüksekliği CSS'te 44px'e sabitlendiği için SlickGrid'in satır
+        // konumlamasıyla uyuşması adına rowHeight de 44 olmalı; aksi halde
+        // hover renklendirmesi dikeyde kayıyor.
+        opt.rowHeight = 44;
+        return opt;
+    }
+
     protected override createColumns(): any[] {
         const cols = super.createColumns();
 
@@ -81,7 +90,7 @@ export class OrderGrid extends EntityGrid<OrderRow, any> {
             statusCol.format   = (ctx: any) => buildProgressCell(ctx.item?.Status as number ?? 0);
         }
 
-        cols.push({
+        const actionsCol = {
             field: '_actions',
             name: '',
             width: 190,
@@ -106,7 +115,20 @@ export class OrderGrid extends EntityGrid<OrderRow, any> {
 
                 return wrap;
             }
-        });
+        };
+
+        const rowNumberCol = {
+            field: '_rowNumber',
+            name: '#',
+            width: 50,
+            minWidth: 40,
+            maxWidth: 60,
+            sortable: false,
+            format: (ctx: any) => String((ctx.row ?? 0) + 1)
+        };
+
+        // Düzenle/Geçmiş ve sıra numarası ilk kolonlarda listelensin
+        cols.unshift(actionsCol, rowNumberCol);
         return cols;
     }
 

@@ -2,33 +2,34 @@ using SYP.Catalog;
 
 namespace SYP.Warehouse;
 
-[ConnectionKey("Default"), Module("Warehouse"), TableName("WarehouseStock")]
+// NOT: WarehouseStock artık fiziksel bir tablo değil, [WarehouseStockView] adlı bir
+// SQL view'idir. Stok durumu onaylı stok giriş/çıkış hareketlerinden dinamik olarak
+// hesaplanır (bkz. DefaultDB_20260604_1000_WarehouseStockView). Bu yüzden satır
+// salt-okunurdur; insert/update/delete yoktur.
+[ConnectionKey("Default"), Module("Warehouse"), TableName("WarehouseStockView")]
 [DisplayName("Warehouse Stock"), InstanceName("Warehouse Stock")]
 [NavigationPermission("Warehouse:WarehouseStock:Navigation")]
 [ReadPermission("Warehouse:WarehouseStock:Read")]
-[InsertPermission("Warehouse:WarehouseStock:Insert")]
-[UpdatePermission("Warehouse:WarehouseStock:Update")]
-[DeletePermission("Warehouse:WarehouseStock:Delete")]
 public sealed class WarehouseStockRow : Row<WarehouseStockRow.RowFields>, IIdRow
 {
     const string jWarehouse = nameof(jWarehouse);
     const string jProduct = nameof(jProduct);
 
-    [DisplayName("Id"), Identity, IdProperty]
+    [DisplayName("Id"), IdProperty]
     public int? Id { get => fields.Id[this]; set => fields.Id[this] = value; }
     public partial class RowFields { public Int32Field Id; }
 
-    [DisplayName("Warehouse"), NotNull, ForeignKey(typeof(WarehousesRow)), LeftJoin(jWarehouse)]
+    [DisplayName("Warehouse"), ForeignKey(typeof(WarehousesRow)), LeftJoin(jWarehouse)]
     [LookupEditor(typeof(WarehousesRow), FilterField = "IsActive", FilterValue = true)]
     public int? WarehouseId { get => fields.WarehouseId[this]; set => fields.WarehouseId[this] = value; }
     public partial class RowFields { public Int32Field WarehouseId; }
 
-    [DisplayName("Product"), NotNull, ForeignKey(typeof(ProductsRow)), LeftJoin(jProduct)]
+    [DisplayName("Product"), ForeignKey(typeof(ProductsRow)), LeftJoin(jProduct)]
     [LookupEditor(typeof(ProductsRow))]
     public int? ProductId { get => fields.ProductId[this]; set => fields.ProductId[this] = value; }
     public partial class RowFields { public Int32Field ProductId; }
 
-    [DisplayName("Quantity"), NotNull, DefaultValue(0)]
+    [DisplayName("Quantity")]
     public decimal? Quantity { get => fields.Quantity[this]; set => fields.Quantity[this] = value; }
     public partial class RowFields { public DecimalField Quantity; }
 

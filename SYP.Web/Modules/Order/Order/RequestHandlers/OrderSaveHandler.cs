@@ -111,7 +111,7 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         }
 
         if (IsUpdate && Row.Status == OrderStatus.HAZIRLANIYOR && Old.Status != OrderStatus.HAZIRLANIYOR)
-            ValidateStockAvailability();
+            ValidateOrderStockAvailability();
 
         if (IsUpdate && Row.Status == OrderStatus.SEVK_ASAMASINDA && Old.Status != OrderStatus.SEVK_ASAMASINDA
             && !(Old.IsStockExitCreated ?? false))
@@ -199,7 +199,11 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         _workflow.ValidateTransition(oldStatus, newStatus, userRole);
     }
 
-    private void ValidateStockAvailability()
+    // Sipariş "Hazırlanıyor" durumuna geçerken stok yeterliliğini kontrol eder.
+    // Stok artık WarehouseStockView üzerinden onaylı hareketlerden dinamik hesaplandığı
+    // için burada tabloya yazılmaz; gerçek stok düşüşü stok çıkışı oluşturulduğunda
+    // CreateStockExitFromOrder ile oluşturulan onaylı stok çıkışıyla gerçekleşir.
+    private void ValidateOrderStockAvailability()
     {
         var detailFields = OrderDetailRow.Fields;
         var details = Connection.List<OrderDetailRow>(q => q
@@ -217,18 +221,11 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
                     new Criteria(stockFields.WarehouseId) == warehouseId &
                     new Criteria(stockFields.ProductId) == detail.ProductId.Value));
 
-            if (existingStock != null)
-            {
-                var availableQuantity = existingStock.Quantity ?? 0;
-                var requestedQuantity = detail.Quantity ?? 0;
+            var availableQty = existingStock?.Quantity ?? 0;
+            var requestedQty = detail.Quantity ?? 0;
 
-                if (availableQuantity < requestedQuantity)
-                    throw new ValidationError($"Ürün '{detail.ProductCodeName}' için yeterli stok yok! Mevcut: {availableQuantity}, Talep: {requestedQuantity}");
-            }
-            else
-            {
-                throw new ValidationError($"Ürün '{detail.ProductCodeName}' için stok kaydı bulunamadı!");
-            }
+            if (availableQty < requestedQty)
+                throw new ValidationError($"Ürün '{detail.ProductCodeName}' için yeterli stok yok! Mevcut: {availableQty}, Talep: {requestedQty}");
         }
     }
 
