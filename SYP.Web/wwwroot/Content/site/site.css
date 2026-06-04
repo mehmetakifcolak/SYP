@@ -3199,14 +3199,16 @@ body#s-LoginPage .s-full-page {
     yükseklik verilir, slick grid bu alanı doldurur.)
    ================================================================ */
 .s-StockEntryDetailsEditor,
-.s-StockExitDetailsEditor {
+.s-StockExitDetailsEditor,
+.s-PriceListItemsEditor {
   height: 60vh;
   min-height: 360px;
 }
 
 @media (max-width: 640px) {
   .s-StockEntryDetailsEditor,
-  .s-StockExitDetailsEditor {
+  .s-StockExitDetailsEditor,
+  .s-PriceListItemsEditor {
     height: 55vh;
     min-height: 300px;
   }

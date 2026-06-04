@@ -3,6 +3,8 @@ import { Column } from "@serenity-is/sleekgrid";
 import { WarehouseStockRow } from "./WarehouseStockRow";
 
 export interface WarehouseStockColumns {
+    WarehouseId: Column<WarehouseStockRow>;
+    ProductId: Column<WarehouseStockRow>;
     WarehouseCode: Column<WarehouseStockRow>;
     WarehouseName: Column<WarehouseStockRow>;
     ProductCode: Column<WarehouseStockRow>;
