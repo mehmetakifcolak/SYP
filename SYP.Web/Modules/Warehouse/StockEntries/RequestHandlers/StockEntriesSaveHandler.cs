@@ -9,8 +9,6 @@ public interface IStockEntriesSaveHandler : ISaveHandler<MyRow, SaveRequest<MyRo
 
 public class StockEntriesSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, SaveResponse>, IStockEntriesSaveHandler
 {
-    private StockEntryStatus? _oldStatus;
-
     public StockEntriesSaveHandler(IRequestContext context)
         : base(context)
     {
@@ -19,13 +17,6 @@ public class StockEntriesSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyR
     protected override void BeforeSave()
     {
         base.BeforeSave();
-
-        // Eski durumu kaydet (update için)
-        if (IsUpdate)
-        {
-            var existing = Connection.TryById<MyRow>(Row.Id.Value);
-            _oldStatus = existing?.Status;
-        }
 
         // Yeni kayıt ve EntryNo boşsa otomatik numara oluştur
         if (IsCreate && Row.EntryNo.IsNullOrEmpty())
@@ -88,28 +79,11 @@ public class StockEntriesSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyR
     {
         base.AfterSave();
 
-        // Detail'leri join ile tekrar yükle
+        // Detail'leri join ile tekrar yükle (response için)
         ReloadDetailsWithJoins();
 
-        // Sadece durumu yeni "Onaylandı" yapıldığında stok güncelle
-        // (İlk kez onaylandığında veya yeni kayıt onaylı oluşturulduğunda)
-        bool shouldUpdateStock = false;
-
-        if (IsCreate && Row.Status == StockEntryStatus.Approved)
-        {
-            // Yeni kayıt ve onaylı
-            shouldUpdateStock = true;
-        }
-        else if (IsUpdate && Row.Status == StockEntryStatus.Approved && _oldStatus != StockEntryStatus.Approved)
-        {
-            // Mevcut kayıt, şimdi onaylandı (önceden onaylı değildi)
-            shouldUpdateStock = true;
-        }
-
-        if (shouldUpdateStock)
-        {
-            UpdateWarehouseStock();
-        }
+        // NOT: Stok durumu artık WarehouseStockView üzerinden onaylı hareketlerden
+        // dinamik hesaplanıyor; ayrıca bir stok tablosu güncellemesine gerek yok.
     }
 
     private void ReloadDetailsWithJoins()
@@ -124,48 +98,5 @@ public class StockEntriesSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyR
 
         // Response'a ekle
         Row.DetailList = details;
-    }
-
-    private void UpdateWarehouseStock()
-    {
-        // Detayları al
-        var detailFields = StockEntryDetailsRow.Fields;
-        var details = Connection.List<StockEntryDetailsRow>(q => q
-            .SelectTableFields()
-            .Where(new Criteria(detailFields.StockEntryId) == Row.Id.Value));
-
-        foreach (var detail in details)
-        {
-            var stockFields = WarehouseStockRow.Fields;
-
-            // Mevcut stok kaydını bul
-            var existingStock = Connection.TryFirst<WarehouseStockRow>(q => q
-                .SelectTableFields()
-                .Where(
-                    new Criteria(stockFields.WarehouseId) == Row.WarehouseId.Value &
-                    new Criteria(stockFields.ProductId) == detail.ProductId.Value));
-
-            if (existingStock != null)
-            {
-                // Miktarı güncelle
-                Connection.UpdateById(new WarehouseStockRow
-                {
-                    Id = existingStock.Id,
-                    Quantity = (existingStock.Quantity ?? 0) + (detail.Quantity ?? 0),
-                    LastUpdateDate = DateTime.Now
-                });
-            }
-            else
-            {
-                // Yeni stok kaydı oluştur
-                Connection.Insert(new WarehouseStockRow
-                {
-                    WarehouseId = Row.WarehouseId,
-                    ProductId = detail.ProductId,
-                    Quantity = detail.Quantity ?? 0,
-                    LastUpdateDate = DateTime.Now
-                });
-            }
-        }
     }
 }

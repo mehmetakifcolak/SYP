@@ -105,7 +105,7 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         }
 
         if (IsUpdate && Row.Status == OrderStatus.HAZIRLANIYOR && Old.Status != OrderStatus.HAZIRLANIYOR)
-            UpdateStockFromOrder();
+            ValidateOrderStockAvailability();
 
         if (IsUpdate && Row.Status == OrderStatus.TESLIM_ALINDI && Old.Status != OrderStatus.TESLIM_ALINDI
             && !(Old.IsStockExitCreated ?? false))
@@ -193,7 +193,11 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
         _workflow.ValidateTransition(oldStatus, newStatus, userRole);
     }
 
-    private void UpdateStockFromOrder()
+    // Sipariş "Hazırlanıyor" durumuna geçerken stok yeterliliğini kontrol eder.
+    // Stok artık WarehouseStockView üzerinden onaylı hareketlerden dinamik hesaplandığı
+    // için burada tabloya yazılmaz; gerçek stok düşüşü "Teslim Alındı" durumunda
+    // CreateStockExitFromOrder ile oluşturulan onaylı stok çıkışıyla gerçekleşir.
+    private void ValidateOrderStockAvailability()
     {
         var detailFields = OrderDetailRow.Fields;
         var details = Connection.List<OrderDetailRow>(q => q
@@ -211,24 +215,11 @@ public class OrderSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow>, Sa
                     new Criteria(stockFields.WarehouseId) == warehouseId &
                     new Criteria(stockFields.ProductId) == detail.ProductId.Value));
 
-            if (existingStock != null)
-            {
-                var newQuantity = (existingStock.Quantity ?? 0) - (detail.Quantity ?? 0);
+            var availableQty = existingStock?.Quantity ?? 0;
+            var requestedQty = detail.Quantity ?? 0;
 
-                if (newQuantity < 0)
-                    throw new ValidationError($"Ürün '{detail.ProductCodeName}' için yeterli stok yok! Mevcut: {existingStock.Quantity}, Talep: {detail.Quantity}");
-
-                Connection.UpdateById(new Warehouse.WarehouseStockRow
-                {
-                    Id             = existingStock.Id,
-                    Quantity       = newQuantity,
-                    LastUpdateDate = DateTime.Now
-                });
-            }
-            else
-            {
-                throw new ValidationError($"Ürün '{detail.ProductCodeName}' için stok kaydı bulunamadı!");
-            }
+            if (availableQty < requestedQty)
+                throw new ValidationError($"Ürün '{detail.ProductCodeName}' için yeterli stok yok! Mevcut: {availableQty}, Talep: {requestedQty}");
         }
     }
 

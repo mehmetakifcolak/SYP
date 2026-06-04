@@ -427,6 +427,9 @@ section.content-header h1 {
   color: var(--syp-text-primary);
 }
 .modal-body { padding: 1.125rem 1.25rem !important; }
+/* Confirm/alert/info dialoglarında sol üstteki ikon (?, !, i) için boşluğu koru;
+   aksi halde ikon mesaj metninin üzerine biner */
+.s-MessageDialog .modal-body { padding-left: 90px !important; }
 .modal-footer {
   border-top: 1px solid var(--syp-card-border) !important;
   padding: .75rem 1.25rem !important;
@@ -1718,7 +1721,8 @@ body#s-LoginPage .s-full-page {
   white-space: nowrap;
   margin: 0;
 }
-.opd-customer-select { min-width: 220px; }
+.opd-customer-select { min-width: 220px; max-width: 320px; }
+.opd-customer-icon { color: var(--syp-text-muted); }
 
 .opd-search-wrap {
   position: relative;
@@ -1733,7 +1737,7 @@ body#s-LoginPage .s-full-page {
   color: var(--syp-text-muted);
   pointer-events: none;
 }
-.opd-search-wrap input { padding-left: 30px; }
+.opd-search-wrap input { padding-left: 30px !important; }
 
 .opd-cart-btn {
   display: flex;
@@ -3123,8 +3127,10 @@ body#s-LoginPage .s-full-page {
 @media (max-width: 640px) {
 
   /* Üst bar biraz daralır */
-  .opd-topbar { padding: 8px 10px; gap: 8px; }
+  .opd-topbar { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
   .opd-search-wrap { max-width: none; }
+  .opd-customer-wrap { width: 100%; }
+  .opd-customer-select { min-width: 0; max-width: none; flex: 1; }
 
   /* Gövde dikey: kategoriler → ürünler → (sepet bottom-sheet) */
   .opd-body {

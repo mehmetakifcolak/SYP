@@ -6,6 +6,8 @@ import { BrandsRow, PriceListItemsRow, PriceListItemsService, PriceListsRow, Pro
 import { CustomersRow } from '../../ServerTypes/Customer';
 import { OrderDetailRow, OrderDetailService, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { CurrencyListRow, VendorTypeRow } from '../../ServerTypes/Setting';
+import { PermissionKeys } from '../../ServerTypes/Administration';
+import { hasPermission } from '../../Administration/User/Authentication/Authorization';
 
 export interface OrderDialogOptions {
     entityId?: number | null;
@@ -51,8 +53,12 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private activeCurrencyCode = '₺';
     private activeCurrencyId: number | undefined = undefined;
     private cartVisible = false;
+    /** Bayi olmayan kullanıcılar için cari seçimi zorunlu */
+    private requireCustomerSelection = false;
 
     private imgTooltipEl!: HTMLElement;
+    private customerWrapEl!: HTMLElement;
+    private customerSelectEl!: HTMLSelectElement;
     private catListEl!: HTMLElement;
     private brandSectionEl!: HTMLElement;
     private brandListEl!: HTMLElement;
@@ -73,6 +79,12 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         return `
 <div class="opd-root">
     <div class="opd-topbar">
+        <div id="~_CustomerWrap" class="opd-customer-wrap" style="display:none">
+            <i class="fa fa-building opd-customer-icon"></i>
+            <select id="~_CustomerSelect" class="form-select form-select-sm opd-customer-select">
+                <option value="">Cari Seçiniz...</option>
+            </select>
+        </div>
         <div class="opd-search-wrap">
             <i class="fa fa-search opd-search-icon"></i>
             <input id="~_SearchInput" type="text" class="form-control form-control-sm"
@@ -146,6 +158,8 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             'box-shadow:0 4px 16px rgba(0,0,0,.18);padding:4px;';
         document.body.appendChild(this.imgTooltipEl);
 
+        this.customerWrapEl   = n('CustomerWrap');
+        this.customerSelectEl = n('CustomerSelect') as HTMLSelectElement;
         this.catListEl      = n('CategoryList');
         this.brandSectionEl = n('BrandSection');
         this.brandListEl    = n('BrandList');
@@ -159,6 +173,11 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         n('CartToggle').addEventListener('click', () => this.toggleCart());
         n('CloseCart').addEventListener('click', () => this.toggleCart(false));
         n('CompleteOrder').addEventListener('click', () => this.completeOrder());
+
+        this.customerSelectEl.addEventListener('change', () => {
+            const val = parseInt(this.customerSelectEl.value, 10);
+            this.onCustomerChanged(Number.isNaN(val) ? null : val);
+        });
 
         this.searchEl.addEventListener('input', () => {
             this.searchTerm = this.searchEl.value.toLowerCase().trim();
@@ -192,16 +211,67 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         this.renderBrands();
         this.renderProducts();
 
+        const isBayi = hasPermission(PermissionKeys.Bayii)
+            && !hasPermission(PermissionKeys.Security)
+            && !hasPermission(PermissionKeys.Temsilci);
+
         if (this.options?.preSelectedCustomerId) {
             this.customerId = this.options.preSelectedCustomerId;
             await this.loadPriceListItems(this.customerId);
-        } else {
+        } else if (isBayi) {
             this.tryAutoSelectCustomer();
+        } else {
+            // Bayi olmayan kullanıcı (yönetici/temsilci): cariyi kendisi seçmeli
+            this.requireCustomerSelection = true;
+            this.setupCustomerSelector();
         }
 
         if (this.entityId) {
             await this.loadExistingOrder(this.entityId);
         }
+    }
+
+    /** Bayi olmayan kullanıcılar için cari seçim kutusunu doldurur ve gösterir. */
+    private setupCustomerSelector(): void {
+        if (!this.customerSelectEl || !this.customerWrapEl) return;
+
+        const customers = (this.customerLookup?.items ?? [])
+            .filter(c => c.IsActive !== false)
+            .sort((a, b) => (a.Name ?? '').localeCompare(b.Name ?? '', 'tr'));
+
+        const opts = ['<option value="">Cari Seçiniz...</option>'];
+        for (const c of customers) {
+            const label = c.Code ? `${c.Code} - ${c.Name ?? ''}` : (c.Name ?? '');
+            opts.push(`<option value="${c.Id}">${htmlEncode(label)}</option>`);
+        }
+        this.customerSelectEl.innerHTML = opts.join('');
+        if (this.customerId) this.customerSelectEl.value = String(this.customerId);
+        this.customerWrapEl.style.display = '';
+    }
+
+    /** Cari değiştiğinde fiyat listesini yeniden yükler ve sepeti yeni fiyatlara göre günceller. */
+    private async onCustomerChanged(customerId: number | null): Promise<void> {
+        this.customerId = customerId;
+        this.priceListItems.clear();
+        if (customerId) {
+            await this.loadPriceListItems(customerId);
+        }
+        this.recalcCartPrices();
+        this.renderProducts();
+        this.updateCartUI();
+    }
+
+    /** Sepetteki kalemlerin birim fiyat/indirim/satır toplamını aktif cariye göre yeniden hesaplar. */
+    private recalcCartPrices(): void {
+        this.cart.forEach((item, productId) => {
+            const p = this.productLookup?.itemById[productId];
+            if (!p) return;
+            const price     = this.getProductPrice(p);
+            const actualQty = item.quantity * item.packingQty;
+            item.unitPrice  = price;
+            item.discount   = this.calcDiscount(price, actualQty);
+            item.lineTotal  = price * actualQty - item.discount;
+        });
     }
 
     private tryAutoSelectCustomer(): void {
@@ -242,7 +312,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
                 if (item.ProductId != null) this.priceListItems.set(item.ProductId, item);
             }
             this.renderProducts();
-            this.renderCart();
+            this.updateCartUI();
         } catch { /* fiyat listesi yoksa varsayılan fiyat kullanılır */ }
     }
 
@@ -264,6 +334,8 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
             if (order.CustomerId) {
                 this.customerId = order.CustomerId;
+                if (this.requireCustomerSelection && this.customerSelectEl)
+                    this.customerSelectEl.value = String(order.CustomerId);
                 await this.loadPriceListItems(order.CustomerId);
             }
 
@@ -617,6 +689,12 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     }
 
     private addToCart(productId: number, addQty: number): void {
+        if (this.requireCustomerSelection && !this.customerId) {
+            notifyWarning('Lütfen önce bir cari (müşteri) seçiniz.');
+            this.customerSelectEl?.focus();
+            return;
+        }
+
         const p = this.productLookup.itemById[productId];
         if (!p) return;
 
@@ -743,6 +821,12 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     private async completeOrder(): Promise<void> {
         if (this.cart.size === 0) {
             notifyWarning('Sepet boş! Lütfen en az bir ürün ekleyin.');
+            return;
+        }
+
+        if (this.requireCustomerSelection && !this.customerId) {
+            notifyWarning('Lütfen önce bir cari (müşteri) seçiniz.');
+            this.customerSelectEl?.focus();
             return;
         }
 

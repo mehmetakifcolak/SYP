@@ -150,25 +150,11 @@ public class StockExitsSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow
     {
         base.AfterSave();
 
-        // Detail'leri join ile tekrar yükle
+        // Detail'leri join ile tekrar yükle (response için)
         ReloadDetailsWithJoins();
 
-        // Sadece durumu yeni "Onaylandı" yapıldığında stok güncelle
-        bool shouldUpdateStock = false;
-
-        if (IsCreate && Row.Status == StockExitStatus.Approved)
-        {
-            shouldUpdateStock = true;
-        }
-        else if (IsUpdate && Row.Status == StockExitStatus.Approved && _oldStatus != StockExitStatus.Approved)
-        {
-            shouldUpdateStock = true;
-        }
-
-        if (shouldUpdateStock)
-        {
-            UpdateWarehouseStock();
-        }
+        // NOT: Stok durumu artık WarehouseStockView üzerinden onaylı hareketlerden
+        // dinamik hesaplanıyor; ayrıca bir stok tablosu güncellemesine gerek yok.
     }
 
     private void ReloadDetailsWithJoins()
@@ -183,41 +169,5 @@ public class StockExitsSaveHandler : SaveRequestHandler<MyRow, SaveRequest<MyRow
 
         // Response'a ekle
         Row.DetailList = details;
-    }
-
-    private void UpdateWarehouseStock()
-    {
-        // Detayları al
-        var detailFields = StockExitDetailsRow.Fields;
-        var details = Connection.List<StockExitDetailsRow>(q => q
-            .SelectTableFields()
-            .Where(new Criteria(detailFields.StockExitId) == Row.Id.Value));
-
-        foreach (var detail in details)
-        {
-            var stockFields = WarehouseStockRow.Fields;
-
-            // Mevcut stok kaydını bul
-            var existingStock = Connection.TryFirst<WarehouseStockRow>(q => q
-                .SelectTableFields()
-                .Where(
-                    new Criteria(stockFields.WarehouseId) == Row.WarehouseId.Value &
-                    new Criteria(stockFields.ProductId) == detail.ProductId.Value));
-
-            if (existingStock != null)
-            {
-                // Miktarı DÜŞÜR (çıkış olduğu için)
-                var newQuantity = (existingStock.Quantity ?? 0) - (detail.Quantity ?? 0);
-
-                Connection.UpdateById(new WarehouseStockRow
-                {
-                    Id = existingStock.Id,
-                    Quantity = newQuantity,
-                    LastUpdateDate = DateTime.Now
-                });
-            }
-            // Eğer stok kaydı yoksa, zaten yetersiz stok hatası alınmış olmalı
-            // Ama güvenlik için yine de oluşturabiliriz (negatif olacak ama loglama için)
-        }
     }
 }
