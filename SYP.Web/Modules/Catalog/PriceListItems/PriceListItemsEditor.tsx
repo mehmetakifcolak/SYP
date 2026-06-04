@@ -12,6 +12,10 @@ export class PriceListItemsEditor extends GridEditorBase<PriceListItemsRow> {
     protected getDialogType() { return PriceListItemsEditDialog; }
     protected getLocalTextPrefix() { return PriceListItemsRow.localTextPrefix; }
 
+    // Liste eklenen ürün sayısı kadar büyür; bu satır sayısından sonra
+    // grid sabit kalır ve içinde scroll açılır.
+    private static readonly maxVisibleRows = 50;
+
     private productLookup: Lookup<ProductsRow>;
 
     constructor(props: any) {
@@ -20,6 +24,42 @@ export class PriceListItemsEditor extends GridEditorBase<PriceListItemsRow> {
         getLookupAsync<ProductsRow>(ProductsRow.lookupKey).then(lookup => {
             this.productLookup = lookup;
         });
+    }
+
+    protected afterInit() {
+        super.afterInit();
+
+        // Ürün ekleme/silme veya değer atanması ile satır sayısı değiştiğinde
+        // grid yüksekliğini yeniden hesapla.
+        if (this.view) {
+            this.view.onRowCountChanged.subscribe(() => this.layout());
+        }
+    }
+
+    protected layout() {
+        super.layout();
+
+        const grid = this.slickGrid;
+        const root = this.domNode;
+        if (!grid || !root) {
+            return;
+        }
+
+        const rowHeight = grid.getOptions().rowHeight || 27;
+        const rowCount = this.view ? this.view.getLength() : 0;
+        const visibleRows = Math.min(Math.max(rowCount, 1), PriceListItemsEditor.maxVisibleRows);
+
+        // Kök eleman = toolbar (Ürün Ekle vb.) + grid başlığı + satırlar + yatay scrollbar payı
+        const toolbarEl = root.querySelector(".s-Toolbar") as HTMLElement;
+        const headerEl = root.querySelector(".slick-header") as HTMLElement;
+        const toolbarHeight = toolbarEl ? toolbarEl.offsetHeight : 0;
+        const headerHeight = headerEl ? headerEl.offsetHeight : 30;
+        const scrollbarBuffer = 20;
+
+        const height = toolbarHeight + headerHeight + visibleRows * rowHeight + scrollbarBuffer;
+        root.style.height = height + "px";
+
+        grid.resizeCanvas();
     }
 
     protected getAddButtonCaption() {
