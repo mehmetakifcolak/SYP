@@ -1,4 +1,4 @@
-import { Decorators, EntityGrid } from '@serenity-is/corelib';
+import { Decorators, EntityGrid, localText } from '@serenity-is/corelib';
 import { OrderColumns, OrderRow, OrderService } from '../../ServerTypes/Order';
 import { OrderDialog } from './OrderDialog';
 import { OrderEditDialog } from './OrderEditDialog';
@@ -11,12 +11,22 @@ const STATUS_PCT: Record<number, number> = {
     15: 75, 8: 83, 9: 100, 13: 100, 10: 0
 };
 
-const STATUS_LABEL: Record<number, string> = {
-    14: 'Talep Beklemede', 1: 'Talep Gönderildi', 2: 'Revize Edildi',
-    3: 'Bayi Onayladı', 4: 'Bayi Reddetti', 11: 'Temsilci Onayladı',
-    5: 'Dekont Yüklendi', 6: 'Dekont Reddedildi', 12: 'Dekont Onaylandı',
-    7: 'Hazırlanıyor', 15: 'Kargo Hazırlanıyor', 8: 'Kargoda', 9: 'Teslim Alındı',
-    13: 'Teslim Alınmadı', 10: 'İptal'
+const STATUS_LABEL: Record<number, [string, string]> = {
+    14: ['Site.OrderGrid.StatusRequestPending', 'Talep Beklemede'],
+    1:  ['Site.OrderGrid.StatusRequestSent', 'Talep Gönderildi'],
+    2:  ['Site.OrderGrid.StatusRevised', 'Revize Edildi'],
+    3:  ['Site.OrderGrid.StatusDealerApproved', 'Bayi Onayladı'],
+    4:  ['Site.OrderGrid.StatusDealerRejected', 'Bayi Reddetti'],
+    11: ['Site.OrderGrid.StatusRepApproved', 'Temsilci Onayladı'],
+    5:  ['Site.OrderGrid.StatusReceiptUploaded', 'Dekont Yüklendi'],
+    6:  ['Site.OrderGrid.StatusReceiptRejected', 'Dekont Reddedildi'],
+    12: ['Site.OrderGrid.StatusReceiptApproved', 'Dekont Onaylandı'],
+    7:  ['Site.OrderGrid.StatusPreparing', 'Hazırlanıyor'],
+    15: ['Site.OrderGrid.StatusShipmentPreparing', 'Kargo Hazırlanıyor'],
+    8:  ['Site.OrderGrid.StatusInCargo', 'Kargoda'],
+    9:  ['Site.OrderGrid.StatusDelivered', 'Teslim Alındı'],
+    13: ['Site.OrderGrid.StatusNotDelivered', 'Teslim Alınmadı'],
+    10: ['Site.OrderGrid.StatusCancelled', 'İptal']
 };
 
 // Renk türü
@@ -29,7 +39,8 @@ function statusColor(status: number): 'cancel' | 'error' | 'done' | 'normal' {
 
 function buildProgressCell(status: number): HTMLElement {
     const pct   = STATUS_PCT[status] ?? 0;
-    const label = STATUS_LABEL[status] ?? String(status);
+    const lp    = STATUS_LABEL[status];
+    const label = lp ? localText(lp[0], lp[1]) : String(status);
     const type  = statusColor(status);
 
     // Track: arka plan gri, bar absolute olarak içinde
@@ -104,13 +115,13 @@ export class OrderGrid extends EntityGrid<OrderRow, any> {
                 const editBtn = document.createElement('button');
                 editBtn.type = 'button';
                 editBtn.className = 'btn btn-xs btn-primary row-edit-order-btn';
-                editBtn.innerHTML = '<i class="fa fa-edit"></i> Düzenle';
+                editBtn.innerHTML = `<i class="fa fa-edit"></i> ${localText('Site.OrderGrid.Edit', 'Düzenle')}`;
                 wrap.appendChild(editBtn);
 
                 const histBtn = document.createElement('button');
                 histBtn.type = 'button';
                 histBtn.className = 'btn btn-xs btn-default row-history-btn';
-                histBtn.innerHTML = '<i class="fa fa-history"></i> Geçmiş';
+                histBtn.innerHTML = `<i class="fa fa-history"></i> ${localText('Site.OrderGrid.History', 'Geçmiş')}`;
                 wrap.appendChild(histBtn);
 
                 return wrap;

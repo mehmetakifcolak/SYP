@@ -53,7 +53,11 @@ public partial class AccountPage(ITwoLevelCache cache, ITextLocalizer localizer)
             if (result == PasswordValidationResult.Valid)
             {
                 var principal = userClaimCreator.CreatePrincipal(username, authType: "Password");
-                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal).GetAwaiter().GetResult();
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = request.RememberMe
+                };
+                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties).GetAwaiter().GetResult();
                 return new ServiceResponse();
             }
 

@@ -1,4 +1,4 @@
-import { ErrorHandling, Widget, WidgetProps, getReturnUrl, notifyError, resolveUrl, serviceCall } from "@serenity-is/corelib";
+import { ErrorHandling, Widget, WidgetProps, getReturnUrl, localText, notifyError, resolveUrl, serviceCall } from "@serenity-is/corelib";
 import { LoginRequest } from "../../../ServerTypes/Membership";
 import { LoginFormTexts } from "../../../ServerTypes/Texts";
 
@@ -25,6 +25,7 @@ class LoginPanel extends Widget<any> {
 
     private usernameInput: HTMLInputElement;
     private passwordInput: HTMLInputElement;
+    private rememberMeInput: HTMLInputElement;
     private carouselIndex: number = 0;
     private carouselInterval: number | null = null;
     private particleCanvas: HTMLCanvasElement | null = null;
@@ -117,7 +118,8 @@ class LoginPanel extends Widget<any> {
     protected getLoginRequest(): LoginRequest {
         return {
             Username: this.usernameInput?.value || '',
-            Password: this.passwordInput?.value || ''
+            Password: this.passwordInput?.value || '',
+            RememberMe: this.rememberMeInput?.checked || false
         };
     }
 
@@ -191,8 +193,8 @@ class LoginPanel extends Widget<any> {
                 <div class="login-bg-glow"></div>
 
                 <div class="login-brand-content">
-                    <h1 class="login-brand-title">Sipariş Yönetim Portalı</h1>
-                    <p class="login-brand-tagline">Liman - Siparişlerinizi tek noktadan yönetin</p>
+                    <h1 class="login-brand-title">{localText('Site.Login.BrandTitle', 'Sipariş Yönetim Portalı')}</h1>
+                    <p class="login-brand-tagline">{localText('Site.Login.BrandTagline', 'Liman - Siparişlerinizi tek noktadan yönetin')}</p>
 
                     {/* 3D Carousel */}
                     <div class="login-carousel-wrapper">
@@ -201,36 +203,36 @@ class LoginPanel extends Widget<any> {
                                 <div class="login-card-icon">
                                     <i class="fa fa-store"></i>
                                 </div>
-                                <h3>Bayi Yönetimi</h3>
-                                <p>Bayilerinizi tek merkezden kolayca yönetin</p>
+                                <h3>{localText('Site.Login.Card1Title', 'Bayi Yönetimi')}</h3>
+                                <p>{localText('Site.Login.Card1Text', 'Bayilerinizi tek merkezden kolayca yönetin')}</p>
                             </div>
                             <div class="login-carousel-card" data-index="1">
                                 <div class="login-card-icon">
                                     <i class="fa fa-box"></i>
                                 </div>
-                                <h3>Stok Yönetimi</h3>
-                                <p>Anlık stok takibi ve otomatik uyarılar</p>
+                                <h3>{localText('Site.Login.Card2Title', 'Stok Yönetimi')}</h3>
+                                <p>{localText('Site.Login.Card2Text', 'Anlık stok takibi ve otomatik uyarılar')}</p>
                             </div>
                             <div class="login-carousel-card" data-index="2">
                                 <div class="login-card-icon">
                                     <i class="fa fa-chart-line"></i>
                                 </div>
-                                <h3>Detaylı Raporlar</h3>
-                                <p>Satış analizleri ve performans metrikleri</p>
+                                <h3>{localText('Site.Login.Card3Title', 'Detaylı Raporlar')}</h3>
+                                <p>{localText('Site.Login.Card3Text', 'Satış analizleri ve performans metrikleri')}</p>
                             </div>
                             <div class="login-carousel-card" data-index="3">
                                 <div class="login-card-icon">
                                     <i class="fa fa-clipboard-list"></i>
                                 </div>
-                                <h3>Kolay Sipariş Yönetimi</h3>
-                                <p>Siparişlerinizi tek ekrandan kolayca yönetin</p>
+                                <h3>{localText('Site.Login.Card4Title', 'Kolay Sipariş Yönetimi')}</h3>
+                                <p>{localText('Site.Login.Card4Text', 'Siparişlerinizi tek ekrandan kolayca yönetin')}</p>
                             </div>
                             <div class="login-carousel-card" data-index="4">
                                 <div class="login-card-icon">
                                     <i class="fa fa-search-location"></i>
                                 </div>
-                                <h3>Kolay Takip</h3>
-                                <p>Tüm süreçlerinizi anlık olarak takip edin</p>
+                                <h3>{localText('Site.Login.Card5Title', 'Kolay Takip')}</h3>
+                                <p>{localText('Site.Login.Card5Text', 'Tüm süreçlerinizi anlık olarak takip edin')}</p>
                             </div>
                         </div>
                         {/* Carousel Dots */}
@@ -245,7 +247,7 @@ class LoginPanel extends Widget<any> {
                 </div>
 
                 <div class="login-brand-footer">
-                    © {new Date().getFullYear()} Liman - Sipariş Yönetim Portalı
+                    © {new Date().getFullYear()} {localText('Site.Login.Footer', 'Liman - Sipariş Yönetim Portalı')}
                 </div>
             </div>
 
@@ -253,14 +255,14 @@ class LoginPanel extends Widget<any> {
             <div class="login-form-panel">
                 <div class="login-form-container">
                     <div class="login-form-header">
-                        <h2 class="login-form-title">Hoş Geldiniz</h2>
-                        <p class="login-form-subtitle">Hesabınıza giriş yapın</p>
+                        <h2 class="login-form-title">{localText('Site.Login.Welcome', 'Hoş Geldiniz')}</h2>
+                        <p class="login-form-subtitle">{localText('Site.Login.SignInToAccount', 'Hesabınıza giriş yapın')}</p>
                     </div>
 
                     <form id={id.Form} action="" class="login-form">
                         {/* Kullanıcı Adı */}
                         <div class="login-input-group">
-                            <label class="login-input-label">Kullanıcı Adı</label>
+                            <label class="login-input-label">{localText('Site.Login.UsernameLabel', 'Kullanıcı Adı')}</label>
                             <div class="login-input-wrapper">
                                 <i class="fa fa-user login-input-icon"></i>
                                 <input
@@ -268,7 +270,7 @@ class LoginPanel extends Widget<any> {
                                     id={id.Username}
                                     name="Username"
                                     class="login-input"
-                                    placeholder="Kullanıcı adınızı girin"
+                                    placeholder={localText('Site.Login.UsernamePlaceholder', 'Kullanıcı adınızı girin')}
                                     autoComplete="username"
                                     ref={el => this.usernameInput = el as HTMLInputElement}
                                 />
@@ -277,7 +279,7 @@ class LoginPanel extends Widget<any> {
 
                         {/* Şifre */}
                         <div class="login-input-group">
-                            <label class="login-input-label">Şifre</label>
+                            <label class="login-input-label">{localText('Site.Login.PasswordLabel', 'Şifre')}</label>
                             <div class="login-input-wrapper">
                                 <i class="fa fa-lock login-input-icon"></i>
                                 <input
@@ -285,7 +287,7 @@ class LoginPanel extends Widget<any> {
                                     id={id.Password}
                                     name="Password"
                                     class="login-input"
-                                    placeholder="Şifrenizi girin"
+                                    placeholder={localText('Site.Login.PasswordPlaceholder', 'Şifrenizi girin')}
                                     autoComplete="current-password"
                                     ref={el => this.passwordInput = el as HTMLInputElement}
                                 />
@@ -298,8 +300,9 @@ class LoginPanel extends Widget<any> {
 
                         <div class="login-options">
                             <label class="login-remember">
-                                <input type="checkbox" class="form-check-input" />
-                                <span>Beni hatırla</span>
+                                <input type="checkbox" class="form-check-input"
+                                    ref={el => this.rememberMeInput = el as HTMLInputElement} />
+                                <span>{localText('Site.Login.RememberMe', 'Beni hatırla')}</span>
                             </label>
                             <a class="login-forgot" href={resolveUrl('~/Account/ForgotPassword')}>
                                 {LoginFormTexts.ForgotPassword}
@@ -317,7 +320,7 @@ class LoginPanel extends Widget<any> {
                     </form>
 
                     <div class="login-signup">
-                        Hesabınız yok mu?{' '}
+                        {localText('Site.Login.NoAccount', 'Hesabınız yok mu?')}{' '}
                         <a href={resolveUrl('~/Account/SignUp')}>{LoginFormTexts.SignUpButton}</a>
                     </div>
                 </div>

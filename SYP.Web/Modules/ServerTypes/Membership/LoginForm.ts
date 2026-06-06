@@ -1,8 +1,9 @@
-﻿import { initFormType, PasswordEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
+﻿import { BooleanEditor, initFormType, PasswordEditor, PrefixedContext, StringEditor } from "@serenity-is/corelib";
 
 export interface LoginForm {
     Username: StringEditor;
     Password: PasswordEditor;
+    RememberMe: BooleanEditor;
 }
 
 export class LoginForm extends PrefixedContext {
@@ -17,10 +18,12 @@ export class LoginForm extends PrefixedContext {
 
             var w0 = StringEditor;
             var w1 = PasswordEditor;
+            var w2 = BooleanEditor;
 
             initFormType(LoginForm, [
                 'Username', w0,
-                'Password', w1
+                'Password', w1,
+                'RememberMe', w2
             ]);
         }
     }

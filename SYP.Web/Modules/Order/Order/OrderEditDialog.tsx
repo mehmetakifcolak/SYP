@@ -1,6 +1,6 @@
 import {
     Decorators, DialogButton, Lookup, TemplatedDialog,
-    getLookupAsync, htmlEncode, notifyError, notifySuccess, notifyWarning
+    getLookupAsync, htmlEncode, localText, notifyError, notifySuccess, notifyWarning
 } from '@serenity-is/corelib';
 import { ProductsRow } from '../../ServerTypes/Catalog';
 import { AllowedTransitionItem, OrderDetailRow, OrderDocumentService, OrderRow, OrderService } from '../../ServerTypes/Order';
@@ -17,19 +17,19 @@ export interface OrderEditDialogOptions {
 type StepState = 'done' | 'active' | 'pending' | 'error' | 'cancel';
 
 const STEPS = [
-    { label: 'Talep\nGönderildi',    icon: 'fa-paper-plane-o' },
-    { label: 'Onaylandı',            icon: 'fa-thumbs-up'     },
-    { label: 'Dekont\nGönderildi',   icon: 'fa-upload'        },
-    { label: 'İnceleniyor',          icon: 'fa-search'        },
-    { label: 'Kargoda',              icon: 'fa-truck'         },
-    { label: 'Teslim Edildi',        icon: 'fa-check'         },
+    { label: localText('Site.OrderEdit.StepRequestSent', 'Talep\nGönderildi'),    icon: 'fa-paper-plane-o' },
+    { label: localText('Site.OrderEdit.StepApproved', 'Onaylandı'),            icon: 'fa-thumbs-up'     },
+    { label: localText('Site.OrderEdit.StepReceiptSent', 'Dekont\nGönderildi'),   icon: 'fa-upload'        },
+    { label: localText('Site.OrderEdit.StepReviewing', 'İnceleniyor'),          icon: 'fa-search'        },
+    { label: localText('Site.OrderEdit.StepInTransit', 'Kargoda'),              icon: 'fa-truck'         },
+    { label: localText('Site.OrderEdit.StepDelivered', 'Teslim Edildi'),        icon: 'fa-check'         },
 ];
 
 // Hangi status'da hangi adım hata verdi → gösterilecek mesaj
 const STEP_ERR_MSG: Record<number, Partial<Record<number, string>>> = {
-    2: { 4: 'Reddedildi', 10: 'İptal Edildi' },
-    3: { 6: 'Reddedildi' },
-    6: { 13: 'Teslim Alınmadı' },
+    2: { 4: localText('Site.OrderEdit.ErrRejected', 'Reddedildi'), 10: localText('Site.OrderEdit.ErrCancelled', 'İptal Edildi') },
+    3: { 6: localText('Site.OrderEdit.ErrRejected', 'Reddedildi') },
+    6: { 13: localText('Site.OrderEdit.ErrNotReceived', 'Teslim Alınmadı') },
 };
 
 function getStepStates(status: number): StepState[] {
@@ -68,31 +68,31 @@ interface StepAction {
 // Her adım için gösterilecek sabit aksiyonlar
 const STEP_ACTIONS: Record<number, StepAction[]> = {
     1: [
-        { label: 'Talep Gönder',  status: 1,  icon: 'fa-paper-plane',    cls: 'success' },
-        { label: 'Talebi Beklet', status: 14, icon: 'fa-pause-circle',   cls: 'warning' }
+        { label: localText('Site.OrderEdit.ActSendRequest', 'Talep Gönder'),  status: 1,  icon: 'fa-paper-plane',    cls: 'success' },
+        { label: localText('Site.OrderEdit.ActHoldRequest', 'Talebi Beklet'), status: 14, icon: 'fa-pause-circle',   cls: 'warning' }
     ],
     2: [
-        { label: 'Onayla',        status: 11, icon: 'fa-check',           cls: 'success' },
-        { label: 'Bayiye Onaya Gönder',   status: 2,  icon: 'fa-pencil',          cls: 'warning' },
-        { label: 'Reddet',        status: 10, icon: 'fa-times',           cls: 'danger',  requiresReason: true }
+        { label: localText('Site.OrderEdit.ActApprove', 'Onayla'),        status: 11, icon: 'fa-check',           cls: 'success' },
+        { label: localText('Site.OrderEdit.ActSendToDealerApproval', 'Bayiye Onaya Gönder'),   status: 2,  icon: 'fa-pencil',          cls: 'warning' },
+        { label: localText('Site.OrderEdit.ActReject', 'Reddet'),        status: 10, icon: 'fa-times',           cls: 'danger',  requiresReason: true }
     ],
     3: [
-        { label: 'Dekont Yükle',      status: 5, icon: 'fa-upload', cls: 'primary', isUpload: true },
-        { label: 'Dekontu Görüntüle', status: 0, icon: 'fa-eye',    cls: 'info',    isView:   true },
+        { label: localText('Site.OrderEdit.ActUploadReceipt', 'Dekont Yükle'),      status: 5, icon: 'fa-upload', cls: 'primary', isUpload: true },
+        { label: localText('Site.OrderEdit.ActViewReceipt', 'Dekontu Görüntüle'), status: 0, icon: 'fa-eye',    cls: 'info',    isView:   true },
         // { label: 'Dekontu Reddet',    status: 6, icon: 'fa-ban',    cls: 'danger',  requiresReason: true }
     ],
     4: [
-        { label: 'Dekontu Görüntüle', status: 0,  icon: 'fa-eye',    cls: 'info',    isView:   true },
-        { label: 'Dekontu Onayla', status: 15, icon: 'fa-check',  cls: 'success' },
-        { label: 'Bayiden Dekontu İste',    status: 6,  icon: 'fa-ban',    cls: 'danger',  requiresReason: true }
+        { label: localText('Site.OrderEdit.ActViewReceipt', 'Dekontu Görüntüle'), status: 0,  icon: 'fa-eye',    cls: 'info',    isView:   true },
+        { label: localText('Site.OrderEdit.ActApproveReceipt', 'Dekontu Onayla'), status: 15, icon: 'fa-check',  cls: 'success' },
+        { label: localText('Site.OrderEdit.ActRequestReceiptFromDealer', 'Bayiden Dekontu İste'),    status: 6,  icon: 'fa-ban',    cls: 'danger',  requiresReason: true }
     ],
     5: [
-        { label: 'Kargo Hazırlanıyor', status: 15, icon: 'fa-archive',         cls: 'warning' },
-        { label: 'Kargoya Verildi',    status: 8,  icon: 'fa-truck',           cls: 'info'    }
+        { label: localText('Site.OrderEdit.ActPreparingShipment', 'Kargo Hazırlanıyor'), status: 15, icon: 'fa-archive',         cls: 'warning' },
+        { label: localText('Site.OrderEdit.ActShipped', 'Kargoya Verildi'),    status: 8,  icon: 'fa-truck',           cls: 'info'    }
     ],
     6: [
-        { label: 'Teslim Alındı',   status: 9,  icon: 'fa-check-circle',       cls: 'success' },
-        { label: 'Teslim Alınmadı', status: 13, icon: 'fa-exclamation-circle', cls: 'danger',  requiresReason: true }
+        { label: localText('Site.OrderEdit.ActReceived', 'Teslim Alındı'),   status: 9,  icon: 'fa-check-circle',       cls: 'success' },
+        { label: localText('Site.OrderEdit.ActNotReceived', 'Teslim Alınmadı'), status: 13, icon: 'fa-exclamation-circle', cls: 'danger',  requiresReason: true }
     ]
 };
 
@@ -153,7 +153,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     constructor(props?: OrderEditDialogOptions) {
         super(props);
         this.entityId = props?.entityId!;
-        this.dialogTitle = 'Sipariş Düzenle';
+        this.dialogTitle = localText('Site.OrderEdit.DialogTitle', 'Sipariş Düzenle');
     }
 
     protected getTemplate(): string {
@@ -168,20 +168,20 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             <thead>
                 <tr>
                     <th class="oed-col-no">#</th>
-                    <th class="oed-col-product">Ürün</th>
-                    <th class="oed-col-qty">Miktar</th>
-                    <th class="oed-col-koli">Koli</th>
-                    <th class="oed-col-price">Birim Fiyat</th>
-                    <th class="oed-col-disc">İndirim %</th>
-                    <th class="oed-col-gross">Brüt Tutar</th>
-                    <th class="oed-col-net">Net Tutar</th>
-                    <th class="oed-col-status">Durum</th>
-                    <th class="oed-col-actions">İşlem</th>
+                    <th class="oed-col-product">${localText('Site.OrderEdit.ColProduct', 'Ürün')}</th>
+                    <th class="oed-col-qty">${localText('Site.OrderEdit.ColQuantity', 'Miktar')}</th>
+                    <th class="oed-col-koli">${localText('Site.OrderEdit.ColBox', 'Koli')}</th>
+                    <th class="oed-col-price">${localText('Site.OrderEdit.ColUnitPrice', 'Birim Fiyat')}</th>
+                    <th class="oed-col-disc">${localText('Site.OrderEdit.ColDiscountPct', 'İndirim %')}</th>
+                    <th class="oed-col-gross">${localText('Site.OrderEdit.ColGrossAmount', 'Brüt Tutar')}</th>
+                    <th class="oed-col-net">${localText('Site.OrderEdit.ColNetAmount', 'Net Tutar')}</th>
+                    <th class="oed-col-status">${localText('Site.OrderEdit.ColStatus', 'Durum')}</th>
+                    <th class="oed-col-actions">${localText('Site.OrderEdit.ColAction', 'İşlem')}</th>
                 </tr>
             </thead>
             <tbody id="~_TableBody">
                 <tr><td colspan="10" class="oed-loading">
-                    <i class="fa fa-spinner fa-spin"></i>&nbsp;Yükleniyor...
+                    <i class="fa fa-spinner fa-spin"></i>&nbsp;${localText('Site.OrderEdit.Loading', 'Yükleniyor...')}
                 </td></tr>
             </tbody>
         </table>
@@ -189,30 +189,30 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     <div class="oed-footer">
         <div class="oed-total-wrap">
             <div class="oed-total-row">
-                <span class="oed-total-label">Brüt Toplam</span>
+                <span class="oed-total-label">${localText('Site.OrderEdit.GrossTotal', 'Brüt Toplam')}</span>
                 <strong id="~_GrossTotal" class="oed-total-val">0,00</strong>
             </div>
             <div class="oed-total-row">
-                <span class="oed-total-label">Toplam İndirim</span>
+                <span class="oed-total-label">${localText('Site.OrderEdit.TotalDiscount', 'Toplam İndirim')}</span>
                 <strong id="~_DiscountTotal" class="oed-total-val oed-discount-val">0,00</strong>
             </div>
             <div class="oed-total-row oed-total-row--net">
-                <span class="oed-total-label">Net Toplam</span>
+                <span class="oed-total-label">${localText('Site.OrderEdit.NetTotal', 'Net Toplam')}</span>
                 <strong id="~_Total" class="oed-total-val">0,00 ₺</strong>
             </div>
         </div>
         <div class="oed-footer-actions">
             <button id="~_AddBtn" class="btn btn-primary oed-add-product-btn">
-                <i class="fa fa-shopping-basket"></i>&nbsp;Ürün Ekle
+                <i class="fa fa-shopping-basket"></i>&nbsp;${localText('Site.OrderEdit.AddProduct', 'Ürün Ekle')}
             </button>
             <button id="~_DeleteBtn" class="btn btn-danger oed-delete-btn">
-                <i class="fa fa-trash"></i>&nbsp;Sil
+                <i class="fa fa-trash"></i>&nbsp;${localText('Site.OrderEdit.Delete', 'Sil')}
             </button>
             <button id="~_SaveOnlyBtn" class="btn btn-outline-success oed-save-btn">
-                <i class="fa fa-save"></i>&nbsp;Kaydet
+                <i class="fa fa-save"></i>&nbsp;${localText('Site.OrderEdit.Save', 'Kaydet')}
             </button>
             <button id="~_SaveBtn" class="btn btn-success oed-save-btn">
-                <i class="fa fa-save"></i>&nbsp;Kaydet ve Kapat
+                <i class="fa fa-save"></i>&nbsp;${localText('Site.OrderEdit.SaveAndClose', 'Kaydet ve Kapat')}
             </button>
         </div>
     </div>
@@ -221,29 +221,29 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     <div id="~_ReviseModal" class="oed-reason-overlay" style="display:none">
         <div class="oed-reason-box oed-revise-box">
             <div class="oed-reason-head">
-                <span id="~_ReviseModalTitle" class="oed-reason-title"><i class="fa fa-pencil"></i>&nbsp;Satır Revize Et</span>
+                <span id="~_ReviseModalTitle" class="oed-reason-title"><i class="fa fa-pencil"></i>&nbsp;${localText('Site.OrderEdit.ReviseRow', 'Satır Revize Et')}</span>
                 <button id="~_ReviseModalClose" class="oed-reason-close"><i class="fa fa-times"></i></button>
             </div>
             <div class="oed-reason-body" style="padding:16px 18px">
                 <div id="~_ReviseCompare" class="oed-revise-compare"></div>
                 <div class="oed-revise-inputs">
                     <div class="oed-revise-field">
-                        <label>Onaylanan Miktar <span class="text-danger">*</span></label>
+                        <label>${localText('Site.OrderEdit.ApprovedQuantity', 'Onaylanan Miktar')} <span class="text-danger">*</span></label>
                         <input id="~_ReviseQty" type="number" class="form-control form-control-sm" min="0.001" step="1" />
                     </div>
                     <div class="oed-revise-field">
-                        <label>Koli</label>
+                        <label>${localText('Site.OrderEdit.ColBox', 'Koli')}</label>
                         <input id="~_ReviseKoli" type="number" class="form-control form-control-sm" min="1" step="1" />
                     </div>
                 </div>
                 <div class="oed-revise-note">
-                    <label>Not (isteğe bağlı)</label>
-                    <textarea id="~_ReviseNote" class="form-control" rows="2" placeholder="Revize nedeni..."></textarea>
+                    <label>${localText('Site.OrderEdit.NoteOptional', 'Not (isteğe bağlı)')}</label>
+                    <textarea id="~_ReviseNote" class="form-control" rows="2" placeholder="${localText('Site.OrderEdit.RevisePlaceholder', 'Revize nedeni...')}"></textarea>
                 </div>
             </div>
             <div class="oed-reason-foot">
-                <button id="~_ReviseModalCancel" class="btn btn-default"><i class="fa fa-times"></i>&nbsp;İptal</button>
-                <button id="~_ReviseModalConfirm" class="btn btn-warning"><i class="fa fa-pencil"></i>&nbsp;Revize Uygula</button>
+                <button id="~_ReviseModalCancel" class="btn btn-default"><i class="fa fa-times"></i>&nbsp;${localText('Site.OrderEdit.Cancel', 'İptal')}</button>
+                <button id="~_ReviseModalConfirm" class="btn btn-warning"><i class="fa fa-pencil"></i>&nbsp;${localText('Site.OrderEdit.ApplyRevise', 'Revize Uygula')}</button>
             </div>
         </div>
     </div>
@@ -252,19 +252,19 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     <div id="~_DeleteModal" class="oed-reason-overlay" style="display:none">
         <div class="oed-reason-box" style="max-width:400px">
             <div class="oed-reason-head">
-                <span class="oed-reason-title"><i class="fa fa-trash"></i>&nbsp;Siparişi Sil</span>
+                <span class="oed-reason-title"><i class="fa fa-trash"></i>&nbsp;${localText('Site.OrderEdit.DeleteOrder', 'Siparişi Sil')}</span>
                 <button id="~_DeleteModalClose" class="oed-reason-close"><i class="fa fa-times"></i></button>
             </div>
             <div class="oed-reason-body" style="padding:20px 18px;font-size:14px;color:#555;">
-                Bu siparişi silmek istediğinizden emin misiniz?<br/>
-                <strong style="color:#dc3545;">Bu işlem geri alınamaz.</strong>
+                ${localText('Site.OrderEdit.DeleteOrderConfirm', 'Bu siparişi silmek istediğinizden emin misiniz?')}<br/>
+                <strong style="color:#dc3545;">${localText('Site.OrderEdit.ActionIrreversible', 'Bu işlem geri alınamaz.')}</strong>
             </div>
             <div class="oed-reason-foot">
                 <button id="~_DeleteModalCancel" class="btn btn-default">
-                    <i class="fa fa-times"></i>&nbsp;Vazgeç
+                    <i class="fa fa-times"></i>&nbsp;${localText('Site.OrderEdit.GiveUp', 'Vazgeç')}
                 </button>
                 <button id="~_DeleteModalConfirm" class="btn btn-danger">
-                    <i class="fa fa-trash"></i>&nbsp;Evet, Sil
+                    <i class="fa fa-trash"></i>&nbsp;${localText('Site.OrderEdit.YesDelete', 'Evet, Sil')}
                 </button>
             </div>
         </div>
@@ -279,10 +279,10 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             <div id="~_ReasonModalBody" class="oed-status-modal-body"></div>
             <div class="oed-reason-foot">
                 <button id="~_ReasonModalCancel" class="btn btn-default">
-                    <i class="fa fa-times"></i>&nbsp;İptal
+                    <i class="fa fa-times"></i>&nbsp;${localText('Site.OrderEdit.Cancel', 'İptal')}
                 </button>
                 <button id="~_ReasonModalConfirm" class="btn btn-primary">
-                    <i class="fa fa-check"></i>&nbsp;Onayla
+                    <i class="fa fa-check"></i>&nbsp;${localText('Site.OrderEdit.ActApprove', 'Onayla')}
                 </button>
             </div>
         </div>
@@ -292,23 +292,23 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     <div id="~_UploadModal" class="oed-reason-overlay" style="display:none">
         <div class="oed-reason-box oed-upload-box">
             <div class="oed-reason-head">
-                <span class="oed-reason-title"><i class="fa fa-upload"></i>&nbsp;Dosya Yükle</span>
+                <span class="oed-reason-title"><i class="fa fa-upload"></i>&nbsp;${localText('Site.OrderEdit.UploadFile', 'Dosya Yükle')}</span>
                 <button id="~_UploadClose" class="oed-reason-close"><i class="fa fa-times"></i></button>
             </div>
             <div class="oed-upload-body">
                 <label id="~_UploadDropzone" class="oed-upload-dropzone">
                     <i class="fa fa-cloud-upload oed-upload-icon"></i>
-                    <span class="oed-upload-text">Dosya seçin veya sürükleyin</span>
-                    <span class="oed-upload-sub">JPG · PNG · PDF · maks. 10 MB · Çoklu seçim</span>
+                    <span class="oed-upload-text">${localText('Site.OrderEdit.UploadDropzoneText', 'Dosya seçin veya sürükleyin')}</span>
+                    <span class="oed-upload-sub">${localText('Site.OrderEdit.UploadDropzoneSub', 'JPG · PNG · PDF · maks. 10 MB · Çoklu seçim')}</span>
                     <input id="~_UploadInput" type="file" accept="image/jpeg,image/png,image/webp,application/pdf"
                            class="oed-upload-input" multiple />
                 </label>
                 <div id="~_UploadFileList" class="oed-upload-file-list"></div>
             </div>
             <div class="oed-reason-foot">
-                <button id="~_UploadCancel" class="btn btn-default">İptal</button>
+                <button id="~_UploadCancel" class="btn btn-default">${localText('Site.OrderEdit.Cancel', 'İptal')}</button>
                 <button id="~_UploadSubmit" class="btn btn-primary" disabled>
-                    <i class="fa fa-upload"></i>&nbsp;Yükle ve Kaydet
+                    <i class="fa fa-upload"></i>&nbsp;${localText('Site.OrderEdit.UploadAndSave', 'Yükle ve Kaydet')}
                 </button>
             </div>
         </div>
@@ -391,7 +391,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             ]);
             const resp = await OrderService.Retrieve({ EntityId: this.entityId });
             this.order = resp.Entity;
-            if (!this.order) { notifyError('Sipariş bulunamadı.'); return; }
+            if (!this.order) { notifyError(localText('Site.OrderEdit.OrderNotFound', 'Sipariş bulunamadı.')); return; }
 
             // Discount backend'de tutar olarak saklanır; UI her zaman oran (%) kullanır
             this.rows = (this.order.DetailList ?? []).map(row => {
@@ -403,7 +403,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             this.renderTable();
             await this.loadTransitions();
         } catch (err: any) {
-            notifyError('Sipariş yüklenemedi: ' + (err?.message || ''));
+            notifyError(localText('Site.OrderEdit.OrderLoadFailed', 'Sipariş yüklenemedi: ') + (err?.message || ''));
         }
     }
 
@@ -413,7 +413,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             this.transitions = resp?.Transitions ?? [];
         } catch (err: any) {
             this.transitions = [];
-            notifyError('Durum izinleri alınamadı: ' + (err?.message || String(err)));
+            notifyError(localText('Site.OrderEdit.TransitionsLoadFailed', 'Durum izinleri alınamadı: ') + (err?.message || String(err)));
         }
         this.renderStatusFlow();
         this.bindStepClicks();
@@ -446,7 +446,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                     });
                     const docs = (resp?.Entities ?? []).filter(d => d.IsActive !== false);
                     const viewActions: StepAction[] = docs.map((doc, i) => {
-                        const name = doc.FileName ?? `Dekont ${i + 1}`;
+                        const name = doc.FileName ?? `${localText('Site.OrderEdit.Receipt', 'Dekont')} ${i + 1}`;
                         const short = name.length > 28 ? name.substring(0, 25) + '…' : name;
                         const isPdf = doc.MimeType === 'application/pdf';
                         return {
@@ -491,26 +491,26 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             .join('');
         grid.innerHTML = `
 <div class="oed-hfield">
-    <span class="oed-hlabel">Sipariş No</span>
+    <span class="oed-hlabel">${localText('Site.OrderEdit.OrderNumber', 'Sipariş No')}</span>
     <span class="oed-hval">${htmlEncode(o.OrderNumber || '—')}</span>
 </div>
 <div class="oed-hfield">
-    <span class="oed-hlabel">Müşteri</span>
+    <span class="oed-hlabel">${localText('Site.OrderEdit.Customer', 'Müşteri')}</span>
     <span class="oed-hval">${htmlEncode(o.CustomerName || '—')}</span>
 </div>
 <div class="oed-hfield">
-    <span class="oed-hlabel">Tarih</span>
+    <span class="oed-hlabel">${localText('Site.OrderEdit.Date', 'Tarih')}</span>
     <span class="oed-hval">${o.OrderDate ? new Date(o.OrderDate).toLocaleDateString('tr-TR') : '—'}</span>
 </div>
 <div class="oed-hfield">
-    <span class="oed-hlabel"><i class="fa fa-building-o"></i>&nbsp;Depo</span>
+    <span class="oed-hlabel"><i class="fa fa-building-o"></i>&nbsp;${localText('Site.OrderEdit.Warehouse', 'Depo')}</span>
     <select class="form-control form-control-sm oed-warehouse-select oed-hwarehouse">
-        <option value="">— Depo Seçin —</option>
+        <option value="">${localText('Site.OrderEdit.SelectWarehouse', '— Depo Seçin —')}</option>
         ${warehouseOpts}
     </select>
 </div>
 <div class="oed-hfield">
-    <span class="oed-hlabel"><i class="fa fa-money"></i>&nbsp;Para Birimi</span>
+    <span class="oed-hlabel"><i class="fa fa-money"></i>&nbsp;${localText('Site.OrderEdit.Currency', 'Para Birimi')}</span>
     <select class="form-control form-control-sm oed-hcurrency">
         ${currencyOpts}
     </select>
@@ -535,10 +535,10 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             const reason = this.order.RejectReason?.trim();
             this.statusFlowEl.innerHTML = `
 <div class="oed-progress-cancelled">
-    <i class="fa fa-ban"></i>&nbsp;Sipariş İptal Edildi
+    <i class="fa fa-ban"></i>&nbsp;${localText('Site.OrderEdit.OrderCancelled', 'Sipariş İptal Edildi')}
     ${reason ? `<span class="oed-cancel-reason">"${htmlEncode(reason)}"</span>` : ''}
     <button class="btn btn-sm oed-restore-btn" id="oed-restore-btn">
-        <i class="fa fa-undo"></i>&nbsp;Geri Al
+        <i class="fa fa-undo"></i>&nbsp;${localText('Site.OrderEdit.Restore', 'Geri Al')}
     </button>
 </div>`;
             this.statusFlowEl.querySelector('#oed-restore-btn')
@@ -553,19 +553,19 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             const isLast     = idx === STEPS.length - 1;
             const stepNo     = idx + 1;
             const errMsg     = state === 'error'
-                ? (STEP_ERR_MSG[stepNo]?.[status] ?? 'Hata') : '';
+                ? (STEP_ERR_MSG[stepNo]?.[status] ?? localText('Site.OrderEdit.ErrGeneric', 'Hata')) : '';
 
             const circleIcon = state === 'done'  ? 'fa-check'
                              : state === 'error' ? 'fa-times'
                              : step.icon;
 
             // Duruma göre adım etiketi
-            const stepLabel = (stepNo === 1 && status === 14) ? 'Talep Beklemede'
-                            : (stepNo === 3 && status === 11) ? 'Dekont Bekleniyor'
-                            : (stepNo === 1 && status === 2) ? 'Onay Beklemede'
-                            : (stepNo === 2 && status === 2) ? 'Revize Edildi'
-                            : (stepNo === 5 && status === 15) ? 'Kargo Hazırlanıyor'
-                            : (stepNo === 6 && status === 8)  ? 'Teslim Bekleniyor'
+            const stepLabel = (stepNo === 1 && status === 14) ? localText('Site.OrderEdit.LblRequestPending', 'Talep Beklemede')
+                            : (stepNo === 3 && status === 11) ? localText('Site.OrderEdit.LblReceiptAwaited', 'Dekont Bekleniyor')
+                            : (stepNo === 1 && status === 2) ? localText('Site.OrderEdit.LblApprovalPending', 'Onay Beklemede')
+                            : (stepNo === 2 && status === 2) ? localText('Site.OrderEdit.LblRevised', 'Revize Edildi')
+                            : (stepNo === 5 && status === 15) ? localText('Site.OrderEdit.ActPreparingShipment', 'Kargo Hazırlanıyor')
+                            : (stepNo === 6 && status === 8)  ? localText('Site.OrderEdit.LblAwaitingDelivery', 'Teslim Bekleniyor')
                             : step.label.replace('\n', ' ');
 
             const isInteractive = state !== 'cancel';
@@ -606,10 +606,10 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                 Sort: ['-Id']
             });
             const doc = resp?.Entities?.find(d => d.DocumentType === 1 && d.IsActive !== false);
-            if (!doc?.FilePath) { notifyError('Dekont bulunamadı.'); return; }
+            if (!doc?.FilePath) { notifyError(localText('Site.OrderEdit.ReceiptNotFound', 'Dekont bulunamadı.')); return; }
             window.open('/' + doc.FilePath, '_blank');
         } catch (err: any) {
-            notifyError('Dekont açılamadı: ' + (err?.message || ''));
+            notifyError(localText('Site.OrderEdit.ReceiptOpenFailed', 'Dekont açılamadı: ') + (err?.message || ''));
         }
     }
 
@@ -681,7 +681,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     }
 
     private async restoreOrder(): Promise<void> {
-        this.pendingTransition = { Status: 1, Label: 'Talep Gönderildi', RequiresReason: false };
+        this.pendingTransition = { Status: 1, Label: localText('Site.OrderEdit.LblRequestSent', 'Talep Gönderildi'), RequiresReason: false };
         await this.executeTransition(null);
     }
 
@@ -734,7 +734,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         }
 
         if (rejected > 0)
-            notifyError(`${rejected} dosya reddedildi (yalnızca PDF/JPG/PNG, maks. 10 MB).`);
+            notifyError(`${rejected}${localText('Site.OrderEdit.FilesRejected', ' dosya reddedildi (yalnızca PDF/JPG/PNG, maks. 10 MB).')}`);
 
         this.renderFileList();
         this.uploadSubmitEl.disabled = this.selectedFiles.length === 0;
@@ -774,7 +774,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         this.uploadSubmitEl.disabled = true;
 
         // Mevcut dekont dosyalarını sil (fiziksel + DB)
-        this.uploadSubmitEl.innerHTML = '<i class="fa fa-spinner fa-spin"></i>&nbsp;Mevcut dosyalar siliniyor...';
+        this.uploadSubmitEl.innerHTML = `<i class="fa fa-spinner fa-spin"></i>&nbsp;${localText('Site.OrderEdit.DeletingExisting', 'Mevcut dosyalar siliniyor...')}`;
         try {
             const existingResp = await OrderDocumentService.List({
                 EqualityFilter: { OrderId: String(this.entityId) },
@@ -791,7 +791,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 
         for (const file of this.selectedFiles) {
             this.uploadSubmitEl.innerHTML =
-                `<i class="fa fa-spinner fa-spin"></i>&nbsp;Yükleniyor ${uploaded + 1}/${this.selectedFiles.length}...`;
+                `<i class="fa fa-spinner fa-spin"></i>&nbsp;${localText('Site.OrderEdit.Uploading', 'Yükleniyor')} ${uploaded + 1}/${this.selectedFiles.length}...`;
             try {
                 const base64 = await this.toBase64(file);
                 const resp = await fetch('/Services/Order/Order/UploadDekont', {
@@ -814,12 +814,12 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                     throw new Error(json?.Error?.Message ?? `HTTP ${resp.status}`);
                 uploaded++;
             } catch (err: any) {
-                notifyError(`"${file.name}" yüklenemedi: ${err?.message || ''}`);
+                notifyError(`"${file.name}"${localText('Site.OrderEdit.FileUploadFailed', ' yüklenemedi: ')}${err?.message || ''}`);
             }
         }
 
         if (uploaded > 0) {
-            notifySuccess(`${uploaded} dosya başarıyla yüklendi!`);
+            notifySuccess(`${uploaded}${localText('Site.OrderEdit.FilesUploadedSuccess', ' dosya başarıyla yüklendi!')}`);
             this.closeUploadModal();
             this.order!.Status = 5 as any;  // DEKONT_YUKLENDI
             this.renderHeaderGrid();
@@ -827,7 +827,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
             await this.loadTransitions();
         } else {
             this.uploadSubmitEl.disabled = false;
-            this.uploadSubmitEl.innerHTML = '<i class="fa fa-upload"></i>&nbsp;Yükle ve Kaydet';
+            this.uploadSubmitEl.innerHTML = `<i class="fa fa-upload"></i>&nbsp;${localText('Site.OrderEdit.UploadAndSave', 'Yükle ve Kaydet')}`;
         }
     }
 
@@ -844,9 +844,9 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         this.reasonModalTitleEl.innerHTML =
             `<i class="fa ${icon}"></i>&nbsp;${htmlEncode(label)}`;
         this.reasonModalBodyEl.innerHTML = `
-<label class="oed-reason-lbl">Açıklama / Neden <span class="text-danger">*</span></label>
+<label class="oed-reason-lbl">${localText('Site.OrderEdit.ReasonLabel', 'Açıklama / Neden')} <span class="text-danger">*</span></label>
 <textarea class="form-control oed-reason-textarea" rows="3"
-          placeholder="Lütfen açıklama giriniz..."></textarea>`;
+          placeholder="${localText('Site.OrderEdit.ReasonPlaceholder', 'Lütfen açıklama giriniz...')}"></textarea>`;
         this.reasonTextEl = this.reasonModalBodyEl.querySelector('textarea');
         this.reasonModalEl.style.display = 'flex';
         setTimeout(() => this.reasonTextEl?.focus(), 50);
@@ -861,7 +861,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     private confirmTransition(): void {
         const reason = this.reasonTextEl?.value?.trim();
         if (!reason) {
-            notifyWarning('Lütfen açıklama giriniz.');
+            notifyWarning(localText('Site.OrderEdit.ReasonRequired', 'Lütfen açıklama giriniz.'));
             this.reasonTextEl?.focus();
             return;
         }
@@ -875,7 +875,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         const t = this.pendingTransition;
 
         if (t.Status === 9 && !this.warehouseSelectEl?.value) {
-            notifyError('Lütfen teslim öncesi depo seçiniz.');
+            notifyError(localText('Site.OrderEdit.SelectWarehouseBeforeDelivery', 'Lütfen teslim öncesi depo seçiniz.'));
             this.pendingTransition = null;
             return;
         }
@@ -906,14 +906,14 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                     DetailList:   rowsToSave
                 }
             });
-            notifySuccess(`Durum "${t.Label}" olarak güncellendi.`);
+            notifySuccess(`${localText('Site.OrderEdit.StatusUpdatedPrefix', 'Durum "')}${t.Label}${localText('Site.OrderEdit.StatusUpdatedSuffix', '" olarak güncellendi.')}`);
             this.order.Status = t.Status as any;
             if (reason) this.order.RejectReason = reason;
             this.renderHeaderGrid();
             this.options?.onSave?.();
             await this.loadTransitions();
         } catch (err: any) {
-            notifyError('Durum değiştirilemedi: ' + (err?.message || ''));
+            notifyError(localText('Site.OrderEdit.StatusChangeFailed', 'Durum değiştirilemedi: ') + (err?.message || ''));
             this.statusFlowEl.querySelectorAll<HTMLElement>('.oed-ps-loading')
                 .forEach(el => el.classList.remove('oed-ps-loading'));
         }
@@ -943,18 +943,18 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     }
 
     private lineBadge(status: number | undefined | null): string {
-        if (status == null) return '<span class="oed-line-badge oed-line-badge-pending">Bekliyor</span>';
-        if (status === 1)   return '<span class="oed-line-badge oed-line-badge-approved">Onaylandı</span>';
-        if (status === 2)   return '<span class="oed-line-badge oed-line-badge-rejected">Reddedildi</span>';
-        if (status === 3)   return '<span class="oed-line-badge oed-line-badge-revised">Revize</span>';
-        return '<span class="oed-line-badge oed-line-badge-pending">Bekliyor</span>';
+        if (status == null) return `<span class="oed-line-badge oed-line-badge-pending">${localText('Site.OrderEdit.BadgePending', 'Bekliyor')}</span>`;
+        if (status === 1)   return `<span class="oed-line-badge oed-line-badge-approved">${localText('Site.OrderEdit.StepApproved', 'Onaylandı')}</span>`;
+        if (status === 2)   return `<span class="oed-line-badge oed-line-badge-rejected">${localText('Site.OrderEdit.ErrRejected', 'Reddedildi')}</span>`;
+        if (status === 3)   return `<span class="oed-line-badge oed-line-badge-revised">${localText('Site.OrderEdit.BadgeRevise', 'Revize')}</span>`;
+        return `<span class="oed-line-badge oed-line-badge-pending">${localText('Site.OrderEdit.BadgePending', 'Bekliyor')}</span>`;
     }
 
     private renderTable(): void {
         if (!this.tableBodyEl) return;
         if (this.rows.length === 0) {
             this.tableBodyEl.innerHTML =
-                '<tr><td colspan="10" class="oed-empty">Sipariş kalemi yok.</td></tr>';
+                `<tr><td colspan="10" class="oed-empty">${localText('Site.OrderEdit.NoOrderItems', 'Sipariş kalemi yok.')}</td></tr>`;
             this.updateTotal();
             return;
         }
@@ -998,7 +998,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     <td class="oed-col-koli">
         <input type="number" class="form-control form-control-sm oed-num oed-koli"
                data-idx="${idx}" data-packing="${packingQty}" value="${boxCount}" min="1" step="1" />
-        ${packingQty > 1 ? `<small class="oed-koli-hint">${packingQty} adet/koli</small>` : ''}
+        ${packingQty > 1 ? `<small class="oed-koli-hint">${packingQty}${localText('Site.OrderEdit.UnitsPerBox', ' adet/koli')}</small>` : ''}
         ${koliExtra}
     </td>
     <td class="oed-col-price">
@@ -1012,16 +1012,16 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
     <td class="oed-col-net oed-line-total" data-idx="${idx}">${this.fmt(net)}&nbsp;${this.currencySymbol}</td>
     <td class="oed-col-status">${this.lineBadge(row.LineStatus)}</td>
     <td class="oed-col-actions">
-        <button class="oed-act-btn oed-act-approve" data-idx="${idx}" title="Onayla">
+        <button class="oed-act-btn oed-act-approve" data-idx="${idx}" title="${localText('Site.OrderEdit.ActApprove', 'Onayla')}">
             <i class="fa fa-check"></i>
         </button>
-        <button class="oed-act-btn oed-act-reject" data-idx="${idx}" title="Reddet">
+        <button class="oed-act-btn oed-act-reject" data-idx="${idx}" title="${localText('Site.OrderEdit.ActReject', 'Reddet')}">
             <i class="fa fa-times"></i>
         </button>
-        <button class="oed-act-btn oed-act-revise" data-idx="${idx}" title="Revize Et">
+        <button class="oed-act-btn oed-act-revise" data-idx="${idx}" title="${localText('Site.OrderEdit.ReviseEt', 'Revize Et')}">
             <i class="fa fa-pencil"></i>
         </button>
-        <button class="oed-act-btn oed-act-delete" data-idx="${idx}" title="Sil">
+        <button class="oed-act-btn oed-act-delete" data-idx="${idx}" title="${localText('Site.OrderEdit.Delete', 'Sil')}">
             <i class="fa fa-trash-o"></i>
         </button>
     </td>
@@ -1132,16 +1132,16 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         this.pendingReviseIdx = idx;
 
         (this.byId('ReviseModalTitle')?.getNode() as HTMLElement).innerHTML =
-            `<i class="fa fa-pencil"></i>&nbsp;Revize Et — ${htmlEncode(name)}`;
+            `<i class="fa fa-pencil"></i>&nbsp;${localText('Site.OrderEdit.ReviseEt', 'Revize Et')} — ${htmlEncode(name)}`;
 
         this.reviseCompareEl.innerHTML = `
 <div class="oed-revise-side">
-    <div class="oed-revise-side-lbl">Talep Edilen</div>
+    <div class="oed-revise-side-lbl">${localText('Site.OrderEdit.Requested', 'Talep Edilen')}</div>
     <div class="oed-revise-side-val old">${origQty}</div>
 </div>
 <div class="oed-revise-arrow"><i class="fa fa-arrow-right"></i></div>
 <div class="oed-revise-side">
-    <div class="oed-revise-side-lbl">Onaylanan</div>
+    <div class="oed-revise-side-lbl">${localText('Site.OrderEdit.Approved', 'Onaylanan')}</div>
     <div id="oed-revise-preview" class="oed-revise-side-val new">${curQty}</div>
 </div>`;
 
@@ -1182,7 +1182,7 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
 
         const newQty = parseFloat(this.reviseQtyEl.value);
         if (!newQty || newQty <= 0) {
-            notifyWarning('Geçerli bir miktar giriniz.');
+            notifyWarning(localText('Site.OrderEdit.EnterValidQuantity', 'Geçerli bir miktar giriniz.'));
             this.reviseQtyEl.focus();
             return;
         }
@@ -1233,8 +1233,8 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         const modal = this.byId('DeleteModal')?.getNode() as HTMLElement;
         const body  = modal?.querySelector('.oed-reason-body') as HTMLElement;
         if (body) body.innerHTML =
-            'Bu siparişi silmek istediğinizden emin misiniz?<br/>' +
-            '<strong style="color:#dc3545;">Bu işlem geri alınamaz.</strong>';
+            localText('Site.OrderEdit.DeleteOrderConfirm', 'Bu siparişi silmek istediğinizden emin misiniz?') + '<br/>' +
+            `<strong style="color:#dc3545;">${localText('Site.OrderEdit.ActionIrreversible', 'Bu işlem geri alınamaz.')}</strong>`;
         modal.style.display = 'flex';
     }
 
@@ -1242,11 +1242,11 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         this.pendingDeleteRowIdx = idx;
         const row     = this.rows[idx];
         const product = row?.ProductId ? this.productLookup?.itemById[row.ProductId] : null;
-        const name    = product ? `${product.Code || ''} - ${product.Name || ''}` : `Satır ${idx + 1}`;
+        const name    = product ? `${product.Code || ''} - ${product.Name || ''}` : `${localText('Site.OrderEdit.Row', 'Satır')} ${idx + 1}`;
         const modal = this.byId('DeleteModal')?.getNode() as HTMLElement;
         const body  = modal?.querySelector('.oed-reason-body') as HTMLElement;
         if (body) body.innerHTML =
-            `<strong>${htmlEncode(name)}</strong> satırını silmek istediğinize emin misiniz?`;
+            `<strong>${htmlEncode(name)}</strong>${localText('Site.OrderEdit.DeleteRowConfirmSuffix', ' satırını silmek istediğinize emin misiniz?')}`;
         modal.style.display = 'flex';
     }
 
@@ -1267,21 +1267,21 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
         // Sipariş silme
         this.closeDeleteModal();
         const confirmBtn = this.byId('DeleteModalConfirm')?.getNode() as HTMLButtonElement;
-        if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>&nbsp;Siliniyor...'; }
+        if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i>&nbsp;${localText('Site.OrderEdit.Deleting', 'Siliniyor...')}`; }
         try {
             await OrderService.Delete({ EntityId: this.entityId });
-            notifySuccess('Sipariş başarıyla silindi.');
+            notifySuccess(localText('Site.OrderEdit.OrderDeletedSuccess', 'Sipariş başarıyla silindi.'));
             this.options?.onSave?.();
             this.dialogClose();
         } catch (err: any) {
-            notifyError('Sipariş silinemedi: ' + (err?.message || ''));
-            if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.innerHTML = '<i class="fa fa-trash"></i>&nbsp;Evet, Sil'; }
+            notifyError(localText('Site.OrderEdit.OrderDeleteFailed', 'Sipariş silinemedi: ') + (err?.message || ''));
+            if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.innerHTML = `<i class="fa fa-trash"></i>&nbsp;${localText('Site.OrderEdit.YesDelete', 'Evet, Sil')}`; }
         }
     }
 
     private async saveOrder(andClose = false): Promise<void> {
         if (!this.order) return;
-        if (this.rows.length === 0) { notifyWarning('Sipariş kalemlerini doldurun.'); return; }
+        if (this.rows.length === 0) { notifyWarning(localText('Site.OrderEdit.FillOrderItems', 'Sipariş kalemlerini doldurun.')); return; }
         const total = this.rows.reduce((s, r) => s + (r.LineTotal ?? 0), 0);
         const wid   = this.warehouseSelectEl?.value ? parseInt(this.warehouseSelectEl.value) : undefined;
         // UI oranı (%) → backend tutarına (TL) dönüştür
@@ -1294,11 +1294,11 @@ export class OrderEditDialog extends TemplatedDialog<OrderEditDialogOptions> {
                 EntityId: this.entityId,
                 Entity: { ...this.order, WarehouseId: wid, CurrencyId: this.currencySelectEl?.value ? parseInt(this.currencySelectEl.value) : undefined, TotalAmount: total, NetAmount: total, DetailList: rowsToSave }
             });
-            notifySuccess('Sipariş başarıyla güncellendi!');
+            notifySuccess(localText('Site.OrderEdit.OrderUpdatedSuccess', 'Sipariş başarıyla güncellendi!'));
             this.options?.onSave?.();
             if (andClose) this.dialogClose();
         } catch (err: any) {
-            notifyError('Güncelleme sırasında hata: ' + (err?.message || ''));
+            notifyError(localText('Site.OrderEdit.UpdateError', 'Güncelleme sırasında hata: ') + (err?.message || ''));
         }
     }
 

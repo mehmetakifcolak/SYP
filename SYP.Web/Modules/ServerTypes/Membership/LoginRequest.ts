@@ -3,4 +3,5 @@
 export interface LoginRequest extends ServiceRequest {
     Username?: string;
     Password?: string;
+    RememberMe?: boolean;
 }

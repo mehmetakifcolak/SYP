@@ -1,28 +1,29 @@
 @model SYP.Common.DashboardPageModel
 @inject ITextLocalizer Localizer
 @{
-    ViewData["Title"] = Model.IsBayii ? "Sipariş Durumlarım" : "Dashboard";
+    ViewData["Title"] = Model.IsBayii ? (Localizer.TryGet("Site.Dashboard.MyOrderStatuses") ?? "Sipariş Durumlarım") : "Dashboard";
     ViewData["PageId"] = "Dashboard";
 }
+@functions { string T(string key, string fallback) => Localizer.TryGet(key) ?? fallback; }
 
 @if (Model.IsBayii)
 {
     var statusInfo = new Dictionary<int, (string Name, string Icon, string Badge, string BarColor)>
     {
-        { 1,  ("Talep Gönderildi",    "fa-paper-plane",   "bg-info",      "#4facfe") },
-        { 2,  ("Revize Edildi",       "fa-edit",          "bg-warning text-dark", "#f5a623") },
-        { 3,  ("Bayi Onayladı",       "fa-thumbs-up",     "bg-success",   "#11998e") },
-        { 4,  ("Bayi Reddetti",       "fa-thumbs-down",   "bg-danger",    "#eb3349") },
-        { 5,  ("Dekont Yüklendi",     "fa-file-upload",   "bg-info",      "#4facfe") },
-        { 6,  ("Dekont Reddedildi",   "fa-times-circle",  "bg-danger",    "#eb3349") },
-        { 7,  ("Hazırlanıyor",        "fa-box",           "bg-primary",   "#667eea") },
-        { 8,  ("Sevk Aşamasında",     "fa-truck",         "bg-info",      "#00c6ff") },
-        { 9,  ("Teslim Alındı",       "fa-check-circle",  "bg-success",   "#38ef7d") },
-        { 10, ("Talep İptal",         "fa-ban",           "bg-danger",    "#eb3349") },
-        { 11, ("Temsilci Onayladı",   "fa-user-check",    "bg-success",   "#11998e") },
-        { 12, ("Dekont Onaylandı",    "fa-check",         "bg-teal",      "#49a09d") },
-        { 13, ("Teslim Alınmadı",     "fa-exclamation",   "bg-danger",    "#f45c43") },
-        { 14, ("Talep Beklette",      "fa-clock",         "bg-secondary", "#aaa")    },
+        { 1,  ((Localizer.TryGet("Site.Dashboard.StatusRequestSent") ?? "Talep Gönderildi"),    "fa-paper-plane",   "bg-info",      "#4facfe") },
+        { 2,  ((Localizer.TryGet("Site.Dashboard.StatusRevised") ?? "Revize Edildi"),       "fa-edit",          "bg-warning text-dark", "#f5a623") },
+        { 3,  ((Localizer.TryGet("Site.Dashboard.StatusDealerApproved") ?? "Bayi Onayladı"),       "fa-thumbs-up",     "bg-success",   "#11998e") },
+        { 4,  ((Localizer.TryGet("Site.Dashboard.StatusDealerRejected") ?? "Bayi Reddetti"),       "fa-thumbs-down",   "bg-danger",    "#eb3349") },
+        { 5,  ((Localizer.TryGet("Site.Dashboard.StatusReceiptUploaded") ?? "Dekont Yüklendi"),     "fa-file-upload",   "bg-info",      "#4facfe") },
+        { 6,  ((Localizer.TryGet("Site.Dashboard.StatusReceiptRejected") ?? "Dekont Reddedildi"),   "fa-times-circle",  "bg-danger",    "#eb3349") },
+        { 7,  ((Localizer.TryGet("Site.Dashboard.StatusPreparing") ?? "Hazırlanıyor"),        "fa-box",           "bg-primary",   "#667eea") },
+        { 8,  ((Localizer.TryGet("Site.Dashboard.StatusShipping") ?? "Sevk Aşamasında"),     "fa-truck",         "bg-info",      "#00c6ff") },
+        { 9,  ((Localizer.TryGet("Site.Dashboard.StatusDelivered") ?? "Teslim Alındı"),       "fa-check-circle",  "bg-success",   "#38ef7d") },
+        { 10, ((Localizer.TryGet("Site.Dashboard.StatusRequestCancelled") ?? "Talep İptal"),         "fa-ban",           "bg-danger",    "#eb3349") },
+        { 11, ((Localizer.TryGet("Site.Dashboard.StatusRepApproved") ?? "Temsilci Onayladı"),   "fa-user-check",    "bg-success",   "#11998e") },
+        { 12, ((Localizer.TryGet("Site.Dashboard.StatusReceiptApproved") ?? "Dekont Onaylandı"),    "fa-check",         "bg-teal",      "#49a09d") },
+        { 13, ((Localizer.TryGet("Site.Dashboard.StatusNotDelivered") ?? "Teslim Alınmadı"),     "fa-exclamation",   "bg-danger",    "#f45c43") },
+        { 14, ((Localizer.TryGet("Site.Dashboard.StatusRequestOnHold") ?? "Talep Beklette"),      "fa-clock",         "bg-secondary", "#aaa")    },
     };
 
     string StatusName(int s) => statusInfo.TryGetValue(s, out var v) ? v.Name : s.ToString();
@@ -125,7 +126,7 @@
     <div class="bo-header" style="padding: 18px 20px 0; display:flex; align-items:center; gap:10px;">
         <i class="fa fa-clipboard-list" style="font-size:22px; color:#667eea;"></i>
         <div>
-            <h4 style="margin:0; font-size:18px; font-weight:700;">Sipariş Durumlarım</h4>
+            <h4 style="margin:0; font-size:18px; font-weight:700;">@T("Site.Dashboard.MyOrderStatuses", "Sipariş Durumlarım")</h4>
             @if (!string.IsNullOrEmpty(Model.BayiCustomerName))
             {
                 <div style="font-size:12px; color:#6c757d;">@Model.BayiCustomerName</div>
@@ -136,27 +137,27 @@
     <div class="bo-stats">
         <div class="bo-card blue">
             <div class="val">@Model.BayiTotalOrders</div>
-            <div class="lbl">Toplam Sipariş</div>
+            <div class="lbl">@T("Site.Dashboard.TotalOrders", "Toplam Sipariş")</div>
             <i class="fa fa-shopping-cart icon"></i>
         </div>
         <div class="bo-card orange">
             <div class="val">@Model.BayiActiveOrders</div>
-            <div class="lbl">Aktif Sipariş</div>
+            <div class="lbl">@T("Site.Dashboard.ActiveOrders", "Aktif Sipariş")</div>
             <i class="fa fa-spinner icon"></i>
         </div>
         <div class="bo-card cyan">
             <div class="val">@Model.BayiPendingApproval</div>
-            <div class="lbl">Onay Bekliyor</div>
+            <div class="lbl">@T("Site.Dashboard.PendingApproval", "Onay Bekliyor")</div>
             <i class="fa fa-hourglass-half icon"></i>
         </div>
         <div class="bo-card green">
             <div class="val">@Model.BayiDeliveredOrders</div>
-            <div class="lbl">Teslim Alındı</div>
+            <div class="lbl">@T("Site.Dashboard.StatusDelivered", "Teslim Alındı")</div>
             <i class="fa fa-check-circle icon"></i>
         </div>
         <div class="bo-card red">
             <div class="val">@Model.BayiCancelledOrders</div>
-            <div class="lbl">İptal / Red</div>
+            <div class="lbl">@T("Site.Dashboard.CancelledRejected", "İptal / Red")</div>
             <i class="fa fa-ban icon"></i>
         </div>
     </div>
@@ -164,7 +165,7 @@
     <div class="bo-grid">
         <div class="bo-section">
             <div class="bo-section-head">
-                <span><i class="fa fa-chart-bar me-2"></i>Durum Dağılımı</span>
+                <span><i class="fa fa-chart-bar me-2"></i>@T("Site.Dashboard.StatusDistribution", "Durum Dağılımı")</span>
             </div>
             <div class="bo-section-body">
                 @if (Model.BayiStatusCounts.Any())
@@ -186,14 +187,14 @@
                 }
                 else
                 {
-                    <div class="no-data"><i class="fa fa-inbox"></i>Henüz sipariş yok</div>
+                    <div class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoOrdersYet", "Henüz sipariş yok")</div>
                 }
             </div>
         </div>
 
         <div class="bo-section">
             <div class="bo-section-head">
-                <span><i class="fa fa-tasks me-2"></i>Devam Eden Siparişler</span>
+                <span><i class="fa fa-tasks me-2"></i>@T("Site.Dashboard.OngoingOrders", "Devam Eden Siparişler")</span>
                 <span class="badge bg-primary" style="font-size:11px;">@activeOrders.Count</span>
             </div>
             <div class="bo-section-body">
@@ -225,7 +226,7 @@
                 else
                 {
                     <div class="no-data" style="color:#2e7d32;">
-                        <i class="fa fa-check-circle"></i>Devam eden sipariş yok
+                        <i class="fa fa-check-circle"></i>@T("Site.Dashboard.NoOngoingOrders", "Devam eden sipariş yok")
                     </div>
                 }
             </div>
@@ -235,9 +236,9 @@
     <div style="padding: 0 20px 20px;">
         <div class="bo-section full">
             <div class="bo-section-head">
-                <span><i class="fa fa-list-alt me-2"></i>Tüm Siparişlerim</span>
+                <span><i class="fa fa-list-alt me-2"></i>@T("Site.Dashboard.AllMyOrders", "Tüm Siparişlerim")</span>
                 <a href="/Order/Order" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
-                    <i class="fa fa-external-link-alt me-1"></i>Sipariş Ekranı
+                    <i class="fa fa-external-link-alt me-1"></i>@T("Site.Dashboard.OrderScreen", "Sipariş Ekranı")
                 </a>
             </div>
             <div class="bo-section-body" style="padding:0;">
@@ -247,11 +248,11 @@
                     <table class="orders-table">
                         <thead>
                             <tr>
-                                <th>Sipariş No</th>
-                                <th>Tarih</th>
-                                <th style="text-align:right;">Tutar</th>
-                                <th>Durum</th>
-                                <th style="text-align:center; width:60px;">İlerleme</th>
+                                <th>@T("Site.Dashboard.OrderNo", "Sipariş No")</th>
+                                <th>@T("Site.Dashboard.Date", "Tarih")</th>
+                                <th style="text-align:right;">@T("Site.Dashboard.Amount", "Tutar")</th>
+                                <th>@T("Site.Dashboard.Status", "Durum")</th>
+                                <th style="text-align:center; width:60px;">@T("Site.Dashboard.Progress", "İlerleme")</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -296,7 +297,7 @@
                 }
                 else
                 {
-                    <div class="no-data"><i class="fa fa-inbox"></i>Henüz sipariş bulunmuyor</div>
+                    <div class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoOrdersFound", "Henüz sipariş bulunmuyor")</div>
                 }
             </div>
         </div>
@@ -537,32 +538,32 @@ else
 <div class="dashboard-stats">
     <div class="stat-card blue">
         <div class="stat-value">@Model.TotalDealers</div>
-        <div class="stat-label">Toplam Bayi</div>
+        <div class="stat-label">@T("Site.Dashboard.TotalDealers", "Toplam Bayi")</div>
         <i class="fa fa-users icon"></i>
     </div>
     <div class="stat-card green">
         <div class="stat-value">@Model.ActiveDealers</div>
-        <div class="stat-label">Aktif Bayi</div>
+        <div class="stat-label">@T("Site.Dashboard.ActiveDealers", "Aktif Bayi")</div>
         <i class="fa fa-user-check icon"></i>
     </div>
     <div class="stat-card cyan">
         <div class="stat-value">@Model.TotalProducts</div>
-        <div class="stat-label">Toplam Ürün</div>
+        <div class="stat-label">@T("Site.Dashboard.TotalProducts", "Toplam Ürün")</div>
         <i class="fa fa-box icon"></i>
     </div>
     <div class="stat-card purple">
         <div class="stat-value">@Model.TotalWarehouses</div>
-        <div class="stat-label">Depo Sayısı</div>
+        <div class="stat-label">@T("Site.Dashboard.WarehouseCount", "Depo Sayısı")</div>
         <i class="fa fa-warehouse icon"></i>
     </div>
     <div class="stat-card teal">
         <div class="stat-value">@Model.TotalStockValue.ToString("N0") ₺</div>
-        <div class="stat-label">Toplam Stok Değeri</div>
+        <div class="stat-label">@T("Site.Dashboard.TotalStockValue", "Toplam Stok Değeri")</div>
         <i class="fa fa-coins icon"></i>
     </div>
     <div class="stat-card orange">
         <div class="stat-value">@Model.ActivePriceLists</div>
-        <div class="stat-label">Aktif Fiyat Listesi</div>
+        <div class="stat-label">@T("Site.Dashboard.ActivePriceLists", "Aktif Fiyat Listesi")</div>
         <i class="fa fa-tags icon"></i>
     </div>
 </div>
@@ -571,32 +572,32 @@ else
     <!-- Stok Hareket Özeti -->
     <div class="dashboard-section">
         <div class="section-header">
-            <h4><i class="fa fa-exchange-alt me-2"></i>Stok Hareket Özeti</h4>
+            <h4><i class="fa fa-exchange-alt me-2"></i>@T("Site.Dashboard.StockMovementSummary", "Stok Hareket Özeti")</h4>
         </div>
         <div class="section-body">
             <div style="margin-bottom: 15px;">
-                <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">BUGÜN</div>
+                <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">@T("Site.Dashboard.Today", "BUGÜN")</div>
                 <div class="movement-summary">
                     <div class="movement-box entry">
                         <div class="count">@Model.TodayEntries</div>
-                        <div class="label">Giriş</div>
+                        <div class="label">@T("Site.Dashboard.In", "Giriş")</div>
                     </div>
                     <div class="movement-box exit">
                         <div class="count">@Model.TodayExits</div>
-                        <div class="label">Çıkış</div>
+                        <div class="label">@T("Site.Dashboard.Out", "Çıkış")</div>
                     </div>
                 </div>
             </div>
             <div>
-                <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">SON 7 GÜN</div>
+                <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">@T("Site.Dashboard.Last7Days", "SON 7 GÜN")</div>
                 <div class="movement-summary">
                     <div class="movement-box entry">
                         <div class="count">@Model.WeekEntries</div>
-                        <div class="label">Giriş</div>
+                        <div class="label">@T("Site.Dashboard.In", "Giriş")</div>
                     </div>
                     <div class="movement-box exit">
                         <div class="count">@Model.WeekExits</div>
-                        <div class="label">Çıkış</div>
+                        <div class="label">@T("Site.Dashboard.Out", "Çıkış")</div>
                     </div>
                 </div>
             </div>
@@ -606,7 +607,7 @@ else
     <!-- Depo Bazlı Stok -->
     <div class="dashboard-section">
         <div class="section-header">
-            <h4><i class="fa fa-warehouse me-2"></i>Depo Bazlı Stok</h4>
+            <h4><i class="fa fa-warehouse me-2"></i>@T("Site.Dashboard.StockByWarehouse", "Depo Bazlı Stok")</h4>
         </div>
         <div class="section-body">
             @if (Model.StockByWarehouse.Any())
@@ -620,7 +621,7 @@ else
                     <div class="progress-item">
                         <div class="progress-label">
                             <span>@item.WarehouseName</span>
-                            <span>@item.TotalQuantity.ToString("N0") adet (@item.ProductCount ürün)</span>
+                            <span>@item.TotalQuantity.ToString("N0") @T("Site.Dashboard.UnitPcs","adet") (@item.ProductCount @T("Site.Dashboard.ProductLower","ürün"))</span>
                         </div>
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill" style="width: @pct%; background: @colors[i % colors.Length];"></div>
@@ -631,7 +632,7 @@ else
             }
             else
             {
-                <div class="no-data"><i class="fa fa-inbox"></i>Veri yok</div>
+                <div class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoData", "Veri yok")</div>
             }
         </div>
     </div>
@@ -639,7 +640,7 @@ else
     <!-- Döviz Kurları -->
     <div class="dashboard-section">
         <div class="section-header">
-            <h4><i class="fa fa-money-bill-wave me-2"></i>Güncel Döviz Kurları</h4>
+            <h4><i class="fa fa-money-bill-wave me-2"></i>@T("Site.Dashboard.CurrentExchangeRates", "Güncel Döviz Kurları")</h4>
         </div>
         <div class="section-body">
             @if (Model.ExchangeRates.Any())
@@ -649,8 +650,8 @@ else
                     <div class="rate-item">
                         <div class="rate-currency">@rate.CurrencyCode</div>
                         <div class="rate-values">
-                            <div class="rate-value"><span>Alış:</span> @(rate.ForexBuying?.ToString("N4") ?? "-")</div>
-                            <div class="rate-value"><span>Satış:</span> @(rate.ForexSelling?.ToString("N4") ?? "-")</div>
+                            <div class="rate-value"><span>@T("Site.Dashboard.Buy", "Alış"):</span> @(rate.ForexBuying?.ToString("N4") ?? "-")</div>
+                            <div class="rate-value"><span>@T("Site.Dashboard.Sell", "Satış"):</span> @(rate.ForexSelling?.ToString("N4") ?? "-")</div>
                         </div>
                     </div>
                 }
@@ -660,7 +661,7 @@ else
             }
             else
             {
-                <div class="no-data"><i class="fa fa-inbox"></i>Kur verisi yok</div>
+                <div class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoExchangeRateData", "Kur verisi yok")</div>
             }
         </div>
     </div>
@@ -668,7 +669,7 @@ else
     <!-- Düşük Stok Uyarısı -->
     <div class="dashboard-section">
         <div class="section-header">
-            <h4><i class="fa fa-exclamation-triangle me-2 text-warning"></i>Düşük Stok Uyarısı</h4>
+            <h4><i class="fa fa-exclamation-triangle me-2 text-warning"></i>@T("Site.Dashboard.LowStockAlert", "Düşük Stok Uyarısı")</h4>
         </div>
         <div class="section-body">
             @if (Model.LowStockAlerts.Any())
@@ -687,7 +688,7 @@ else
             }
             else
             {
-                <div class="no-data" style="color: #2e7d32;"><i class="fa fa-check-circle"></i>Düşük stok yok</div>
+                <div class="no-data" style="color: #2e7d32;"><i class="fa fa-check-circle"></i>@T("Site.Dashboard.NoLowStock", "Düşük stok yok")</div>
             }
         </div>
     </div>
@@ -695,7 +696,7 @@ else
     <!-- Kategori Bazlı Ürün -->
     <div class="dashboard-section">
         <div class="section-header">
-            <h4><i class="fa fa-sitemap me-2"></i>Kategori Bazlı Ürünler</h4>
+            <h4><i class="fa fa-sitemap me-2"></i>@T("Site.Dashboard.ProductsByCategory", "Kategori Bazlı Ürünler")</h4>
         </div>
         <div class="section-body">
             @if (Model.ProductsByCategory.Any())
@@ -720,7 +721,7 @@ else
             }
             else
             {
-                <div class="no-data"><i class="fa fa-inbox"></i>Veri yok</div>
+                <div class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoData", "Veri yok")</div>
             }
         </div>
     </div>
@@ -728,7 +729,7 @@ else
     <!-- Marka Bazlı Ürün -->
     <div class="dashboard-section">
         <div class="section-header">
-            <h4><i class="fa fa-tags me-2"></i>Marka Bazlı Ürünler</h4>
+            <h4><i class="fa fa-tags me-2"></i>@T("Site.Dashboard.ProductsByBrand", "Marka Bazlı Ürünler")</h4>
         </div>
         <div class="section-body">
             @if (Model.ProductsByBrand.Any())
@@ -753,7 +754,7 @@ else
             }
             else
             {
-                <div class="no-data"><i class="fa fa-inbox"></i>Veri yok</div>
+                <div class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoData", "Veri yok")</div>
             }
         </div>
     </div>
@@ -763,7 +764,7 @@ else
     <!-- En Çok Hareket Gören Ürünler -->
     <div class="dashboard-section">
         <div class="section-header">
-            <h4><i class="fa fa-fire me-2 text-danger"></i>En Çok Hareket Gören Ürünler (30 Gün)</h4>
+            <h4><i class="fa fa-fire me-2 text-danger"></i>@T("Site.Dashboard.TopMovingProducts", "En Çok Hareket Gören Ürünler (30 Gün)")</h4>
         </div>
         <div class="section-body">
             @if (Model.TopMovingProducts.Any())
@@ -772,9 +773,9 @@ else
                 <table class="mini-table">
                     <thead>
                         <tr>
-                            <th>Ürün</th>
-                            <th style="text-align:right;">Hareket</th>
-                            <th style="text-align:right;">Miktar</th>
+                            <th>@T("Site.Dashboard.Product", "Ürün")</th>
+                            <th style="text-align:right;">@T("Site.Dashboard.Movement", "Hareket")</th>
+                            <th style="text-align:right;">@T("Site.Dashboard.Quantity", "Miktar")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -795,7 +796,7 @@ else
             }
             else
             {
-                <div class="no-data"><i class="fa fa-inbox"></i>Veri yok</div>
+                <div class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoData", "Veri yok")</div>
             }
         </div>
     </div>
@@ -803,7 +804,7 @@ else
     <!-- Süresi Dolacak Fiyat Listeleri -->
     <div class="dashboard-section">
         <div class="section-header">
-            <h4><i class="fa fa-clock me-2 text-warning"></i>Süresi Dolacak Fiyat Listeleri</h4>
+            <h4><i class="fa fa-clock me-2 text-warning"></i>@T("Site.Dashboard.ExpiringPriceLists", "Süresi Dolacak Fiyat Listeleri")</h4>
         </div>
         <div class="section-body">
             @if (Model.ExpiringPriceListDetails.Any())
@@ -812,10 +813,10 @@ else
                 <table class="mini-table">
                     <thead>
                         <tr>
-                            <th>Kod</th>
-                            <th>Ad</th>
-                            <th style="text-align:right;">Bitiş</th>
-                            <th style="text-align:right;">Kalan</th>
+                            <th>@T("Site.Dashboard.Code", "Kod")</th>
+                            <th>@T("Site.Dashboard.Name", "Ad")</th>
+                            <th style="text-align:right;">@T("Site.Dashboard.EndDate", "Bitiş")</th>
+                            <th style="text-align:right;">@T("Site.Dashboard.Remaining", "Kalan")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -827,7 +828,7 @@ else
                                 <td>@item.Name</td>
                                 <td style="text-align:right;">@item.ValidTo?.ToString("dd.MM.yyyy")</td>
                                 <td style="text-align:right;">
-                                    <span class="badge @badgeClass">@item.DaysLeft gün</span>
+                                    <span class="badge @badgeClass">@item.DaysLeft @T("Site.Dashboard.Days","gün")</span>
                                 </td>
                             </tr>
                         }
@@ -837,7 +838,7 @@ else
             }
             else
             {
-                <div class="no-data" style="color: #2e7d32;"><i class="fa fa-check-circle"></i>Yakında sona erecek fiyat listesi yok</div>
+                <div class="no-data" style="color: #2e7d32;"><i class="fa fa-check-circle"></i>@T("Site.Dashboard.NoExpiringPriceLists", "Yakında sona erecek fiyat listesi yok")</div>
             }
         </div>
     </div>
@@ -847,20 +848,20 @@ else
     <!-- Son Stok Hareketleri -->
     <div class="dashboard-section full-width">
         <div class="section-header">
-            <h4><i class="fa fa-exchange-alt me-2"></i>Son Stok Hareketleri</h4>
-            <a href="/Warehouse/StockMovements" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
+            <h4><i class="fa fa-exchange-alt me-2"></i>@T("Site.Dashboard.RecentStockMovements", "Son Stok Hareketleri")</h4>
+            <a href="/Warehouse/StockMovements" class="btn btn-sm btn-outline-primary">@T("Site.Dashboard.ViewAll", "Tümünü Gör")</a>
         </div>
         <div class="section-body" style="padding: 0;">
             <div class="mini-table-wrapper">
             <table class="mini-table">
                 <thead>
                     <tr>
-                        <th style="width:80px;">Tip</th>
-                        <th style="width:100px;">Fiş No</th>
-                        <th style="width:130px;">Tarih</th>
-                        <th>Depo</th>
-                        <th>Ürün</th>
-                        <th style="text-align:right;width:80px;">Miktar</th>
+                        <th style="width:80px;">@T("Site.Dashboard.Type", "Tip")</th>
+                        <th style="width:100px;">@T("Site.Dashboard.DocumentNo", "Fiş No")</th>
+                        <th style="width:130px;">@T("Site.Dashboard.Date", "Tarih")</th>
+                        <th>@T("Site.Dashboard.Warehouse", "Depo")</th>
+                        <th>@T("Site.Dashboard.Product", "Ürün")</th>
+                        <th style="text-align:right;width:80px;">@T("Site.Dashboard.Quantity", "Miktar")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -872,11 +873,11 @@ else
                                 <td>
                                     @if (item.MovementType == "Entry")
                                     {
-                                        <span class="badge bg-success"><i class="fa fa-arrow-down"></i> Giriş</span>
+                                        <span class="badge bg-success"><i class="fa fa-arrow-down"></i> @T("Site.Dashboard.In", "Giriş")</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-danger"><i class="fa fa-arrow-up"></i> Çıkış</span>
+                                        <span class="badge bg-danger"><i class="fa fa-arrow-up"></i> @T("Site.Dashboard.Out", "Çıkış")</span>
                                     }
                                 </td>
                                 <td><strong>@item.DocumentNo</strong></td>
@@ -898,7 +899,7 @@ else
                     }
                     else
                     {
-                        <tr><td colspan="6" class="no-data"><i class="fa fa-inbox"></i>Henüz stok hareketi yok</td></tr>
+                        <tr><td colspan="6" class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoStockMovements", "Henüz stok hareketi yok")</td></tr>
                     }
                 </tbody>
             </table>
@@ -911,19 +912,19 @@ else
     <!-- Son İşlem Logları -->
     <div class="dashboard-section full-width">
         <div class="section-header">
-            <h4><i class="fa fa-history me-2"></i>Son İşlem Hareketleri</h4>
-            <a href="/Administration/AuditLog" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
+            <h4><i class="fa fa-history me-2"></i>@T("Site.Dashboard.RecentActions", "Son İşlem Hareketleri")</h4>
+            <a href="/Administration/AuditLog" class="btn btn-sm btn-outline-primary">@T("Site.Dashboard.ViewAll", "Tümünü Gör")</a>
         </div>
         <div class="section-body" style="padding: 0;">
             <div class="mini-table-wrapper">
             <table class="mini-table">
                 <thead>
                     <tr>
-                        <th style="width:100px;">İşlem</th>
-                        <th style="width:150px;">Tablo</th>
-                        <th>Kayıt</th>
-                        <th style="width:130px;">Tarih</th>
-                        <th style="width:120px;">Kullanıcı</th>
+                        <th style="width:100px;">@T("Site.Dashboard.Action", "İşlem")</th>
+                        <th style="width:150px;">@T("Site.Dashboard.Table", "Tablo")</th>
+                        <th>@T("Site.Dashboard.Record", "Kayıt")</th>
+                        <th style="width:130px;">@T("Site.Dashboard.Date", "Tarih")</th>
+                        <th style="width:120px;">@T("Site.Dashboard.User", "Kullanıcı")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -936,13 +937,13 @@ else
                                     @switch (item.ActionType)
                                     {
                                         case "Insert":
-                                            <span class="badge bg-success"><i class="fa fa-plus"></i> Ekleme</span>
+                                            <span class="badge bg-success"><i class="fa fa-plus"></i> @T("Site.Dashboard.ActionInsert", "Ekleme")</span>
                                             break;
                                         case "Update":
-                                            <span class="badge bg-warning text-dark"><i class="fa fa-edit"></i> Güncelleme</span>
+                                            <span class="badge bg-warning text-dark"><i class="fa fa-edit"></i> @T("Site.Dashboard.ActionUpdate", "Güncelleme")</span>
                                             break;
                                         case "Delete":
-                                            <span class="badge bg-danger"><i class="fa fa-trash"></i> Silme</span>
+                                            <span class="badge bg-danger"><i class="fa fa-trash"></i> @T("Site.Dashboard.ActionDelete", "Silme")</span>
                                             break;
                                         default:
                                             <span class="badge bg-secondary">@item.ActionType</span>
@@ -958,7 +959,7 @@ else
                     }
                     else
                     {
-                        <tr><td colspan="5" class="no-data"><i class="fa fa-inbox"></i>Henüz işlem kaydı yok</td></tr>
+                        <tr><td colspan="5" class="no-data"><i class="fa fa-inbox"></i>@T("Site.Dashboard.NoActionLogs", "Henüz işlem kaydı yok")</td></tr>
                     }
                 </tbody>
             </table>

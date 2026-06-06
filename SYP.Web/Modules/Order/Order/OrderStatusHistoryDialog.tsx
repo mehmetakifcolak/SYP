@@ -1,4 +1,4 @@
-import { Decorators, DialogButton, TemplatedDialog, htmlEncode, notifyError } from '@serenity-is/corelib';
+import { Decorators, DialogButton, TemplatedDialog, htmlEncode, localText, notifyError } from '@serenity-is/corelib';
 import { OrderStatusHistRow, OrderStatusHistService } from '../../ServerTypes/Order';
 
 export interface OrderStatusHistoryDialogOptions {
@@ -6,41 +6,41 @@ export interface OrderStatusHistoryDialogOptions {
     orderNumber?: string;
 }
 
-const STATUS_LABELS: Record<number, { label: string; cls: string }> = {
-    1:  { label: 'Talep Gönderildi',   cls: 'blue'   },
-    2:  { label: 'Revize Edildi',       cls: 'orange' },
-    3:  { label: 'Bayi Onayladı',       cls: 'teal'   },
-    4:  { label: 'Bayi Reddetti',       cls: 'red'    },
-    5:  { label: 'Dekont Yüklendi',     cls: 'blue'   },
-    6:  { label: 'Dekont Reddedildi',   cls: 'red'    },
-    7:  { label: 'Hazırlanıyor',        cls: 'orange' },
-    8:  { label: 'Sevk Aşamasında',     cls: 'blue'   },
-    9:  { label: 'Teslim Alındı',       cls: 'green'  },
-    10: { label: 'Talep İptal',         cls: 'red'    },
-    11: { label: 'Temsilci Onayladı',   cls: 'green'  },
-    12: { label: 'Dekont Onaylandı',    cls: 'green'  },
-    13: { label: 'Teslim Alınmadı',     cls: 'red'    },
-    14: { label: 'Talep Beklette',      cls: 'yellow' },
-    15: { label: 'Kargo Hazırlanıyor',  cls: 'orange' },
+const STATUS_LABELS: Record<number, { key: string; label: string; cls: string }> = {
+    1:  { key: 'Site.OrderHistory.StatusRequestSent',      label: 'Talep Gönderildi',   cls: 'blue'   },
+    2:  { key: 'Site.OrderHistory.StatusRevised',          label: 'Revize Edildi',       cls: 'orange' },
+    3:  { key: 'Site.OrderHistory.StatusDealerApproved',   label: 'Bayi Onayladı',       cls: 'teal'   },
+    4:  { key: 'Site.OrderHistory.StatusDealerRejected',   label: 'Bayi Reddetti',       cls: 'red'    },
+    5:  { key: 'Site.OrderHistory.StatusReceiptUploaded',  label: 'Dekont Yüklendi',     cls: 'blue'   },
+    6:  { key: 'Site.OrderHistory.StatusReceiptRejected',  label: 'Dekont Reddedildi',   cls: 'red'    },
+    7:  { key: 'Site.OrderHistory.StatusPreparing',        label: 'Hazırlanıyor',        cls: 'orange' },
+    8:  { key: 'Site.OrderHistory.StatusInShipment',       label: 'Sevk Aşamasında',     cls: 'blue'   },
+    9:  { key: 'Site.OrderHistory.StatusDelivered',        label: 'Teslim Alındı',       cls: 'green'  },
+    10: { key: 'Site.OrderHistory.StatusRequestCancelled', label: 'Talep İptal',         cls: 'red'    },
+    11: { key: 'Site.OrderHistory.StatusRepApproved',      label: 'Temsilci Onayladı',   cls: 'green'  },
+    12: { key: 'Site.OrderHistory.StatusReceiptApproved',  label: 'Dekont Onaylandı',    cls: 'green'  },
+    13: { key: 'Site.OrderHistory.StatusNotDelivered',     label: 'Teslim Alınmadı',     cls: 'red'    },
+    14: { key: 'Site.OrderHistory.StatusRequestOnHold',    label: 'Talep Beklette',      cls: 'yellow' },
+    15: { key: 'Site.OrderHistory.StatusShipmentPreparing', label: 'Kargo Hazırlanıyor', cls: 'orange' },
 };
 
 function statusBadge(status: number | undefined | null): string {
     if (status == null) return '<span class="oed-hist-badge oed-hist-badge-gray">—</span>';
     const s = STATUS_LABELS[status];
     if (!s) return `<span class="oed-hist-badge oed-hist-badge-gray">#${status}</span>`;
-    return `<span class="oed-hist-badge oed-hist-badge-${s.cls}">${htmlEncode(s.label)}</span>`;
+    return `<span class="oed-hist-badge oed-hist-badge-${s.cls}">${htmlEncode(localText(s.key, s.label))}</span>`;
 }
 
 @Decorators.registerClass('SYP.Order.OrderStatusHistoryDialog')
 export class OrderStatusHistoryDialog extends TemplatedDialog<OrderStatusHistoryDialogOptions> {
     constructor(props: OrderStatusHistoryDialogOptions) {
         super(props);
-        this.dialogTitle = `Durum Geçmişi${props.orderNumber ? ' — ' + props.orderNumber : ''}`;
+        this.dialogTitle = `${localText('Site.OrderHistory.Title', 'Durum Geçmişi')}${props.orderNumber ? ' — ' + props.orderNumber : ''}`;
     }
 
     protected getTemplate(): string {
         return `<div id="~_Body" class="osh-body">
-    <div class="oed-history-empty"><i class="fa fa-spinner fa-spin"></i>&nbsp;Yükleniyor...</div>
+    <div class="oed-history-empty"><i class="fa fa-spinner fa-spin"></i>&nbsp;${localText('Site.OrderHistory.Loading', 'Yükleniyor...')}</div>
 </div>`;
     }
 
@@ -60,16 +60,16 @@ export class OrderStatusHistoryDialog extends TemplatedDialog<OrderStatusHistory
             });
             const rows: OrderStatusHistRow[] = resp?.Entities ?? [];
             if (rows.length === 0) {
-                body.innerHTML = '<div class="oed-history-empty">Durum geçmişi kaydı bulunamadı.</div>';
+                body.innerHTML = `<div class="oed-history-empty">${localText('Site.OrderHistory.NoRecords', 'Durum geçmişi kaydı bulunamadı.')}</div>`;
                 return;
             }
             let html = `<table class="oed-history-table">
 <thead><tr>
-    <th>Tarih</th>
-    <th>Eski Durum</th>
-    <th>Yeni Durum</th>
-    <th>Kullanıcı</th>
-    <th>Neden</th>
+    <th>${localText('Site.OrderHistory.ColDate', 'Tarih')}</th>
+    <th>${localText('Site.OrderHistory.ColOldStatus', 'Eski Durum')}</th>
+    <th>${localText('Site.OrderHistory.ColNewStatus', 'Yeni Durum')}</th>
+    <th>${localText('Site.OrderHistory.ColUser', 'Kullanıcı')}</th>
+    <th>${localText('Site.OrderHistory.ColReason', 'Neden')}</th>
 </tr></thead><tbody>`;
             for (const r of rows) {
                 const date = r.ChangeDate
@@ -90,13 +90,13 @@ export class OrderStatusHistoryDialog extends TemplatedDialog<OrderStatusHistory
             html += '</tbody></table>';
             body.innerHTML = html;
         } catch (err: any) {
-            notifyError('Geçmiş yüklenemedi: ' + (err?.message || ''));
-            body.innerHTML = '<div class="oed-history-empty" style="color:#dc2626">Geçmiş yüklenemedi.</div>';
+            notifyError(localText('Site.OrderHistory.LoadFailedPrefix', 'Geçmiş yüklenemedi: ') + (err?.message || ''));
+            body.innerHTML = `<div class="oed-history-empty" style="color:#dc2626">${localText('Site.OrderHistory.LoadFailed', 'Geçmiş yüklenemedi.')}</div>`;
         }
     }
 
     protected getDialogButtons(): DialogButton[] {
-        return [{ text: 'Kapat', cssClass: 'btn-default', click: () => this.dialogClose() }];
+        return [{ text: localText('Site.OrderHistory.Close', 'Kapat'), cssClass: 'btn-default', click: () => this.dialogClose() }];
     }
 
     protected getDialogOptions() {

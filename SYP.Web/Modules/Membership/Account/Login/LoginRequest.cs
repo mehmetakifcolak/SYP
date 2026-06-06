@@ -8,4 +8,6 @@ public class LoginRequest : ServiceRequest
     public string Username { get; set; }
     [PasswordEditor, Required(true), Placeholder("password")]
     public string Password { get; set; }
+    [IgnoreName]
+    public bool RememberMe { get; set; }
 }

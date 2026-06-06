@@ -1,6 +1,6 @@
 import {
     Decorators, DialogButton, Lookup, TemplatedDialog,
-    getLookupAsync, htmlEncode, notifyError, notifySuccess, notifyWarning
+    getLookupAsync, htmlEncode, localText, notifyError, notifySuccess, notifyWarning
 } from '@serenity-is/corelib';
 import { BrandsRow, PriceListItemsRow, PriceListItemsService, PriceListsRow, ProductCategoryRow, ProductsRow } from '../../ServerTypes/Catalog';
 import { CustomersRow } from '../../ServerTypes/Customer';
@@ -72,7 +72,9 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
     constructor(props?: OrderDialogOptions) {
         super(props);
         this.entityId = props?.entityId ?? null;
-        this.dialogTitle = this.entityId ? 'Sipariş Düzenle' : 'Sipariş Oluştur';
+        this.dialogTitle = this.entityId
+            ? localText('Site.OrderDialog.EditTitle', 'Sipariş Düzenle')
+            : localText('Site.OrderDialog.CreateTitle', 'Sipariş Oluştur');
     }
 
     protected getTemplate(): string {
@@ -82,54 +84,54 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         <div id="~_CustomerWrap" class="opd-customer-wrap" style="display:none">
             <i class="fa fa-building opd-customer-icon"></i>
             <select id="~_CustomerSelect" class="form-select form-select-sm opd-customer-select">
-                <option value="">Cari Seçiniz...</option>
+                <option value="">${localText('Site.OrderDialog.SelectCustomer', 'Cari Seçiniz...')}</option>
             </select>
         </div>
         <div class="opd-search-wrap">
             <i class="fa fa-search opd-search-icon"></i>
             <input id="~_SearchInput" type="text" class="form-control form-control-sm"
-                   placeholder="Ürün adı veya kodu ile ara..." />
+                   placeholder="${localText('Site.OrderDialog.SearchProductPlaceholder', 'Ürün adı veya kodu ile ara...')}" />
         </div>
         <button id="~_CartToggle" class="btn opd-cart-btn">
             <i class="fa fa-shopping-cart"></i>
-            <span>Sepet</span>
+            <span>${localText('Site.OrderDialog.Cart', 'Sepet')}</span>
             <span class="opd-cart-badge" id="~_CartBadge">0</span>
         </button>
     </div>
     <div class="opd-body">
         <aside class="opd-sidebar">
-            <div class="opd-sidebar-head">Kategoriler</div>
+            <div class="opd-sidebar-head">${localText('Site.OrderDialog.Categories', 'Kategoriler')}</div>
             <div id="~_CategoryList" class="opd-cat-list"></div>
             <div id="~_BrandSection" class="opd-brand-section" style="display:none">
-                <div class="opd-sidebar-head opd-brand-head">Markalar</div>
+                <div class="opd-sidebar-head opd-brand-head">${localText('Site.OrderDialog.Brands', 'Markalar')}</div>
                 <div id="~_BrandList" class="opd-brand-list"></div>
             </div>
         </aside>
         <main class="opd-main">
             <div id="~_ProductGrid" class="opd-product-grid">
                 <div class="opd-loading">
-                    <i class="fa fa-spinner fa-spin"></i>&nbsp;Ürünler yükleniyor...
+                    <i class="fa fa-spinner fa-spin"></i>&nbsp;${localText('Site.OrderDialog.LoadingProducts', 'Ürünler yükleniyor...')}
                 </div>
             </div>
         </main>
         <aside id="~_CartPanel" class="opd-cart-panel opd-cart-closed">
             <div class="opd-cart-head">
-                <span><i class="fa fa-shopping-cart"></i>&nbsp;Sepetim</span>
+                <span><i class="fa fa-shopping-cart"></i>&nbsp;${localText('Site.OrderDialog.MyCart', 'Sepetim')}</span>
                 <button id="~_CloseCart" class="btn btn-link opd-close-cart">
                     <i class="fa fa-times"></i>
                 </button>
             </div>
             <div id="~_CartItems" class="opd-cart-items">
-                <div class="opd-cart-empty">Sepet boş</div>
+                <div class="opd-cart-empty">${localText('Site.OrderDialog.CartEmpty', 'Sepet boş')}</div>
             </div>
             <div class="opd-cart-foot">
                 <div class="opd-cart-total-row">
-                    <span>Toplam</span>
+                    <span>${localText('Site.OrderDialog.Total', 'Toplam')}</span>
                     <strong id="~_CartTotal">0,00 ₺</strong>
                 </div>
                 <button id="~_CompleteOrder" class="btn opd-complete-btn">
                     <i class="fa fa-check"></i>&nbsp;
-                    ${this.entityId ? 'Siparişi Güncelle' : 'Siparişi Tamamla'}
+                    ${this.entityId ? localText('Site.OrderDialog.UpdateOrder', 'Siparişi Güncelle') : localText('Site.OrderDialog.CompleteOrder', 'Siparişi Tamamla')}
                 </button>
             </div>
         </aside>
@@ -141,9 +143,9 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         super.onDialogOpen();
         this.bindElements();
         if (this.options?.onProductsSelected) {
-            this.dialogTitle = 'Ürün Seç';
+            this.dialogTitle = localText('Site.OrderDialog.SelectProductTitle', 'Ürün Seç');
             const btn = this.byId('CompleteOrder')?.getNode() as HTMLButtonElement;
-            if (btn) btn.innerHTML = '<i class="fa fa-check"></i>&nbsp;Seçimi Onayla';
+            if (btn) btn.innerHTML = `<i class="fa fa-check"></i>&nbsp;${localText('Site.OrderDialog.ConfirmSelection', 'Seçimi Onayla')}`;
         }
         this.loadData();
     }
@@ -239,7 +241,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             .filter(c => c.IsActive !== false)
             .sort((a, b) => (a.Name ?? '').localeCompare(b.Name ?? '', 'tr'));
 
-        const opts = ['<option value="">Cari Seçiniz...</option>'];
+        const opts = [`<option value="">${localText('Site.OrderDialog.SelectCustomer', 'Cari Seçiniz...')}</option>`];
         for (const c of customers) {
             const label = c.Code ? `${c.Code} - ${c.Name ?? ''}` : (c.Name ?? '');
             opts.push(`<option value="${c.Id}">${htmlEncode(label)}</option>`);
@@ -375,7 +377,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             if (this.cart.size > 0) this.toggleCart(true);
 
         } catch (err: any) {
-            notifyError('Sipariş yüklenemedi: ' + (err?.message || ''));
+            notifyError(localText('Site.OrderDialog.OrderLoadFailed', 'Sipariş yüklenemedi: ') + (err?.message || ''));
         }
     }
 
@@ -452,7 +454,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         allItem.dataset.id = '';
         const allIcon = document.createElement('i');
         allIcon.className = 'fa fa-th-large';
-        allItem.append(allIcon, ' Tüm Ürünler');
+        allItem.append(allIcon, ' ' + localText('Site.OrderDialog.AllProducts', 'Tüm Ürünler'));
         allItem.addEventListener('click', () => {
             this.selectedCategoryId = null;
             this.catListEl.querySelectorAll('.opd-cat-item').forEach(x => x.classList.remove('active'));
@@ -585,7 +587,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         }
 
         if (products.length === 0) {
-            this.productGridEl.innerHTML = '<div class="opd-no-results"><i class="fa fa-search"></i><br>Ürün bulunamadı</div>';
+            this.productGridEl.innerHTML = `<div class="opd-no-results"><i class="fa fa-search"></i><br>${localText('Site.OrderDialog.NoProductsFound', 'Ürün bulunamadı')}</div>`;
             return;
         }
 
@@ -603,7 +605,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         <div class="opd-card-cat">${htmlEncode(product.CategoryName || '')}</div>
         <div class="opd-card-price">${this.fmt(price)}&nbsp;${currency}</div>
         ${product.PackingQuantity && product.PackingQuantity > 1
-            ? `<div class="opd-card-unit">${htmlEncode(product.PackingName || 'Koli')}: ${product.PackingQuantity} ${htmlEncode(product.UnitName || 'adet')}</div>`
+            ? `<div class="opd-card-unit">${htmlEncode(product.PackingName || localText('Site.OrderDialog.Box', 'Koli'))}: ${product.PackingQuantity} ${htmlEncode(product.UnitName || localText('Site.OrderDialog.Piece', 'adet'))}</div>`
             : product.UnitName ? `<div class="opd-card-unit">${htmlEncode(product.UnitName)}</div>` : ''
         }
     </div>
@@ -615,7 +617,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             <button class="opd-qty-btn opd-qty-plus" data-id="${product.Id}">+</button>
         </div>
         <button class="btn opd-add-btn" data-id="${product.Id}">
-            <i class="fa fa-plus"></i>&nbsp;Sepete Ekle
+            <i class="fa fa-plus"></i>&nbsp;${localText('Site.OrderDialog.AddToCart', 'Sepete Ekle')}
         </button>
     </div>
 </div>`;
@@ -690,7 +692,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
     private addToCart(productId: number, addQty: number): void {
         if (this.requireCustomerSelection && !this.customerId) {
-            notifyWarning('Lütfen önce bir cari (müşteri) seçiniz.');
+            notifyWarning(localText('Site.OrderDialog.SelectCustomerFirst', 'Lütfen önce bir cari (müşteri) seçiniz.'));
             this.customerSelectEl?.focus();
             return;
         }
@@ -750,7 +752,7 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         if (this.cartBadgeEl) this.cartBadgeEl.textContent = String(count);
 
         if (count === 0) {
-            if (this.cartItemsEl) this.cartItemsEl.innerHTML = '<div class="opd-cart-empty">Sepet boş</div>';
+            if (this.cartItemsEl) this.cartItemsEl.innerHTML = `<div class="opd-cart-empty">${localText('Site.OrderDialog.CartEmpty', 'Sepet boş')}</div>`;
             if (this.cartTotalEl) this.cartTotalEl.textContent = '0,00 ' + this.activeCurrencyCode;
             return;
         }
@@ -761,8 +763,8 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         this.cart.forEach(item => {
             total += item.lineTotal;
             const koliLabel = item.packingQty > 1
-                ? `${item.quantity} koli × ${item.packingQty} adet`
-                : `${item.quantity} adet`;
+                ? `${item.quantity} ${localText('Site.OrderDialog.BoxLower', 'koli')} × ${item.packingQty} ${localText('Site.OrderDialog.Piece', 'adet')}`
+                : `${item.quantity} ${localText('Site.OrderDialog.Piece', 'adet')}`;
             html  += `
 <div class="opd-ci">
     <div class="opd-ci-info">
@@ -770,12 +772,12 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
         <div class="opd-ci-meta">${htmlEncode(item.productCode)}${item.unitName ? ' · ' + htmlEncode(item.unitName) : ''}</div>
     </div>
     <input type="number" class="opd-cart-qty" data-id="${item.productId}"
-           value="${item.quantity}" min="1" step="1" title="Koli sayısı" />
+           value="${item.quantity}" min="1" step="1" title="${localText('Site.OrderDialog.BoxCount', 'Koli sayısı')}" />
     <div class="opd-ci-price">
         <div>${this.fmt(item.lineTotal)}&nbsp;${htmlEncode(this.activeCurrencyCode)}</div>
         <small>${koliLabel}</small>
     </div>
-    <button class="opd-ci-del" data-id="${item.productId}" title="Kaldır">
+    <button class="opd-ci-del" data-id="${item.productId}" title="${localText('Site.OrderDialog.Remove', 'Kaldır')}">
         <i class="fa fa-trash-o"></i>
     </button>
 </div>`;
@@ -820,12 +822,12 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
 
     private async completeOrder(): Promise<void> {
         if (this.cart.size === 0) {
-            notifyWarning('Sepet boş! Lütfen en az bir ürün ekleyin.');
+            notifyWarning(localText('Site.OrderDialog.CartEmptyAddProduct', 'Sepet boş! Lütfen en az bir ürün ekleyin.'));
             return;
         }
 
         if (this.requireCustomerSelection && !this.customerId) {
-            notifyWarning('Lütfen önce bir cari (müşteri) seçiniz.');
+            notifyWarning(localText('Site.OrderDialog.SelectCustomerFirst', 'Lütfen önce bir cari (müşteri) seçiniz.'));
             this.customerSelectEl?.focus();
             return;
         }
@@ -874,15 +876,15 @@ export class OrderDialog extends TemplatedDialog<OrderDialogOptions> {
             if (this.entityId) {
                 order.Id = this.entityId;
                 await OrderService.Update({ EntityId: this.entityId, Entity: order });
-                notifySuccess('Sipariş güncellendi!');
+                notifySuccess(localText('Site.OrderDialog.OrderUpdated', 'Sipariş güncellendi!'));
             } else {
                 await OrderService.Create({ Entity: order });
-                notifySuccess('Sipariş başarıyla oluşturuldu!');
+                notifySuccess(localText('Site.OrderDialog.OrderCreated', 'Sipariş başarıyla oluşturuldu!'));
             }
             this.options?.onSave?.();
             this.dialogClose();
         } catch (err: any) {
-            notifyError('İşlem sırasında hata oluştu: ' + (err?.message || 'Bilinmeyen hata'));
+            notifyError(localText('Site.OrderDialog.OperationError', 'İşlem sırasında hata oluştu: ') + (err?.message || localText('Site.OrderDialog.UnknownError', 'Bilinmeyen hata')));
         }
     }
 
